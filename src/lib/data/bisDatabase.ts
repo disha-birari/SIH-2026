@@ -2,7 +2,7 @@ import {
   BISStandard, StandardComparison, StandardAlert, TestingMapping, TestingLab, TimelineMilestone,
   LegalTreeData, LegalTreeNode, WhyNotComparison, HazardChainItem, LegalAuthorityChainItem,
   EvidenceVerificationResult, ClaimClassificationType, VerificationStateStatus, EvidenceSourceType,
-  DecomposedSubClaim, ClaimEvidenceMatrixRow, DocumentIntegrityMetadata, EvidenceGraphNode, ComprehensiveEvidenceAudit
+  DecomposedSubClaim, ClaimEvidenceMatrixRow, DocumentIntegrityMetadata, EvidenceGraphNode, ComprehensiveEvidenceAudit, TestClassificationCategory
 } from '../types';
 
 // Dynamic Knowledge Base Engine supporting live additions, document ingestion, and runtime vector storage
@@ -1027,23 +1027,100 @@ export function getTestingMappings(targetStandardId?: string): TestingMapping[] 
       };
 
       const doc = std.requiredDocuments[idx % Math.max(1, std.requiredDocuments.length)] || "NABL Accredited Test Certificate";
+      const eqName = deriveEquipmentFromParam(param, std.category);
+
+      const isHV = param.toLowerCase().includes('voltage') || param.toLowerCase().includes('insulation');
+      const isThermal = param.toLowerCase().includes('temp') || param.toLowerCase().includes('thermal');
+
+      const testClassification: TestClassificationCategory = idx === 0 ? 'Type Test' : idx === 1 ? 'Routine Test' : 'Acceptance Test';
+      const isExternalNeeded = idx === 3 || param.toLowerCase().includes('chemical') || param.toLowerCase().includes('micro');
 
       result.push({
-        requirementId: `req-${std.id}-${idx + 1}`,
+        requirementId: `TR-${std.id.toUpperCase().replace(/-/g, '')}-${String(idx + 1).padStart(2, '0')}`,
         standardId: std.id,
         isNumber: std.isNumber,
+        productStandard: `${std.isNumber}:2024 Gazette Specification`,
         parameterName: param,
         clause: clauseObj.clause,
-        testMethodStandard: `${std.isNumber} ${clauseObj.clause}`,
-        requiredEquipment: deriveEquipmentFromParam(param, std.category),
+        subClause: `Sub-clause ${idx + 1}.2`,
+        testMethodStandard: isHV ? 'IS 302 (Part 1) Clause 13 / IEC 60335-1' : isThermal ? 'IS 302 (Part 1) Clause 19' : `${std.isNumber} Section ${idx + 1}`,
+        requiredEquipment: eqName,
         sampleQuantity: deriveSampleQuantity(std.category),
-        acceptanceCriteria: `Compliance required under ${std.isNumber}: ${param}`,
-        requiredEvidenceDocument: doc
+        acceptanceCriteria: `Compliance required under ${std.isNumber}: ${param} without dielectric breakdown or thermal failure.`,
+        requiredEvidenceDocument: doc,
+        testClassification,
+        testPurpose: `Evaluates product safety parameters under ${clauseObj.clause} to prevent consumer hazard during operational deployment.`,
+        sampleDetails: {
+          quantity: idx === 0 ? 3 : 2,
+          sampleType: 'Finished Production Unit',
+          sampleCondition: 'New & Ambient Pre-conditioned (27°C, 65% RH)',
+          isDestructive: idx === 0 || isHV,
+          batchRequirement: 'Representative batch from continuous production run'
+        },
+        equipmentDetails: {
+          equipmentName: eqName,
+          requiredRange: isHV ? '0 - 5.0 kV AC/DC' : isThermal ? '-20°C to +300°C' : '0 - 1000 kN',
+          accuracy: 'Class 0.5 (±0.5% Full Scale)',
+          calibrationStatus: idx === 2 ? 'CALIBRATION EXPIRED' : 'VALID',
+          calibrationFrequencyMonths: 12,
+          calibrationCertId: `CAL-NABL-2026-${100 + idx}`,
+          supportsTestCount: 3
+        },
+        labVenue: isExternalNeeded ? 'EXTERNAL LAB REQUIRED' : 'IN-HOUSE PERMITTED',
+        procedureSummary: [
+          `1. Prepare representative sample batch under ${clauseObj.clause} pre-conditioning rules.`,
+          `2. Connect calibrated ${eqName} to test terminals.`,
+          `3. Apply test load/voltage continuously for specified duration.`,
+          `4. Monitor for insulation breakdown, leakage spikes, or structural deformation.`,
+          `5. Compare recorded value against acceptance limit (${param}).`
+        ],
+        structuredParameters: {
+          voltage: isHV ? '1500 V AC' : '230 V AC',
+          duration: '60 Seconds',
+          temperature: '27°C ± 2°C',
+          humidity: '65% ± 5% RH',
+          acceptanceRule: `≤ 0.75 mA leakage current / Zero breakdown`
+        },
+        nablScopeStatus: 'MATCHED',
+        dependencies: [
+          'Sample Ambient Conditioning (24 Hours)',
+          'High Voltage Calibration Verification'
+        ],
+        historicalResults: [
+          { runDate: '2026-02-01', measuredValue: '0.62 mA', resultVerdict: 'PASS' },
+          { runDate: '2026-01-15', measuredValue: '0.68 mA', resultVerdict: 'PASS' }
+        ]
       });
     });
   });
 
   return result;
+}
+
+export function calculateTestingReadiness(standardId: string): {
+  overallReadinessScore: number;
+  equipmentReadyCount: number;
+  totalEquipmentNeeded: number;
+  calibrationValidCount: number;
+  samplePlanCoverage: number;
+  evidenceCoveragePercent: number;
+  remainingTestsCount: number;
+} {
+  const mappings = getTestingMappings(standardId);
+  const total = Math.max(1, mappings.length);
+
+  const calValid = mappings.filter(m => m.equipmentDetails?.calibrationStatus === 'VALID').length;
+  const inHousePermitted = mappings.filter(m => m.labVenue === 'IN-HOUSE PERMITTED').length;
+
+  return {
+    overallReadinessScore: Math.round(((calValid + inHousePermitted) / (total * 2)) * 100),
+    equipmentReadyCount: inHousePermitted,
+    totalEquipmentNeeded: total,
+    calibrationValidCount: calValid,
+    samplePlanCoverage: 100,
+    evidenceCoveragePercent: Math.round((calValid / total) * 100),
+    remainingTestsCount: Math.max(0, total - calValid)
+  };
 }
 
 export function getTestingLabs(targetStandardId?: string): TestingLab[] {

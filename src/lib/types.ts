@@ -149,17 +149,65 @@ export interface StandardAlert {
   verificationHash?: string;
 }
 
+export type TestClassificationCategory =
+  | 'Type Test'
+  | 'Routine Test'
+  | 'Acceptance Test'
+  | 'Surveillance Test'
+  | 'Periodic Test'
+  | 'Initial Certification Test'
+  | 'Factory Test'
+  | 'External Lab Test';
+
 export interface TestingMapping {
   requirementId: string;
   standardId: string;
   isNumber: string;
   parameterName: string;
   clause: string;
-  testMethodStandard: string; // e.g. IS 302 Part 1 Cl 13
+  subClause?: string;
+  testMethodStandard: string;
+  productStandard?: string;
   requiredEquipment: string;
   sampleQuantity: string;
   acceptanceCriteria: string;
   requiredEvidenceDocument: string;
+
+  // Deep Laboratory Intelligence Properties
+  testClassification?: TestClassificationCategory;
+  testPurpose?: string;
+  sampleDetails?: {
+    quantity: number;
+    sampleType: string;
+    sampleCondition: string;
+    isDestructive: boolean;
+    batchRequirement: string;
+  };
+  equipmentDetails?: {
+    equipmentName: string;
+    requiredRange: string;
+    accuracy: string;
+    calibrationStatus: 'VALID' | 'CALIBRATION EXPIRED' | 'UNVERIFIED';
+    calibrationFrequencyMonths: number;
+    calibrationCertId?: string;
+    supportsTestCount?: number;
+  };
+  labVenue?: 'IN-HOUSE PERMITTED' | 'EXTERNAL LAB REQUIRED' | 'EITHER';
+  procedureSummary?: string[];
+  structuredParameters?: {
+    voltage?: string;
+    duration?: string;
+    temperature?: string;
+    humidity?: string;
+    acceptanceRule?: string;
+  };
+  nablScopeStatus?: 'MATCHED' | 'NOT VERIFIED';
+  dependencies?: string[];
+  historicalResults?: {
+    runDate: string;
+    measuredValue: string;
+    resultVerdict: 'PASS' | 'FAIL' | 'ACTION REQUIRED';
+  }[];
 }
 
 export interface TestingLab {
