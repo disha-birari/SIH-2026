@@ -177,25 +177,72 @@ function ShellInner({ children }: { children: React.ReactNode }) {
       {/* Hidden Google Translate Element */}
       <div id="google_translate_element" style={{ display: 'none' }}></div>
 
-      {/* ══════════════ 1. TOP UTILITY INSTITUTIONAL STRIPE ══════════════ */}
-      <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E8E2DC', padding: '6px 0', fontSize: 12 }}>
-        <div style={{ maxWidth: 1440, margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+      {/* ══════════════ UNIFIED INSTITUTIONAL HEADER BAR ══════════════ */}
+      <header style={{
+        background: '#FFFFFF',
+        borderBottom: '1px solid #E8E2DC',
+        position: 'sticky', top: 0, zIndex: 90,
+        width: '100%', flexShrink: 0
+      }}>
+        <div style={{ width: '100%', padding: '10px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
           
-          {/* Left: BIS Institutional Identity */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontWeight: 700, color: '#171717', letterSpacing: '0.02em' }}>BUREAU OF INDIAN STANDARDS</span>
-            <span style={{ color: '#E8E2DC' }}>|</span>
-            <span style={{ color: '#686868', fontSize: 11.5 }}>Ministry of Consumer Affairs, Food &amp; Public Distribution</span>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#FFF1E8', color: '#E9783F', border: '1px solid #F4C4A5', borderRadius: 4, padding: '1px 7px', fontSize: 10.5, fontWeight: 700 }}>
-              Standards Lead the Way
-            </span>
+          {/* Left: Logo & Brand Title */}
+          <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+            <div style={{
+              width: 36, height: 36,
+              background: '#FFF1E8',
+              border: '1.5px solid #F28C52',
+              borderRadius: 8,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 2px 6px rgba(242,140,82,0.15)', flexShrink: 0
+            }}>
+              <Shield style={{ width: 20, height: 20, color: '#F28C52' }} />
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 16, fontWeight: 800, color: '#171717', letterSpacing: '-0.01em' }}>BIS</span>
+                <span style={{ color: '#E8E2DC', fontWeight: 300 }}>|</span>
+                <span style={{ fontSize: 16, fontWeight: 700, color: '#242424' }}>Standards Intelligence</span>
+              </div>
+              <div style={{ fontSize: 10.5, color: '#686868', marginTop: 1 }}>
+                Ministry of Consumer Affairs, Food &amp; Public Distribution
+              </div>
+            </div>
+          </Link>
+
+          {/* Center: Command Palette Search */}
+          <div 
+            onClick={() => setCommandOpen(true)}
+            style={{
+              flex: '0 1 400px',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              background: '#FFFCF8',
+              border: '1px solid #E8E2DC',
+              borderRadius: 8,
+              padding: '6px 12px',
+              cursor: 'pointer',
+              transition: 'all 0.18s ease',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+            }}
+            onMouseEnter={e => (e.currentTarget.style.borderColor = '#F4C4A5')}
+            onMouseLeave={e => (e.currentTarget.style.borderColor = '#E8E2DC')}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#686868', fontSize: 12.5 }}>
+              <Search style={{ width: 15, height: 15, color: '#F28C52' }} />
+              <span>Search standards, clauses, products...</span>
+            </div>
+            <kbd style={{
+              background: '#FFFFFF', border: '1px solid #E8E2DC', borderRadius: 4,
+              padding: '1px 5px', fontSize: 10.5, fontWeight: 700, color: '#686868'
+            }}>Ctrl K</kbd>
           </div>
 
-          {/* Right: Controls & Account */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {/* Right: Controls, Account & Admin */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+            
             {/* Persona Selector */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#FFFCF8', border: '1px solid #E8E2DC', borderRadius: 6, padding: '2px 8px' }}>
-              <Users style={{ width: 13, height: 13, color: '#686868' }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#FFFCF8', border: '1px solid #E8E2DC', borderRadius: 6, padding: '3px 7px' }}>
+              <Users style={{ width: 12, height: 12, color: '#686868' }} />
               <select
                 value={persona}
                 onChange={(e) => setPersona(e.target.value as UserPersona)}
@@ -209,7 +256,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
             </div>
 
             {/* Accessibility Font Size */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 2, borderRight: '1px solid #E8E2DC', paddingRight: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 2, borderRight: '1px solid #E8E2DC', paddingRight: 8 }}>
               {(['small', 'normal', 'large'] as const).map((sz, i) => (
                 <button
                   key={sz}
@@ -220,19 +267,19 @@ function ShellInner({ children }: { children: React.ReactNode }) {
                     color: fontSize === sz ? '#FFFFFF' : '#686868',
                     border: `1px solid ${fontSize === sz ? '#E9783F' : '#E8E2DC'}`,
                     borderRadius: 4, cursor: 'pointer',
-                    padding: '2px 6px', fontSize: 11, fontWeight: 700,
+                    padding: '2px 5px', fontSize: 10.5, fontWeight: 700,
                   }}
                 >{['A-', 'A', 'A+'][i]}</button>
               ))}
             </div>
 
             {/* Language Selector */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-              <Globe style={{ width: 13, height: 13, color: '#F28C52' }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <Globe style={{ width: 12, height: 12, color: '#F28C52' }} />
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value as LanguageCode)}
-                style={{ background: '#FFFFFF', color: '#242424', border: '1px solid #E8E2DC', borderRadius: 4, padding: '2px 6px', fontSize: 11.5, fontWeight: 600, cursor: 'pointer', outline: 'none' }}
+                style={{ background: '#FFFFFF', color: '#242424', border: '1px solid #E8E2DC', borderRadius: 4, padding: '3px 6px', fontSize: 11.5, fontWeight: 600, cursor: 'pointer', outline: 'none' }}
               >
                 <option value="en">English</option>
                 <option value="hi">हिंदी</option>
@@ -246,127 +293,67 @@ function ShellInner({ children }: { children: React.ReactNode }) {
 
             {/* Auth Button */}
             {user ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#FFF1E8', border: '1px solid #F4C4A5', borderRadius: 6, padding: '3px 8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#FFF1E8', border: '1px solid #F4C4A5', borderRadius: 6, padding: '3px 7px' }}>
                 <span style={{ fontSize: 11.5, fontWeight: 700, color: '#171717' }}>
                   {user.displayName || user.email?.split('@')[0]}
                 </span>
                 <button onClick={logout} title="Sign Out" style={{ background: 'transparent', border: 'none', color: '#E9783F', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-                  <LogOut style={{ width: 13, height: 13 }} />
+                  <LogOut style={{ width: 12, height: 12 }} />
                 </button>
               </div>
             ) : (
               <button
                 onClick={signInWithGoogle}
                 style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  display: 'inline-flex', alignItems: 'center', gap: 4,
                   background: '#FFFFFF', color: '#242424',
                   border: '1px solid #E8E2DC', borderRadius: 6,
-                  padding: '4px 10px', fontSize: 11.5, fontWeight: 700,
+                  padding: '4px 9px', fontSize: 11.5, fontWeight: 700,
                   cursor: 'pointer', transition: 'all 0.15s'
                 }}
               >
                 <span>Login</span>
               </button>
             )}
-          </div>
-        </div>
-      </div>
 
-      {/* ══════════════ 2. INSTITUTIONAL HEADER BAR ══════════════ */}
-      <header style={{
-        background: '#FFFFFF',
-        borderBottom: '1px solid #E8E2DC',
-        position: 'sticky', top: 0, zIndex: 90,
-        width: '100%', flexShrink: 0
-      }}>
-        <div style={{ maxWidth: 1440, margin: '0 auto', padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
-          
-          {/* Logo & Brand Title */}
-          <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{
-              width: 38, height: 38,
-              background: '#FFF1E8',
-              border: '1.5px solid #F28C52',
-              borderRadius: 8,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 2px 6px rgba(242,140,82,0.15)'
-            }}>
-              <Shield style={{ width: 22, height: 22, color: '#F28C52' }} />
-            </div>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 17, fontWeight: 800, color: '#171717', letterSpacing: '-0.01em' }}>BIS</span>
-                <span style={{ color: '#E8E2DC', fontWeight: 300 }}>|</span>
-                <span style={{ fontSize: 17, fontWeight: 700, color: '#242424' }}>Standards Intelligence</span>
-              </div>
-              <div style={{ fontSize: 11, color: '#686868', marginTop: 1 }}>
-                Enterprise Compliance &amp; Gazette Grounded AI Platform
-              </div>
-            </div>
-          </Link>
+            {/* Quick Actions / Alerts (Hidden on Main Page '/') */}
+            {pathname !== '/' && (
+              <Link
+                href="/alerts"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 5,
+                  background: '#FFFCF8', border: '1px solid #E8E2DC',
+                  borderRadius: 6, padding: '6px 10px', color: '#242424',
+                  fontSize: 12, fontWeight: 600, textDecoration: 'none'
+                }}
+              >
+                <Bell style={{ width: 14, height: 14, color: '#F28C52' }} />
+                <span>Alerts</span>
+                <span style={{ background: '#FFF1E8', color: '#E9783F', border: '1px solid #F4C4A5', borderRadius: 10, padding: '0 5px', fontSize: 9.5, fontWeight: 800 }}>3</span>
+              </Link>
+            )}
 
-          {/* Central Command Palette Trigger */}
-          <div 
-            onClick={() => setCommandOpen(true)}
-            style={{
-              flex: '0 1 480px',
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              background: '#FFFCF8',
-              border: '1px solid #E8E2DC',
-              borderRadius: 8,
-              padding: '8px 14px',
-              cursor: 'pointer',
-              transition: 'all 0.18s ease',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
-            }}
-            onMouseEnter={e => (e.currentTarget.style.borderColor = '#F4C4A5')}
-            onMouseLeave={e => (e.currentTarget.style.borderColor = '#E8E2DC')}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#686868', fontSize: 13 }}>
-              <Search style={{ width: 16, height: 16, color: '#F28C52' }} />
-              <span>Search standards, clauses, products, documents...</span>
-            </div>
-            <kbd style={{
-              background: '#FFFFFF', border: '1px solid #E8E2DC', borderRadius: 4,
-              padding: '2px 6px', fontSize: 11, fontWeight: 700, color: '#686868'
-            }}>Ctrl K</kbd>
-          </div>
-
-          {/* Quick Actions / Alerts */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Link
-              href="/alerts"
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: 6,
-                background: '#FFFCF8', border: '1px solid #E8E2DC',
-                borderRadius: 8, padding: '7px 12px', color: '#242424',
-                fontSize: 12.5, fontWeight: 600, textDecoration: 'none'
-              }}
-            >
-              <Bell style={{ width: 15, height: 15, color: '#F28C52' }} />
-              <span>Alerts</span>
-              <span style={{ background: '#FFF1E8', color: '#E9783F', border: '1px solid #F4C4A5', borderRadius: 10, padding: '0 6px', fontSize: 10, fontWeight: 800 }}>3</span>
-            </Link>
-
+            {/* Admin Button (Renamed from Ingestion Admin) */}
             <Link
               href="/admin"
               style={{
-                display: 'inline-flex', alignItems: 'center', gap: 6,
+                display: 'inline-flex', alignItems: 'center', gap: 5,
                 background: '#F28C52', color: '#FFFFFF',
-                borderRadius: 8, padding: '7px 14px',
-                fontSize: 12.5, fontWeight: 700, textDecoration: 'none',
+                borderRadius: 6, padding: '6px 12px',
+                fontSize: 12, fontWeight: 700, textDecoration: 'none',
                 boxShadow: '0 2px 6px rgba(242,140,82,0.25)', transition: 'all 0.15s'
               }}
             >
-              <BarChart3 style={{ width: 15, height: 15 }} />
-              <span>Ingestion Admin</span>
+              <BarChart3 style={{ width: 14, height: 14 }} />
+              <span>Admin</span>
             </Link>
+
           </div>
 
         </div>
       </header>
 
-      {/* ══════════════ 3. ENTERPRISE WORKSPACE LAYOUT (SIDEBAR + MAIN) ══════════════ */}
+      {/* ══════════════ 2. ENTERPRISE WORKSPACE LAYOUT (SIDEBAR + MAIN) ══════════════ */}
       <div style={{ flex: 1, display: 'flex', width: '100%' }}>
         
         {/* COLLAPSIBLE SIDEBAR */}
@@ -377,7 +364,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           borderRight: '1px solid #E8E2DC',
           display: 'flex', flexDirection: 'column',
           flexShrink: 0,
-          position: 'sticky', top: 63, height: 'calc(100vh - 63px)',
+          position: 'sticky', top: 57, height: 'calc(100vh - 57px)',
           overflowY: 'auto'
         }}>
           
