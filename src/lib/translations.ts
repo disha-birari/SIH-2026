@@ -1,0 +1,251 @@
+import { LanguageCode } from './types';
+
+export const TRANSLATIONS: Record<LanguageCode, {
+  navHome: string;
+  navAssistant: string;
+  navMatcher: string;
+  navServices: string;
+  navChecklist: string;
+  navAdmin: string;
+  personaTitle: string;
+  manufacturer: string;
+  msme: string;
+  consumer: string;
+  importer: string;
+  searchPlaceholder: string;
+  confidenceLabel: string;
+  citationsTitle: string;
+  sourceDoc: string;
+  noHallucinationBadge: string;
+  checklistTitle: string;
+  standardMatcherTitle: string;
+  sihEvaluationTitle: string;
+  heroTag: string;
+  heroTitle: string;
+  heroSubtitle: string;
+  heroSearchPlaceholder: string;
+  launchBtn: string;
+  activeToolsLabel: string;
+  activeToolsVal: string;
+  groundingLabel: string;
+  hallucinationLabel: string;
+  languagesLabel: string;
+}> = {
+  en: {
+    navHome: "BIS Dashboard",
+    navAssistant: "AI BIS Assistant",
+    navMatcher: "Product Standard Matcher",
+    navServices: "BIS Service Navigator",
+    navChecklist: "Compliance Checklist",
+    navAdmin: "Admin & Evaluation Benchmarks",
+    personaTitle: "Select User Persona:",
+    manufacturer: "Manufacturer / Industry",
+    msme: "MSME / Small Business",
+    consumer: "Consumer / Public",
+    importer: "Importer / Seller",
+    searchPlaceholder: "Ask anything about BIS standards, ISI mark, CRS, or product safety...",
+    confidenceLabel: "Grounded Confidence",
+    citationsTitle: "Verified BIS Citations & Clauses",
+    sourceDoc: "Official BIS Standard Document",
+    noHallucinationBadge: "Anti-Hallucination RAG Grounded",
+    checklistTitle: "Interactive BIS Compliance Checklist",
+    standardMatcherTitle: "Intelligent Product-to-Standard Matcher",
+    sihEvaluationTitle: "System Evaluation & Groundedness Metrics",
+    heroTag: "National Standards Intelligence Portal",
+    heroTitle: "Complete 15-Feature BIS AI Suite for Indian Standards",
+    heroSubtitle: "Authoritative, source-grounded assistant for Indian Industries, MSMEs, Importers, and Consumers. Fully equipped with 15 dedicated AI compliance engines, document RAG readers, voice/multilingual support, and evidence verifiers.",
+    heroSearchPlaceholder: "Type product name or standard (e.g. Electric Heater, Motorcycle Helmet, IS 302)...",
+    launchBtn: "Launch Matcher",
+    activeToolsLabel: "ACTIVE AI TOOLS",
+    activeToolsVal: "15 Dedicated Tools",
+    groundingLabel: "GROUNDING PRECISION",
+    hallucinationLabel: "HALLUCINATION RATE",
+    languagesLabel: "SUPPORTED LANGUAGES"
+  },
+  hi: {
+    navHome: "बीआईएस डैशबोर्ड",
+    navAssistant: "एआई बीआईएस सहायक",
+    navMatcher: "उत्पाद मानक मैचर",
+    navServices: "बीआईएस सेवा नेविगेटर",
+    navChecklist: "अनुपालन चेकलिस्ट",
+    navAdmin: "प्रशासन और एसआईएच मूल्यांकन",
+    personaTitle: "उपयोगकर्ता प्रकार चुनें:",
+    manufacturer: "निर्माता / उद्योग",
+    msme: "एमएसएमई / छोटा व्यवसाय",
+    consumer: "उपभोक्ता / नागरिक",
+    importer: "आयातक / विक्रेता",
+    searchPlaceholder: "बीआईएस मानकों, आईएसआई मार्क या उत्पाद सुरक्षा के बारे में पूछें...",
+    confidenceLabel: "प्रमाणित विश्वसनीयता",
+    citationsTitle: "सत्यापित बीआईएस संदर्भ और धाराएं",
+    sourceDoc: "आधिकारिक बीआईएस मानक दस्तावेज़",
+    noHallucinationBadge: "एंटी-हैलुसिनेशन आरएजी आधारित",
+    checklistTitle: "इंटरएक्टिव बीआईएस अनुपालन चेकलिस्ट",
+    standardMatcherTitle: "बुद्धिमान उत्पाद मानक मैचर",
+    sihEvaluationTitle: "एसआईएच प्रणाली मूल्यांकन",
+    heroTag: "राष्ट्रीय मानक इंटेलिजेंस पोर्टल • एसआईएच 2026",
+    heroTitle: "भारतीय मानकों के लिए संपूर्ण 15-सुविधा बीआईएस एआई सूट",
+    heroSubtitle: "भारतीय उद्योगों, एमएसएमई, आयातकों और उपभोक्ताओं के लिए प्रामाणिक एवं स्रोत-आधारित एआई सहायक। 15 समर्पित एआई अनुपालन इंजन, दस्तावेज़ आरएजी, और बहुभाषी समर्थन से सुसज्जित।",
+    heroSearchPlaceholder: "उत्पाद का नाम या मानक दर्ज करें (जैसे इलेक्ट्रिकल हीटर, हेलमेट, IS 302)...",
+    launchBtn: "मैचर प्रारंभ करें",
+    activeToolsLabel: "सक्रिय एआई उपकरण",
+    activeToolsVal: "15 समर्पित उपकरण",
+    groundingLabel: "प्रमाणित सटीकता",
+    hallucinationLabel: "हैलुसिनेशन दर",
+    languagesLabel: "समर्थित भाषाएं"
+  },
+  mr: {
+    navHome: "बीआयएस डॅशबोर्ड",
+    navAssistant: "एआय बीआयएस सहाय्यक",
+    navMatcher: "उत्पादन मानक मॅचर",
+    navServices: "बीआयएस सेवा नेव्हिगेटर",
+    navChecklist: "अनुपालन चेकलिस्ट",
+    navAdmin: "प्रशासन आणि एसआयएच मूल्यमापन",
+    personaTitle: "वापरकर्ता प्रकार निवडा:",
+    manufacturer: "उत्पादक / उद्योग",
+    msme: "एमएसएमई / लहान व्यवसाय",
+    consumer: "ग्राहक / नागरिक",
+    importer: "आयातदार / विक्रेता",
+    searchPlaceholder: "बीआयएस मानके किंवा आयएसआय मार्कबद्दल विचारा...",
+    confidenceLabel: "प्रमाणित विश्वासार्हता",
+    citationsTitle: "सत्यापित बीआयएस संदर्भ",
+    sourceDoc: "अधिकृत बीआयएस मानक दस्तऐवज",
+    noHallucinationBadge: "आरएजी आधारित",
+    checklistTitle: "बीआयएस अनुपालन चेकलिस्ट",
+    standardMatcherTitle: "उत्पादन मानक मॅचर",
+    sihEvaluationTitle: "मूल्यमापन डॅशबोर्ड",
+    heroTag: "राष्ट्रीय मानक बुद्धिमत्ता पोर्टल • एसआयएच 2026",
+    heroTitle: "भारतीय मानकांसाठी संपूर्ण 15-वैशिष्ट्य बीआयएस एआय सूट",
+    heroSubtitle: "भारतीय उद्योग, एमएसएमई, आयातदार आणि ग्राहकांसाठी प्रामाणिक सहाय्यक. 15 समर्पित एआय इंजिन आणि बहुभाषी समर्थनासह सज्ज.",
+    heroSearchPlaceholder: "उत्पादनाचे नाव किंवा मानक प्रविष्ट करा...",
+    launchBtn: "मॅचर सुरू करा",
+    activeToolsLabel: "सक्रिय एआय साधने",
+    activeToolsVal: "15 समर्पित साधने",
+    groundingLabel: "प्रमाणित अचूकता",
+    hallucinationLabel: "त्रुटी प्रमाण",
+    languagesLabel: "समर्थित भाषा"
+  },
+  gu: {
+    navHome: "બીઆઈએસ ડેશબોર્ડ",
+    navAssistant: "એઆઈ બીઆઈએસ સહાયક",
+    navMatcher: "પ્રોડક્ટ સ્ટાન્ડર્ડ મેચર",
+    navServices: "બીઆઈએસ સર્વિસ નેવિગેટર",
+    navChecklist: "કમ્પ્લાયન્સ ચેકલિસ્ટ",
+    navAdmin: "એડમિન અને એસઆઈએચ ઇવેલ્યુએશન",
+    personaTitle: "વપરાશકર્તા પ્રકાર પસંદ કરો:",
+    manufacturer: "ઉત્પાદક / ઉદ્યોગ",
+    msme: "એમએસએમઈ / નાનો વ્યવસાય",
+    consumer: "ગ્રાહક / નાગરિક",
+    importer: "આયાતકાર / વિક્રેતા",
+    searchPlaceholder: "બીઆઈએસ ધોરણો અથવા આઈએસઆઈ માર્ક વિશે પૂછો...",
+    confidenceLabel: "ચકાસાયેલ વિશ્વસનીયતા",
+    citationsTitle: "સત્તાવાર બીઆઈએસ સંદર્ભો",
+    sourceDoc: "સત્તાવાર બીઆઈએસ સ્ટાન્ડર્ડ દસ્તાવેજ",
+    noHallucinationBadge: "આરએજી આધારિત",
+    checklistTitle: "બીઆઈએસ કમ્પ્લાયન્સ ચેકલિસ્ટ",
+    standardMatcherTitle: "પ્રોડક્ટ સ્ટાન્ડર્ડ મેચર",
+    sihEvaluationTitle: "એસઆઈએચ મૂલ્યાંકન",
+    heroTag: "રાષ્ટ્રીય ધોરણો ઇન્ટેલિજન્સ પોર્ટલ • એસઆઈએચ 2026",
+    heroTitle: "ભારતીય ધોરણો માટે સંપૂર્ણ 15-સુવિધા બીઆઈએસ એઆઈ સ્યુટ",
+    heroSubtitle: "ભારતીય ઉદ્યોગો, એમએસએમઈ, આયાતકારો અને ગ્રાહકો માટે સત્તાવાર એઆઈ સહાયક.",
+    heroSearchPlaceholder: "પ્રોડક્ટનું નામ અથવા સ્ટાન્ડર્ડ લખો...",
+    launchBtn: "મેચર શરૂ કરો",
+    activeToolsLabel: "સક્રિય એઆઈ સાધનો",
+    activeToolsVal: "15 સમર્પિત સાધનો",
+    groundingLabel: "ચકાસાયેલ ચોકસાઈ",
+    hallucinationLabel: "ભૂલ દર",
+    languagesLabel: "સમર્થિત ભાષાઓ"
+  },
+  ta: {
+    navHome: "BIS டாஷ்போர்டு",
+    navAssistant: "AI BIS உதவியாளர்",
+    navMatcher: "தயாரிப்பு தரநிலை மேச்சர்",
+    navServices: "BIS சேவை வழிகாட்டி",
+    navChecklist: "இணக்க சரிபார்ப்பு பட்டியல்",
+    navAdmin: "நிர்வாகம் & மதிப்பீடு",
+    personaTitle: "பயனர் வகையைத் தேர்ந்தெடுக்கவும்:",
+    manufacturer: "தயாரிப்பாளர் / தொழில்",
+    msme: "MSME / சிறு தொழில்",
+    consumer: "நுகர்வோர் / பொதுமக்கள்",
+    importer: "இறக்குமதியாளர்",
+    searchPlaceholder: "BIS தரநிலைகள் அல்லது ISI முத்திரை பற்றி கேட்கவும்...",
+    confidenceLabel: "உறுதிப்படுத்தப்பட்ட நம்பிக்கை",
+    citationsTitle: "சரிபார்க்கப்பட்ட BIS சான்றுகள்",
+    sourceDoc: "அதிகாரப்பூர்வ BIS தரநிலை ஆவணம்",
+    noHallucinationBadge: "RAG அடிப்படையிலானது",
+    checklistTitle: "BIS இணக்க சரிபார்ப்பு பட்டியல்",
+    standardMatcherTitle: "தயாரிப்பு தரநிலை மேச்சர்",
+    sihEvaluationTitle: "மதிப்பீட்டு அளவீடுகள்",
+    heroTag: "தேசிய தரநிலைகள் நுண்ணறிவு தளம்",
+    heroTitle: "இந்திய தரநிலைகளுக்கான 15 அம்சங்கள் கொண்ட BIS AI தொகுப்பு",
+    heroSubtitle: "இந்திய தொழில்கள், சிறு வணிகங்கள் மற்றும் நுகர்வோருக்கான அதிகாரப்பூர்வ AI உதவியாளர்.",
+    heroSearchPlaceholder: "தயாரிப்பு பெயர் அல்லது தரநிலையை உள்ளிடவும்...",
+    launchBtn: "மேச்சரைத் தொடங்கு",
+    activeToolsLabel: "செயலில் உள்ள AI கருவிகள்",
+    activeToolsVal: "15 பிரத்யேக கருவிகள்",
+    groundingLabel: "துல்லியம்",
+    hallucinationLabel: "பிழை விகிதம்",
+    languagesLabel: "ஆதரிக்கப்படும் மொழிகள்"
+  },
+  te: {
+    navHome: "BIS డాష్‌బోర్డ్",
+    navAssistant: "AI BIS అసిస్టెంట్",
+    navMatcher: "ఉత్పత్తి ప్రమాణాల మ్యాచర్",
+    navServices: "BIS సర్వీస్ నేవిగేటర్",
+    navChecklist: "అనుకూలత చెక్‌లిస్ట్",
+    navAdmin: "అడ్మిన్ & మూల్యాంకనం",
+    personaTitle: "వినియోగదారు రకాన్ని ఎంచుకోండి:",
+    manufacturer: "తయారీదారు / పరిశ్రమ",
+    msme: "MSME / చిన్న వ్యాపారం",
+    consumer: "వినియోగదారుడు / పౌరుడు",
+    importer: "దిగుమతిదారు",
+    searchPlaceholder: "BIS ప్రమాణాలు లేదా ISI మార్క్ గురించి అడగండి...",
+    confidenceLabel: "ధృవీకరించబడిన విశ్వసనీయత",
+    citationsTitle: "ధృవీకరించబడిన BIS రిఫరెన్సులు",
+    sourceDoc: "అధికారిక BIS డాక్యుమెంట్",
+    noHallucinationBadge: "RAG ఆధారితం",
+    checklistTitle: "BIS చెక్‌లిస్ట్",
+    standardMatcherTitle: "ఉత్పత్తి ప్రమాణాల మ్యాచర్",
+    sihEvaluationTitle: "మూల్యాంకన మెట్రిక్స్",
+    heroTag: "జాతీయ ప్రమాణాల ఇంటెలిజెన్స్ పోర్టల్",
+    heroTitle: "భారతీయ ప్రమాణాల కోసం 15-ఫీచర్ల BIS AI సూట్",
+    heroSubtitle: "భారతీయ పరిశ్రమలు మరియు వినియోగదారుల కోసం అధికారిక AI అసిస్టెంట్.",
+    heroSearchPlaceholder: "ఉత్పత్తి పేరు లేదా ప్రమాణాన్ని నమోదు చేయండి...",
+    launchBtn: "మ్యాచర్‌ని ప్రారంభించండి",
+    activeToolsLabel: "యాక్టివ్ AI పరికరాలు",
+    activeToolsVal: "15 ప్రత్యేక పరికరాలు",
+    groundingLabel: "ఖచ్చితత్వం",
+    hallucinationLabel: "పొరపాటు శాతం",
+    languagesLabel: "మద్దతు ఇచ్చే భాషలు"
+  },
+  bn: {
+    navHome: "বিআইএস ড্যাশবোর্ড",
+    navAssistant: "এআই বিআইএস সহকারী",
+    navMatcher: "পণ্য মান ম্যাচিং",
+    navServices: "বিআইএস পরিষেবা নেভিগেটর",
+    navChecklist: "সম্মতি চেকমেট",
+    navAdmin: "অ্যাডমিন ও এসআইএইচ মূল্যায়ন",
+    personaTitle: "ব্যবহারকারীর ধরন নির্বাচন করুন:",
+    manufacturer: "প্রস্তুতকারক / শিল্প",
+    msme: "এমএসএমই / ক্ষুদ্র ব্যবসা",
+    consumer: "ভোক্তা / সাধারণ মানুষ",
+    importer: "আমদানিকারক",
+    searchPlaceholder: "বিআইএস মানদণ্ড বা আইএসআই মার্ক সম্পর্কে জানুন...",
+    confidenceLabel: "প্রমাণিত নির্ভরযোগ্যতা",
+    citationsTitle: "যাচাইকৃত বিআইএস সূত্র",
+    sourceDoc: "অফিসিয়াল বিআইএস নথি",
+    noHallucinationBadge: "আরএজি ভিত্তিক",
+    checklistTitle: "বিআইএস সম্মতি তালিকা",
+    standardMatcherTitle: "পণ্য মান ম্যাচার",
+    sihEvaluationTitle: "এসআইএইচ মূল্যায়ন সিস্টেম",
+    heroTag: "জাতীয় মান ইন্টেলিজেন্স পোর্টাল • এসআইএইচ 2026",
+    heroTitle: "ভারতীয় মানের জন্য সম্পূর্ণ ১৫-বৈশিষ্ট্য সম্পন্ন বিআইএস এআই স্যুট",
+    heroSubtitle: "ভারতীয় শিল্প, এমএসএমই এবং ভোক্তাদের জন্য নির্ভরযোগ্য এআই সহকারী।",
+    heroSearchPlaceholder: "পণ্যের নাম বা স্ট্যান্ডার্ড লিখুন...",
+    launchBtn: "ম্যাচার শুরু করুন",
+    activeToolsLabel: "সক্রিয় এআই টুলস",
+    activeToolsVal: "১৫টি বিশেষ টুল",
+    groundingLabel: "যাচাইকৃত নির্ভুলতা",
+    hallucinationLabel: "ত্রুটির হার",
+    languagesLabel: "সমর্থিত ভাষা"
+  }
+};

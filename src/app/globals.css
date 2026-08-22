@@ -1,0 +1,222 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* =============================================
+   GOVERNMENT OF INDIA — BIS OFFICIAL PORTAL
+   NIC-Compliant Design System
+   ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Noto+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+
+:root {
+  --gov-blue-dark:   #003366;
+  --gov-blue:        #004080;
+  --gov-blue-mid:    #1a5276;
+  --gov-blue-light:  #2980b9;
+  --gov-saffron:     #FF6200;
+  --gov-saffron-dark:#c84b00;
+  --gov-saffron-amber:#ff9933;
+  --gov-green:       #138808;
+  --gov-white:       #ffffff;
+  --gov-offwhite:    #f5f5f0;
+  --gov-text-dark:   #1a1a1a;
+  --gov-text-mid:    #333333;
+  --gov-text-muted:  #5a5a5a;
+  --gov-border:      #cccccc;
+  --gov-border-blue: #99aabb;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: #eef2f7;
+  color: var(--gov-text-dark);
+  font-family: 'Noto Sans', 'Arial', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+  overflow-x: hidden;
+  top: 0px !important;
+}
+
+/* =============================================
+   TRICOLOR STRIPE
+   ============================================= */
+.tricolor-stripe {
+  height: 6px;
+  background: linear-gradient(
+    90deg,
+    #ff9933 0% 33.33%,
+    #ffffff 33.33% 66.66%,
+    #138808 66.66% 100%
+  );
+  width: 100%;
+}
+
+/* =============================================
+   CARDS
+   ============================================= */
+.gov-card {
+  background: #ffffff;
+  border: 1px solid #d0d8e4;
+  border-top: 3px solid var(--gov-blue);
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0,51,102,0.07);
+  transition: box-shadow 0.2s, border-top-color 0.2s, transform 0.2s;
+  overflow: hidden;
+}
+
+.gov-card:hover {
+  box-shadow: 0 6px 20px rgba(0,51,102,0.14);
+  border-top-color: var(--gov-saffron);
+  transform: translateY(-2px);
+}
+
+/* =============================================
+   BUTTONS
+   ============================================= */
+.gov-btn-primary {
+  background: var(--gov-blue-dark);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+.gov-btn-primary:hover { background: var(--gov-blue-mid); }
+
+.gov-btn-saffron {
+  background: var(--gov-saffron);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+.gov-btn-saffron:hover { background: var(--gov-saffron-dark); }
+
+/* =============================================
+   ORANGE HERO (kept for compatibility)
+   ============================================= */
+.orange-hero-banner {
+  background: linear-gradient(135deg, var(--gov-blue-dark) 0%, var(--gov-blue-mid) 60%, var(--gov-blue) 100%);
+}
+
+.orange-gradient-btn {
+  background: var(--gov-saffron);
+  color: #ffffff !important;
+}
+.orange-gradient-btn:hover { background: var(--gov-saffron-dark); }
+
+.saffron-gradient {
+  background: var(--gov-saffron);
+  color: #ffffff !important;
+}
+
+/* =============================================
+   SECTION TITLE
+   ============================================= */
+.gov-section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gov-blue-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--gov-saffron);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* =============================================
+   GOV NAV LINK
+   ============================================= */
+.gov-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #c8d8ec;
+  text-decoration: none;
+  white-space: nowrap;
+  border-radius: 3px;
+  transition: background 0.18s, color 0.18s;
+}
+.gov-nav-link:hover { background: rgba(255,255,255,0.1); color: #ffffff; }
+.gov-nav-link.active { background: var(--gov-saffron); color: #ffffff; }
+
+/* =============================================
+   TAGS
+   ============================================= */
+.gov-tag {
+  display: inline-block;
+  background: #eaf0f8;
+  color: var(--gov-blue-dark);
+  border: 1px solid var(--gov-border-blue);
+  border-radius: 2px;
+  padding: 2px 7px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.gov-tag-saffron { background: #fff5ee; color: var(--gov-saffron); border-color: #ffccaa; }
+.gov-tag-green   { background: #eafaf1; color: var(--gov-green);   border-color: #a9dfbf; }
+
+/* =============================================
+   FOOTER
+   ============================================= */
+.gov-footer { background: var(--gov-blue-dark); color: #b0c4d8; }
+.gov-footer-link { color: #8fb0cc; text-decoration: none; display: block; margin-bottom: 5px; transition: color 0.15s; }
+.gov-footer-link:hover { color: #ff9933; text-decoration: underline; }
+
+/* =============================================
+   SCROLLBAR
+   ============================================= */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #eaf0f8; }
+::-webkit-scrollbar-thumb { background: #99aabb; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gov-saffron); }
+
+/* =============================================
+   GOOGLE TRANSLATE HIDE
+   ============================================= */
+.goog-te-banner-frame { display: none !important; }
+.goog-te-balloon-frame, #goog-gt-tt, .goog-te-spinner-pos { display: none !important; }
+.skiptranslate { display: none !important; }
+#google_translate_element { display: none !important; }
+
+/* =============================================
+   ANIMATIONS
+   ============================================= */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fadein { animation: fadeInUp 0.4s ease both; }
+
+.scrollbar-gov::-webkit-scrollbar { height: 3px; }
+.scrollbar-gov::-webkit-scrollbar-track { background: #002244; }
+.scrollbar-gov::-webkit-scrollbar-thumb { background: var(--gov-saffron); border-radius: 2px; }
+

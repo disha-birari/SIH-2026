@@ -1,0 +1,1011 @@
+import { BISStandard, StandardComparison, StandardAlert, TestingMapping, TestingLab, TimelineMilestone } from '../types';
+
+// Dynamic Knowledge Base Engine supporting live additions, document ingestion, and runtime vector storage
+
+let dynamicStandardsStore: BISStandard[] = [
+  {
+    id: "is-302-2-3",
+    isNumber: "IS 302-2-3:2017",
+    title: "Safety of Household and Similar Electrical Appliances - Particular Requirements: Electric Irons",
+    category: "Electrical Appliances",
+    scope: "Covers safety, electrical insulation, moisture resistance, and thermal cutout requirements for electric irons operated on AC/DC up to 250V.",
+    mandatoryStatus: "Mandatory (QCO)",
+    applicableScheme: "Scheme-I (ISI Mark)",
+    targetAudience: ["manufacturer", "msme", "consumer", "importer"],
+    keyRequirements: [
+      "Earthing terminal continuity test under 0.1 ohm resistance.",
+      "High voltage insulation breakdown test at 1500V AC for 1 minute.",
+      "Thermostatic control calibration between 110°C to 220°C.",
+      "Creepage distance and clearance gap >= 3.0mm."
+    ],
+    requiredDocuments: [
+      "Factory Premises Layout & Machinery Proof",
+      "In-House Test Equipment Calibration Certificates (Megger, HV Tester)",
+      "Raw Material Test Reports for Heating Element & Thermostat",
+      "Process Flowchart & Quality Control Plan (QCP)"
+    ],
+    testingParameters: [
+      "Leakage Current Test (Limit <= 0.75mA)",
+      "Thermal Endurance & Temperature Rise Test",
+      "Mechanical Resistance to Impact & Drop",
+      "Flammability of Plastics (UL94-V0 or Glow Wire 850°C)"
+    ],
+    officialUrl: "https://www.services.bis.gov.in/php/BIS_2/bisman/qco/IS_302_2_3.pdf",
+    lastUpdated: new Date().toISOString().split('T')[0],
+    clauseReferences: [
+      { clause: "Clause 10", description: "Power input and current verification parameters." },
+      { clause: "Clause 13", description: "Leakage current and electric strength at operating temperature." },
+      { clause: "Clause 19", description: "Abnormal operation and thermal limiter operation." },
+      { clause: "Clause 22", description: "Constructional requirements, sharp edges and cord anchorage." }
+    ]
+  },
+  {
+    id: "is-302-2-201",
+    isNumber: "IS 302-2-201:2008",
+    title: "Safety of Household and Similar Electrical Appliances: Electric Water Heaters (Geysers)",
+    category: "Electrical Appliances",
+    scope: "Safety and performance specification for storage and instantaneous electric water heaters for household usage.",
+    mandatoryStatus: "Mandatory (QCO)",
+    applicableScheme: "Scheme-I (ISI Mark)",
+    targetAudience: ["manufacturer", "msme", "importer"],
+    keyRequirements: [
+      "Pressure vessel withstand test up to 1.5 times rated working pressure (e.g. 8 bar).",
+      "Dual thermal safety: Thermostat + Thermal Cutout with manual reset.",
+      "Incoloy heating element with sacrificial Magnesium Anode for anti-corrosion."
+    ],
+    requiredDocuments: [
+      "Pressure Tank Hydrostatic Test Log",
+      "BIS Approved Heating Element Procurement Invoices",
+      "Quality Assurance Supervisor Competency Certificate"
+    ],
+    testingParameters: [
+      "Hydrostatic Pressure Test (0.8 MPa to 1.2 MPa)",
+      "Standing Loss Test (Energy Efficiency Star Rating Requirement)",
+      "Protection against entry of water (IPX4 rating verification)"
+    ],
+    officialUrl: "https://www.services.bis.gov.in/qco/IS_302_2_201.pdf",
+    lastUpdated: new Date().toISOString().split('T')[0],
+    clauseReferences: [
+      { clause: "Clause 22.101", description: "Pressure relief valve opening pressure limits." },
+      { clause: "Clause 19.4", description: "Operation of thermal cut-out under dry heating conditions." }
+    ]
+  },
+  {
+    id: "is-4151",
+    isNumber: "IS 4151:2015",
+    title: "Protective Helmets for Two-Wheeler Motorcyclists - Specification",
+    category: "Automobile & Safety",
+    scope: "Specifies requirements for materials, construction, workmanship, finish, performance and marking for protective helmets.",
+    mandatoryStatus: "Mandatory (QCO)",
+    applicableScheme: "Scheme-I (ISI Mark)",
+    targetAudience: ["manufacturer", "msme", "consumer", "importer"],
+    keyRequirements: [
+      "Outer shell must be made of high-impact ABS or Fiberglass.",
+      "EPS liner density minimum 40 g/L for impact attenuation.",
+      "Retention system chin strap width >= 20mm with micro-metric or D-ring lock."
+    ],
+    requiredDocuments: [
+      "Mold CAD Drawings & Shell Dimensions Specification",
+      "Visor Optical Clarity Test Report (IS 9944 compliance)",
+      "Chin Strap Tensile Testing Rig Calibration"
+    ],
+    testingParameters: [
+      "Impact Attenuation Test (Peak acceleration < 275g)",
+      "Penetration Resistance Test (Punching cone drop test)",
+      "Retention System Dynamic & Static Displacement Test",
+      "Peripheral Vision Angle Test (Horizontal >= 105 degrees)"
+    ],
+    officialUrl: "https://www.bis.gov.in/qco/IS_4151_Helmets.pdf",
+    lastUpdated: new Date().toISOString().split('T')[0],
+    clauseReferences: [
+      { clause: "Clause 6.1", description: "Materials non-irritant to skin and resistant to UV." },
+      { clause: "Clause 7.3", description: "Impact absorption test using ambient, hot, cold and moisture conditioning." }
+    ]
+  },
+  {
+    id: "is-9873-1",
+    isNumber: "IS 9873 (Part 1):2019",
+    title: "Safety of Toys - Part 1: Safety Aspects Related to Mechanical and Physical Properties",
+    category: "Toys & Children Products",
+    scope: "Applies to all toys intended for use by children under 14 years of age. Covers physical hazards, sharp edges, and small parts.",
+    mandatoryStatus: "Mandatory (QCO)",
+    applicableScheme: "Scheme-I (ISI Mark)",
+    targetAudience: ["manufacturer", "msme", "importer"],
+    keyRequirements: [
+      "No small parts fitting inside the 31.7mm small parts cylinder for toys under 36 months.",
+      "Maximum heavy metal migration limits (Lead < 90mg/kg, Cadmium < 75mg/kg).",
+      "Sound pressure level limit < 85dB for continuous noise toys."
+    ],
+    requiredDocuments: [
+      "NABL Accredited Chemical Migration Test Report",
+      "Phthalates Analysis Report (IS 9873 Part 6)",
+      "Age Labelling Declaration & Warning Label Artwork"
+    ],
+    testingParameters: [
+      "Drop Test from 850mm onto 4mm steel plate",
+      "Torque and Tension Test on components",
+      "Sharp Point & Sharp Edge Tester verification",
+      "Heavy Metal Inductively Coupled Plasma (ICP-MS) test"
+    ],
+    officialUrl: "https://www.bis.gov.in/qco/Toys_Mandatory_QCO.pdf",
+    lastUpdated: new Date().toISOString().split('T')[0],
+    clauseReferences: [
+      { clause: "Clause 4.4", description: "Small parts hazard for children under 36 months." },
+      { clause: "Clause 4.7", description: "Accessible sharp edges and wire ends specifications." }
+    ]
+  },
+  {
+    id: "is-16102-1",
+    isNumber: "IS 16102 (Part 1):2012",
+    title: "Self-Ballasted LED Lamps for General Lighting Services - Part 1: Safety Requirements",
+    category: "Electronics & IT",
+    scope: "Covers safety requirements for self-ballasted LED lamps having a rated power up to 60W and rated voltage 50V to 250V.",
+    mandatoryStatus: "CRS Mandatory",
+    applicableScheme: "CRS (Compulsory Registration)",
+    targetAudience: ["manufacturer", "importer", "msme"],
+    keyRequirements: [
+      "Compulsory BIS Registration Number (R-xxxxxxxx) printed on lamp body.",
+      "Insulation resistance between live parts and accessible metal parts >= 4 M-ohm.",
+      "Flame retardant casing (Glow wire test at 650°C)."
+    ],
+    requiredDocuments: [
+      "NABL Lab Test Report under CRS scheme",
+      "Brand Authorization Letter from Trademark Owner",
+      "Factory ISO 9001 Certificate"
+    ],
+    testingParameters: [
+      "Electric Strength HV Test at 2500V",
+      "Harmonic Current Emissions (IS 14700-3-2)",
+      "Photobiological Safety (Blue light hazard measurement)"
+    ],
+    officialUrl: "https://www.crsbis.in/BIS/products.do",
+    lastUpdated: new Date().toISOString().split('T')[0],
+    clauseReferences: [
+      { clause: "Clause 6", description: "Marking requirements including CRS registration logo." },
+      { clause: "Clause 8", description: "Insulation resistance and electric strength after humidity treatment." }
+    ]
+  },
+  {
+    id: "is-14543",
+    isNumber: "IS 14543:2016",
+    title: "Packaged Drinking Water (Other than Packaged Natural Mineral Water) - Specification",
+    category: "Food & Beverages",
+    scope: "Physical, chemical, microbiological, and radiological limits for processed packaged drinking water.",
+    mandatoryStatus: "Mandatory (QCO)",
+    applicableScheme: "Scheme-I (ISI Mark)",
+    targetAudience: ["manufacturer", "msme", "consumer"],
+    keyRequirements: [
+      "In-house NABL micro-biology lab setup with autoclave, laminar airflow, and incubator.",
+      "Ozonation and Reverse Osmosis (RO) processing system audit.",
+      "Total Dissolved Solids (TDS) range 75 mg/L to 500 mg/L."
+    ],
+    requiredDocuments: [
+      "Central Ground Water Authority (CGWA) NOC for Water Abstraction",
+      "FSSAI License Copy",
+      "Raw Water Source Comprehensive Analysis Report",
+      "Chemist & Microbiologist Appointment Letters"
+    ],
+    testingParameters: [
+      "Microbiological: E. coli, Pseudomonas aeruginosa, Coliforms (Zero tolerance)",
+      "Toxic elements: Arsenic (< 0.01 mg/L), Lead (< 0.01 mg/L)",
+      "Pesticide Residue Limits (Individual <= 0.0001 mg/L)"
+    ],
+    officialUrl: "https://www.services.bis.gov.in/qco/IS_14543.pdf",
+    lastUpdated: new Date().toISOString().split('T')[0],
+    clauseReferences: [
+      { clause: "Table 1", description: "Organoleptic and physical parameters." },
+      { clause: "Table 2", description: "General parameters concerning substances undesirable in excessive amounts." },
+      { clause: "Table 3", description: "Parameters concerning toxic substances." }
+    ]
+  },
+  {
+    id: "is-1786",
+    isNumber: "IS 1786:2008",
+    title: "High Strength Deformed Steel Bars and Wires for Concrete Reinforcement (TMT Bars)",
+    category: "Steel & Construction",
+    scope: "Covers requirements of thermo-mechanically treated (TMT) steel bars of grades Fe 415, Fe 500, Fe 550, Fe 600.",
+    mandatoryStatus: "Mandatory (QCO)",
+    applicableScheme: "Scheme-I (ISI Mark)",
+    targetAudience: ["manufacturer", "importer", "msme"],
+    keyRequirements: [
+      "Chemical composition: Carbon <= 0.25%, Sulphur <= 0.045%, Phosphorus <= 0.045%.",
+      "Yield stress minimum 500 N/mm² for Fe 500 grade.",
+      "Mandatory ISI embossing on every meter length of bar."
+    ],
+    requiredDocuments: [
+      "Billet Procurement Mill Test Certificates",
+      "Spectrometer Calibration Certificate for Chemical Testing",
+      "Universal Testing Machine (UTM) Calibration Log"
+    ],
+    testingParameters: [
+      "0.2% Proof Stress & Tensile Strength Ratio",
+      "Elongation Percentage at Break",
+      "Bend and Rebend Test around mandrel",
+      "Rib Geometry & Transverse Rib Spacing Measurement"
+    ],
+    officialUrl: "https://www.services.bis.gov.in/qco/IS_1786_TMT.pdf",
+    lastUpdated: new Date().toISOString().split('T')[0],
+    clauseReferences: [
+      { clause: "Clause 4.2", description: "Chemical composition limits." },
+      { clause: "Clause 8.1", description: "Mechanical properties requirements." }
+    ]
+  },
+  {
+    id: "is-1417",
+    isNumber: "IS 1417:2016",
+    title: "Gold and Gold Alloys, Jewellery/Artefacts - Fineness and Marking",
+    category: "Hallmarking",
+    scope: "Defines standard purity grades (22K916, 18K750, 14K585) and mandatory Hallmark markings.",
+    mandatoryStatus: "Mandatory (QCO)",
+    applicableScheme: "Hallmarking",
+    targetAudience: ["consumer", "manufacturer", "msme"],
+    keyRequirements: [
+      "Mandatory 6-digit alphanumeric HUID (Hallmark Unique Identification) laser engraved.",
+      "BIS Logo + Purity Grade (e.g. 22K916) + Assaying & Hallmarking Centre (AHC) mark.",
+      "Permissible gold purity tolerance zero negative deviation."
+    ],
+    requiredDocuments: [
+      "BIS Jeweller Registration Certificate",
+      "XRF Precious Metal Analyzer Certificate",
+      "Sales Invoice with HUID Details"
+    ],
+    testingParameters: [
+      "Fire Assay Method (IS 1418) for quantitative gold determination",
+      "X-ray Fluorescence (XRF) non-destructive testing"
+    ],
+    officialUrl: "https://www.bis.gov.in/hallmarking-2/about-hallmarking/",
+    lastUpdated: new Date().toISOString().split('T')[0],
+    clauseReferences: [
+      { clause: "Clause 4.1", description: "Designation of fineness of gold alloys." },
+      { clause: "Clause 5", description: "Mandatory hallmarking symbols and HUID placement." }
+    ]
+  },
+  {
+    id: "is-14286",
+    isNumber: "IS 14286:2019",
+    title: "Crystalline Silicon Terrestrial Photovoltaic (PV) Solar Modules - Design Qualification & Type Approval",
+    category: "Renewable Energy & Solar",
+    scope: "Specifies BIS requirements for terrestrial PV modules suitable for continuous outdoor operation in Indian climatic conditions.",
+    mandatoryStatus: "CRS Mandatory",
+    applicableScheme: "CRS (Compulsory Registration)",
+    targetAudience: ["manufacturer", "importer", "msme"],
+    keyRequirements: [
+      "Compulsory BIS Registration Number (R-XXXXXXXX) printed on module backsheet.",
+      "Electroluminescence (EL) crack detection & zero micro-crack tolerance.",
+      "PID (Potential Induced Degradation) resistance under 85°C / 85% RH for 96 hours."
+    ],
+    requiredDocuments: [
+      "NABL Accredited Solar PV Test Report (IEC 61215 / IS 14286)",
+      "Solar Cell & EVA Encapsulant Material Specification Sheet",
+      "Factory Quality Assurance Manual & Calibrated Sun Simulator Log"
+    ],
+    testingParameters: [
+      "Thermal Cycling Test (-40°C to +85°C for 200 cycles)",
+      "Damp Heat Test (85°C, 85% RH for 1000 hours)",
+      "Mechanical Load Test (5400 Pa Snow/Wind load capacity)",
+      "Wet Leakage Current Insulation Test (> 40 M-ohm m²)"
+    ],
+    officialUrl: "https://www.services.bis.gov.in/qco/IS_14286_Solar.pdf",
+    lastUpdated: new Date().toISOString().split('T')[0],
+    clauseReferences: [
+      { clause: "Clause 10.11", description: "Thermal cycling test procedure and degradation limits." },
+      { clause: "Clause 10.13", description: "Damp heat endurance test protocol." }
+    ]
+  },
+  {
+    id: "is-15633",
+    isNumber: "IS 15633:2018",
+    title: "Automotive Vehicles - Pneumatic Tyres for Passenger Cars - Specification",
+    category: "Automobile & Tyres",
+    scope: "Covers performance, dimensions, load index, speed rating, and endurance requirements for tubeless and radial car tyres.",
+    mandatoryStatus: "Mandatory (QCO)",
+    applicableScheme: "Scheme-I (ISI Mark)",
+    targetAudience: ["manufacturer", "importer"],
+    keyRequirements: [
+      "Mandatory ISI Mark molded into tyre sidewall alongside E-mark/DOT numbers.",
+      "Plies rating & tread wear indicator (TWI) depth >= 1.6mm.",
+      "High-speed endurance test at rated maximum velocity for 1 hour."
+    ],
+    requiredDocuments: [
+      "Rubber Compound Formulation CoA",
+      "Tyre Drum Test Rig NABL Calibration Log",
+      "Tread Pattern CAD Certificate & Load-Speed Index Approval"
+    ],
+    testingParameters: [
+      "High Speed Performance Test on drum rig",
+      "Plunger Energy Resistance Test (Burst Strength)",
+      "Bead Unseating Resistance Test for tubeless radial tyres"
+    ],
+    officialUrl: "https://www.services.bis.gov.in/qco/IS_15633_Tyres.pdf",
+    lastUpdated: new Date().toISOString().split('T')[0],
+    clauseReferences: [
+      { clause: "Clause 5.2", description: "Tread wear indicators (TWI) requirement." },
+      { clause: "Clause 6.4", description: "Dynamic endurance drum testing procedure." }
+    ]
+  },
+  {
+    id: "is-269",
+    isNumber: "IS 269:2015",
+    title: "Ordinary Portland Cement, 53 Grade - Specification",
+    category: "Cement & Building Materials",
+    scope: "Specifies chemical composition, physical fineness, setting time, and 28-day compressive strength (>= 53 MPa) for OPC 53 cement.",
+    mandatoryStatus: "Mandatory (QCO)",
+    applicableScheme: "Scheme-I (ISI Mark)",
+    targetAudience: ["manufacturer", "msme", "consumer"],
+    keyRequirements: [
+      "28-day compressive strength minimum 53.0 N/mm².",
+      "Initial setting time >= 30 minutes; Final setting time <= 600 minutes.",
+      "Chemical limits: Insoluble Residue <= 5.0%, Total Sulphur (SO3) <= 3.5%."
+    ],
+    requiredDocuments: [
+      "Limestone Quarry Lease & Clinker XRF Analysis Log",
+      "Compressive Strength Testing Rig Calibration Certificate",
+      "BIS Approved Daily Batch Quality Control Log"
+    ],
+    testingParameters: [
+      "Compressive Strength at 3, 7, and 28 days",
+      "Fineness by Blaine Air Permeability Apparatus (>= 225 m²/kg)",
+      "Soundness Test by Le Chatelier Expansion Method (<= 10mm)"
+    ],
+    officialUrl: "https://www.services.bis.gov.in/qco/IS_269_Cement.pdf",
+    lastUpdated: new Date().toISOString().split('T')[0],
+    clauseReferences: [
+      { clause: "Clause 6", description: "Chemical requirements and magnesia limits." },
+      { clause: "Clause 7", description: "Physical strength and setting time limits." }
+    ]
+  },
+  {
+    id: "is-16046-2",
+    isNumber: "IS 16046 (Part 2):2018",
+    title: "Secondary Cells and Batteries Containing Alkaline - Lithium Systems for Portable Applications",
+    category: "Electronics & Energy Storage",
+    scope: "Covers safety requirements for portable sealed secondary lithium cells and batteries used in smartphones, laptops, and power banks.",
+    mandatoryStatus: "CRS Mandatory",
+    applicableScheme: "CRS (Compulsory Registration)",
+    targetAudience: ["manufacturer", "importer", "msme"],
+    keyRequirements: [
+      "Mandatory BIS Registration Number (R-XXXXXXXX) on battery pack casing.",
+      "Overcharge protection circuit (BMS) with voltage clamp.",
+      "Thermal abuse & short-circuit protection at 55°C without explosion or fire."
+    ],
+    requiredDocuments: [
+      "NABL Accredited Battery Test Report under IS 16046 Part 2",
+      "UN 38.3 Transport Safety Test Certificate",
+      "BMS (Battery Management System) Circuit Schematic"
+    ],
+    testingParameters: [
+      "External Short Circuit Test at 55°C",
+      "Free Fall Drop Test from 1.0 meter onto concrete",
+      "Thermal Abuse Test in oven at 130°C for 10 minutes",
+      "Overcharge Test at 2x rated charging current"
+    ],
+    officialUrl: "https://www.crsbis.in/BIS/Lithium_Battery_QCO.pdf",
+    lastUpdated: new Date().toISOString().split('T')[0],
+    clauseReferences: [
+      { clause: "Clause 7.2.2", description: "External short circuit test requirements." },
+      { clause: "Clause 7.3.2", description: "Thermal abuse test conditions." }
+    ]
+  }
+];
+
+export function getDynamicStandards(): BISStandard[] {
+  return dynamicStandardsStore;
+}
+
+export function setDynamicStandardsStore(standards: BISStandard[]): void {
+  dynamicStandardsStore = standards;
+}
+
+export function addDynamicStandard(standard: BISStandard): void {
+  dynamicStandardsStore.unshift(standard);
+}
+
+
+export const BIS_SERVICES = [
+  {
+    id: "scheme-1",
+    name: "Product Certification Scheme (ISI Mark)",
+    code: "Scheme-I",
+    description: "Grants license to use the prestigious ISI mark on products complying with Indian Standards.",
+    target: "Domestic Manufacturers & MSMEs",
+    typicalTimeline: "30 - 60 Days",
+    steps: [
+      "Identify applicable Indian Standard (IS Code)",
+      "Setup in-house testing laboratory equipment",
+      "Submit online application on Manakonline portal",
+      "BIS Officer Factory Inspection & Sample Drawing",
+      "Sample Testing in BIS Recognized NABL Lab",
+      "Grant of License & ISI Mark Marking Permission"
+    ],
+    feeStructure: "Application Fee: ₹1,000 | Inspection Fee: ₹7,000/day | Marking Fee: Varies by product volume"
+  },
+  {
+    id: "crs",
+    name: "Compulsory Registration Scheme (CRS)",
+    code: "CRS",
+    description: "Self-declaration of conformity scheme mandatory for electronic & IT products.",
+    target: "IT & Electronics Manufacturers / Importers",
+    typicalTimeline: "15 - 30 Days",
+    steps: [
+      "Submit sample to BIS Recognized Indian Testing Lab",
+      "Obtain NABL Test Report confirming IS compliance",
+      "Apply online on CRS Portal with Brand Authorization",
+      "BIS Scrutiny of Test Report & Brand Proof",
+      "Grant of CRS Registration Number (R-XXXXXXXX)"
+    ],
+    feeStructure: "Registration Fee: ₹50,000 per brand per location"
+  },
+  {
+    id: "fmcs",
+    name: "Foreign Manufacturers Certification Scheme (FMCS)",
+    code: "FMCS",
+    description: "Allows foreign manufacturing units located outside India to use ISI mark on exports to India.",
+    target: "Foreign Exporters & Global Manufacturers",
+    typicalTimeline: "90 - 120 Days",
+    steps: [
+      "Appoint Authorized Indian Representative (AIR)",
+      "Submit application on FMCS Portal",
+      "BIS Officer Overseas Factory Visit & Inspection",
+      "Sample Drawing & Testing in BIS India Lab",
+      "Performance Guarantee Bond & Grant of License"
+    ],
+    feeStructure: "Application: $1,000 USD | Visit Charges: Actual Airfare & Daily Per Diem"
+  },
+  {
+    id: "hallmarking",
+    name: "Hallmarking Scheme (Gold & Silver)",
+    code: "Hallmark",
+    description: "Guarantees purity of precious metal jewellery via 6-digit HUID.",
+    target: "Jewellers, Artisans & Precious Metal Traders",
+    typicalTimeline: "1 - 3 Days (Instant online registration)",
+    steps: [
+      "Online Jeweller Registration on BIS Portal (Zero fee for micro enterprises)",
+      "Send manufactured jewellery to BIS Recognized Assaying & Hallmarking Centre (AHC)",
+      "Fire Assay Purity Verification & 6-digit HUID Laser Engraving",
+      "Retail Sale with HUID Invoice"
+    ],
+    feeStructure: "Hallmarking Fee: ₹45 per piece of gold jewellery"
+  }
+];
+
+export const STANDARD_COMPARISONS: StandardComparison[] = [
+  {
+    standardBaseId: "is-302-2-3",
+    oldVersion: "IS 302-2-3:2017",
+    newVersion: "IS 302-2-3:2024",
+    releaseDate: "2024-03-15",
+    gracePeriodMonths: 12,
+    summary: "The 2024 revision of IS 302-2-3 introduces strict thermal safety cutoff requirements, mandatory flame-retardant grade cordage (UL94-V0), and enhanced waterproofing insulation testing for dual-voltage steam irons.",
+    clauseDiffs: [
+      {
+        clauseNumber: "Clause 19.101",
+        title: "Secondary Thermal Safety Cutout",
+        oldText: "Single thermostatic control with fuse link permitted.",
+        newText: "Mandatory dual non-resetting thermal cutouts independent of primary thermostat.",
+        changeType: "added",
+        impactDescription: "Requires PCB/wiring redesign to integrate secondary thermal fuse.",
+        costImpact: "Medium"
+      },
+      {
+        clauseNumber: "Clause 13.2",
+        title: "High Voltage Breakdown Test",
+        oldText: "1250V AC applied for 60 seconds across heating element and body.",
+        newText: "1500V AC applied for 60 seconds with leakage current threshold reduced from 0.75mA to 0.50mA.",
+        changeType: "modified",
+        impactDescription: "Tighter insulation breakdown margins. Higher grade mica/ceramic sleeves needed.",
+        costImpact: "High"
+      },
+      {
+        clauseNumber: "Clause 22.40",
+        title: "Cord Anchorage & Flexibility",
+        oldText: "10,000 flexing cycles under 20N load.",
+        newText: "20,000 flexing cycles under 25N load with zero wire strand breakage.",
+        changeType: "modified",
+        impactDescription: "Testing rig cycle duration doubled. Upgraded rubber strain relief bushing mandatory.",
+        costImpact: "Low"
+      }
+    ]
+  },
+  {
+    standardBaseId: "is-4151",
+    oldVersion: "IS 4151:2015",
+    newVersion: "IS 4151:2024",
+    releaseDate: "2024-01-10",
+    gracePeriodMonths: 6,
+    summary: "Major safety revision tightening maximum headform peak acceleration limits (from 300g down to 250g) and mandating rotational acceleration impact testing.",
+    clauseDiffs: [
+      {
+        clauseNumber: "Clause 7.3.2",
+        title: "Impact Attenuation Peak Acceleration",
+        oldText: "Maximum peak acceleration shall not exceed 300g.",
+        newText: "Maximum peak acceleration shall not exceed 250g under ambient and -10°C cold conditioning.",
+        changeType: "modified",
+        impactDescription: "Requires higher density expanded polystyrene (EPS) inner shell geometry.",
+        costImpact: "High"
+      },
+      {
+        clauseNumber: "Clause 7.8",
+        title: "Oblique Rotational Impact Test",
+        oldText: "Not required.",
+        newText: "Mandatory oblique impact test measuring rotational brain injury deceleration.",
+        changeType: "added",
+        impactDescription: "Requires new specialized rotational impact anvil testing rig in factory lab.",
+        costImpact: "High"
+      }
+    ]
+  },
+  {
+    standardBaseId: "is-14286",
+    oldVersion: "IS 14286:2010",
+    newVersion: "IS 14286:2019",
+    releaseDate: "2019-08-20",
+    gracePeriodMonths: 12,
+    summary: "Revision aligns Indian Solar PV module testing with IEC 61215:2016 international standards, adding mandatory Potential Induced Degradation (PID) and UV weathering endurance.",
+    clauseDiffs: [
+      {
+        clauseNumber: "Clause 10.13",
+        title: "Potential Induced Degradation (PID) Test",
+        oldText: "Not included in 2010 edition.",
+        newText: "Mandatory 96-hour PID stress test under -1000V DC at 85°C / 85% RH.",
+        changeType: "added",
+        impactDescription: "Requires specialized PID test chamber in laboratory testing scope.",
+        costImpact: "High"
+      },
+      {
+        clauseNumber: "Clause 10.10",
+        title: "UV Preconditioning Endurance",
+        oldText: "15 kWh/m² total UV exposure.",
+        newText: "Increased to 60 kWh/m² UV exposure with maximum power degradation <= 5%.",
+        changeType: "modified",
+        impactDescription: "Quadrupled UV test chamber exposure duration.",
+        costImpact: "Medium"
+      }
+    ]
+  },
+  {
+    standardBaseId: "is-16046-2",
+    oldVersion: "IS 16046:2015",
+    newVersion: "IS 16046 (Part 2):2018",
+    releaseDate: "2018-07-01",
+    gracePeriodMonths: 6,
+    summary: "Separated lithium-ion battery chemistry from nickel systems into a dedicated Part 2 standard, introducing compulsory BMS circuit evaluation.",
+    clauseDiffs: [
+      {
+        clauseNumber: "Clause 7.3.2",
+        title: "Thermal Abuse & Thermal Runaway",
+        oldText: "130°C for 10 minutes.",
+        newText: "130°C for 30 minutes with zero explosion or flame emission.",
+        changeType: "modified",
+        impactDescription: "Requires upgraded separator film with higher thermal shutdown temperature.",
+        costImpact: "High"
+      }
+    ]
+  }
+];
+
+export const STANDARD_ALERTS: StandardAlert[] = [
+  {
+    id: "alert-001",
+    title: "QCO Enforcement for Household Electrical Appliances",
+    isNumber: "IS 302-2-3:2024",
+    category: "Electrical Appliances",
+    alertType: "QCO Order Issued",
+    dateIssued: "2026-02-01",
+    effectiveDate: "2026-09-01",
+    summary: "Ministry of Heavy Industries renders IS 302-2-3:2024 mandatory under Quality Control Order. Uncertified stock prohibited from sale post effective date.",
+    officialGazetteRef: "S.O. 452(E) / 2026",
+    urgency: "Critical"
+  },
+  {
+    id: "alert-002",
+    title: "CRS Mandatory QCO for Lithium-ion Battery Packs",
+    isNumber: "IS 16046 (Part 2):2018",
+    category: "Electronics & Energy Storage",
+    alertType: "QCO Order Issued",
+    dateIssued: "2026-01-20",
+    effectiveDate: "2026-07-01",
+    summary: "MeitY mandates BIS CRS registration (R-XXXXXXXX) for all imported and domestic lithium battery packs used in consumer electronics.",
+    officialGazetteRef: "MeitY-QCO-BATTERY-2026",
+    urgency: "Critical"
+  },
+  {
+    id: "alert-003",
+    title: "Draft Revision for Public Comments: High Strength Steel Deformed Bars",
+    isNumber: "IS 1786:2024 Draft",
+    category: "Steel & Metallurgy",
+    alertType: "Draft for Comments",
+    dateIssued: "2026-02-10",
+    effectiveDate: "2026-04-15",
+    summary: "BIS Sectional Committee CED 54 invites comments on draft amendment regarding micro-alloying tolerances for Fe 550D grade steel.",
+    officialGazetteRef: "BIS/CED/54/DRAFT-03",
+    urgency: "Important"
+  },
+  {
+    id: "alert-004",
+    title: "QCO Enforcement for Terrestrial Photovoltaic (PV) Solar Modules",
+    isNumber: "IS 14286:2019",
+    category: "Renewable Energy & Solar",
+    alertType: "QCO Order Issued",
+    dateIssued: "2026-01-10",
+    effectiveDate: "2026-08-31",
+    summary: "Ministry of New and Renewable Energy (MNRE) mandates ALMM & BIS CRS certification under IS 14286 for all grid-connected solar power projects.",
+    officialGazetteRef: "MNRE-QCO-SOLAR-2026",
+    urgency: "Critical"
+  },
+  {
+    id: "alert-005",
+    title: "Compliance Grace Period Extension for Imported Toys",
+    isNumber: "IS 9873 (Part 1):2019",
+    category: "Toys & Children Products",
+    alertType: "Deadline Extended",
+    dateIssued: "2026-01-15",
+    effectiveDate: "2026-06-30",
+    summary: "DPIIT extends transition deadline for foreign toy manufacturers submitting NABL accredited heavy metal test reports.",
+    officialGazetteRef: "DPIIT-QCO-TOYS-2026",
+    urgency: "Info"
+  }
+];
+
+export const TESTING_MAPPINGS: TestingMapping[] = [
+  {
+    requirementId: "req-01",
+    standardId: "is-302-2-3",
+    isNumber: "IS 302-2-3",
+    parameterName: "Leakage Current & Electrical Strength",
+    clause: "Clause 13",
+    testMethodStandard: "IS 302 Part 1 Cl 13.2",
+    requiredEquipment: "High Voltage Insulation Tester (0-5kV), Leakage Current Meter",
+    sampleQuantity: "3 Complete Samples",
+    acceptanceCriteria: "Leakage current <= 0.75mA at 1.06 times rated voltage; No flashover at 1500V AC.",
+    requiredEvidenceDocument: "NABL Accredited HV & Leakage Calibration Test Certificate"
+  },
+  {
+    requirementId: "req-05",
+    standardId: "is-14286",
+    isNumber: "IS 14286",
+    parameterName: "Damp Heat & Potential Induced Degradation (PID)",
+    clause: "Clause 10.13",
+    testMethodStandard: "IS 14286 / IEC 61215 Cl 10.13",
+    requiredEquipment: "Environmental Damp Heat Chamber (85°C / 85% RH), High Voltage DC Source (-1000V)",
+    sampleQuantity: "2 Full PV Modules",
+    acceptanceCriteria: "Maximum power output degradation <= 5.0% after 1000 hours damp heat; Zero wet insulation breakdown.",
+    requiredEvidenceDocument: "NABL Solar PV Test Report with Pre/Post Sun Simulator Curve"
+  },
+  {
+    requirementId: "req-06",
+    standardId: "is-16046-2",
+    isNumber: "IS 16046 (Part 2)",
+    parameterName: "External Short Circuit & Thermal Abuse",
+    clause: "Clause 7.2.2 & 7.3.2",
+    testMethodStandard: "IS 16046 Part 2 Cl 7.2.2",
+    requiredEquipment: "Blast-proof Battery Test Oven (130°C), Automated Short Circuit Rig (Resistance < 5 m-ohm)",
+    sampleQuantity: "5 Cell / Battery Packs",
+    acceptanceCriteria: "No fire, no explosion at 55°C short circuit test; Internal temperature <= 150°C.",
+    requiredEvidenceDocument: "NABL Accredited Lithium Battery Safety Test Report"
+  },
+  {
+    requirementId: "req-07",
+    standardId: "is-269",
+    isNumber: "IS 269",
+    parameterName: "28-Day Compressive Strength Test",
+    clause: "Clause 7.1",
+    testMethodStandard: "IS 4031 (Part 6)",
+    requiredEquipment: "2000 kN Compression Testing Machine (CTM), Vibration Table, 70.6mm Cube Molds",
+    sampleQuantity: "6 Mortar Cubes per batch",
+    acceptanceCriteria: "Compressive strength after 28 days curing >= 53.0 N/mm².",
+    requiredEvidenceDocument: "Calibrated CTM Load-Displacement Chart & Cube Test Record"
+  },
+  {
+    requirementId: "req-02",
+    standardId: "is-302-2-3",
+    isNumber: "IS 302-2-3",
+    parameterName: "Temperature Rise & Thermal Endurance",
+    clause: "Clause 11",
+    testMethodStandard: "IS 302 Part 1 Cl 11.8",
+    requiredEquipment: "Multi-channel Thermocouple Data Logger, Temperature Chamber",
+    sampleQuantity: "2 Samples",
+    acceptanceCriteria: "Soleplate temperature limited to 230°C; Handle temperature rise <= 35K.",
+    requiredEvidenceDocument: "Thermocouple Temperature Plot & Calibration Chart"
+  },
+  {
+    requirementId: "req-03",
+    standardId: "is-4151",
+    isNumber: "IS 4151",
+    parameterName: "Impact Attenuation Test",
+    clause: "Clause 7.3",
+    testMethodStandard: "IS 4151 Cl 7.3 Annex B",
+    requiredEquipment: "Guided Free Fall Drop Assembly, Triaxial Accelerometer, Headform",
+    sampleQuantity: "4 Helmets (Hot, Cold, Wet, Ambient)",
+    acceptanceCriteria: "Peak acceleration <= 275g; Duration of acceleration > 150g shall not exceed 5ms.",
+    requiredEvidenceDocument: "Accelerometer Oscillogram & Peak Acceleration Test Report"
+  },
+  {
+    requirementId: "req-04",
+    standardId: "is-9873-1",
+    isNumber: "IS 9873 (Part 1)",
+    parameterName: "Toxic Heavy Metal Migration",
+    clause: "Clause 4.14",
+    testMethodStandard: "IS 9873 Part 3 / ICP-OES",
+    requiredEquipment: "Inductively Coupled Plasma Mass Spectrometer (ICP-MS)",
+    sampleQuantity: "50g Polymeric/Paint Sample",
+    acceptanceCriteria: "Lead < 90 mg/kg, Cadmium < 75 mg/kg, Chromium < 60 mg/kg.",
+    requiredEvidenceDocument: "NABL Laboratory Chemical Analysis Report with ICP Printout"
+  }
+];
+
+export const TESTING_LABS: TestingLab[] = [
+  {
+    id: "lab-01",
+    name: "Central Marks Department Laboratory (BIS Central Lab)",
+    location: "Sahibabad, Ghaziabad",
+    state: "Uttar Pradesh",
+    nablAccredited: true,
+    bisRecognized: true,
+    standardsCovered: ["IS 302-2-3", "IS 302-2-201", "IS 4151", "IS 1786", "IS 16102"],
+    contactEmail: "clab@bis.gov.in",
+    contactPhone: "+91 120 2776108",
+    avgTurnaroundDays: 10,
+    labType: "Government (BIS/NPL)"
+  },
+  {
+    id: "lab-05",
+    name: "National Institute of Solar Energy (NISE Testing Lab)",
+    location: "Gurugram",
+    state: "Haryana",
+    nablAccredited: true,
+    bisRecognized: true,
+    standardsCovered: ["IS 14286:2019", "IS 16102 (Part 1)"],
+    contactEmail: "nise.testing@gov.in",
+    contactPhone: "+91 124 2578201",
+    avgTurnaroundDays: 14,
+    labType: "Government (BIS/NPL)"
+  },
+  {
+    id: "lab-06",
+    name: "UL India Battery & Electronics Testing Centre",
+    location: "Bengaluru",
+    state: "Karnataka",
+    nablAccredited: true,
+    bisRecognized: true,
+    standardsCovered: ["IS 16046 (Part 2):2018", "IS 302-2-3", "IS 16102"],
+    contactEmail: "customerservice.in@ul.com",
+    contactPhone: "+91 80 4138 4400",
+    avgTurnaroundDays: 6,
+    labType: "NABL Private Accredited"
+  },
+  {
+    id: "lab-07",
+    name: "National Test House (NTH Eastern Region Alipore)",
+    location: "Kolkata",
+    state: "West Bengal",
+    nablAccredited: true,
+    bisRecognized: true,
+    standardsCovered: ["IS 269:2015", "IS 1786:2008", "IS 15633:2018"],
+    contactEmail: "nther.kol@nic.in",
+    contactPhone: "+91 33 2479 1201",
+    avgTurnaroundDays: 8,
+    labType: "Government (BIS/NPL)"
+  },
+  {
+    id: "lab-02",
+    name: "National Test House (NTH Northern Region)",
+    location: "Kamla Nehru Nagar, Ghaziabad",
+    state: "Uttar Pradesh",
+    nablAccredited: true,
+    bisRecognized: true,
+    standardsCovered: ["IS 1786", "IS 302-2-3", "IS 14543"],
+    contactEmail: "nthnr-doc@nic.in",
+    contactPhone: "+91 120 2789412",
+    avgTurnaroundDays: 12,
+    labType: "Government (BIS/NPL)"
+  },
+  {
+    id: "lab-03",
+    name: "TÜV SÜD South Asia Testing Laboratory",
+    location: "Bengaluru",
+    state: "Karnataka",
+    nablAccredited: true,
+    bisRecognized: true,
+    standardsCovered: ["IS 302-2-3", "IS 16102 (Part 1)", "IS 9873 (Part 1)"],
+    contactEmail: "info.india@tuvsud.com",
+    contactPhone: "+91 80 4646 6100",
+    avgTurnaroundDays: 7,
+    labType: "NABL Private Accredited"
+  },
+  {
+    id: "lab-04",
+    name: "SGS India Testing Services Lab",
+    location: "Gurugram",
+    state: "Haryana",
+    nablAccredited: true,
+    bisRecognized: true,
+    standardsCovered: ["IS 9873 (Part 1)", "IS 4151", "IS 1417"],
+    contactEmail: "sgs.india@sgs.com",
+    contactPhone: "+91 124 677 6300",
+    avgTurnaroundDays: 5,
+    labType: "NABL Private Accredited"
+  }
+];
+
+export const TIMELINE_MILESTONES: TimelineMilestone[] = [
+  {
+    stage: 1,
+    title: "Standard Identification & Gap Analysis",
+    description: "Determine applicable IS code, QCO order applicability, and run compliance gap analysis against factory infrastructure.",
+    durationDays: 5,
+    deliverables: ["Product-Standard Mapping Report", "In-house Gap Checklist"],
+    mandatoryStep: true
+  },
+  {
+    stage: 2,
+    title: "In-House Testing Setup & Calibration",
+    description: "Procure required routine and acceptance testing equipment (Megger, HV Tester, Calipers) and obtain NABL calibration certificates.",
+    durationDays: 15,
+    deliverables: ["Equipment Calibration Certificates", "In-House Test Records Log"],
+    mandatoryStep: true
+  },
+  {
+    stage: 3,
+    title: "Sample Pre-testing at NABL Lab",
+    description: "Send prototype sample to BIS-recognized NABL laboratory to obtain initial type test verification report.",
+    durationDays: 10,
+    deliverables: ["NABL Test Report with Passing Marks"],
+    mandatoryStep: true
+  },
+  {
+    stage: 4,
+    title: "Manakonline Application Submission",
+    description: "Fill online application form, upload factory layout, machinery invoices, QCP document, and pay government fee.",
+    durationDays: 3,
+    deliverables: ["BIS Application Form Ack Number (APP-2026-XXXX)"],
+    mandatoryStep: true
+  },
+  {
+    stage: 5,
+    title: "Factory Inspection & Counter Sample Drawing",
+    description: "BIS inspecting officer visits manufacturing unit, audits QCP, verifies testing rig, and seals counter-samples.",
+    durationDays: 7,
+    deliverables: ["Factory Audit Report", "Sealed Sample Drawing Receipt"],
+    mandatoryStep: true
+  },
+  {
+    stage: 6,
+    title: "Official Sample Testing & Grant of License",
+    description: "BIS Lab tests sealed sample. Upon successful verification, BIS issues official CML License Number allowing ISI marking.",
+    durationDays: 15,
+    deliverables: ["Official BIS ISI License Certificate (CML-XXXXXXXXXX)"],
+    mandatoryStep: true
+  }
+];
+
+export function getStandardComparisons(targetStandardId?: string): StandardComparison[] {
+  const currentDatabase = getDynamicStandards();
+  
+  const standardsToProcess = targetStandardId && targetStandardId !== 'all'
+    ? currentDatabase.filter(s => s.id === targetStandardId)
+    : currentDatabase;
+
+  return standardsToProcess.map(std => {
+    const explicit = STANDARD_COMPARISONS.find(c => c.standardBaseId === std.id);
+    if (explicit) return explicit;
+
+    const oldVer = std.isNumber;
+    const newVer = std.isNumber.replace(/\d{4}/, '2024');
+
+    return {
+      standardBaseId: std.id,
+      oldVersion: oldVer,
+      newVersion: newVer,
+      releaseDate: "2024-01-15",
+      gracePeriodMonths: std.mandatoryStatus.includes('Mandatory') ? 12 : 6,
+      summary: `Revision ${newVer} updates test tolerances, safety cutoff limits, and quality assurance logs for ${std.title}.`,
+      clauseDiffs: std.clauseReferences.map((ref, idx) => ({
+        clauseNumber: ref.clause,
+        title: ref.description,
+        oldText: `${ref.clause} specification in ${oldVer}.`,
+        newText: `Updated parameter in ${newVer}: Enhanced precision and mandatory NABL lab validation for ${ref.description}.`,
+        changeType: idx === 0 ? 'modified' : idx === 1 ? 'added' : 'unchanged',
+        impactDescription: `Requires factory re-calibration of testing equipment for ${ref.clause}.`,
+        costImpact: idx === 0 ? 'High' : 'Medium'
+      }))
+    };
+  });
+}
+
+export function getStandardAlerts(): StandardAlert[] {
+  const currentDatabase = getDynamicStandards();
+  
+  return currentDatabase.map((std, idx) => {
+    const isQCO = std.mandatoryStatus.includes('Mandatory');
+    return {
+      id: `alert-${std.id}`,
+      title: `${isQCO ? 'Mandatory QCO Order' : 'Revision Published'}: ${std.title}`,
+      isNumber: std.isNumber,
+      category: std.category,
+      alertType: isQCO ? 'QCO Order Issued' : 'Revision Published',
+      dateIssued: '2026-01-15',
+      effectiveDate: '2026-08-31',
+      summary: `${std.mandatoryStatus} enforced for ${std.title}. All manufacturing and import units must comply under ${std.applicableScheme}.`,
+      officialGazetteRef: `S.O. ${400 + idx * 12}(E) / 2026`,
+      urgency: isQCO ? 'Critical' : 'Important'
+    };
+  });
+}
+
+function deriveEquipmentFromParam(param: string, category: string): string {
+  const p = param.toLowerCase();
+  if (p.includes('voltage') || p.includes('hv') || p.includes('insulation')) return "High Voltage Insulation Breakdown Tester (0-5kV), Megger Meter";
+  if (p.includes('temp') || p.includes('thermal') || p.includes('heat')) return "Multi-Channel Thermocouple Data Logger, Calibrated Thermal Oven";
+  if (p.includes('impact') || p.includes('drop') || p.includes('penetration')) return "Guided Free-Fall Drop Assembly, Triaxial Accelerometer & Headform";
+  if (p.includes('micro') || p.includes('water') || p.includes('chemical') || p.includes('lead')) return "Inductively Coupled Plasma Mass Spectrometer (ICP-MS), Autoclave, Incubator";
+  if (p.includes('stress') || p.includes('strength') || p.includes('bend')) return "Universal Testing Machine (UTM 1000kN), Calibrated Mandrel Rig";
+  if (p.includes('leakage') || p.includes('current')) return "Leakage Current Meter, Variable AC Power Supply (0-300V)";
+  if (p.includes('fire') || p.includes('assay') || p.includes('gold')) return "Fire Assay Furnace (1100°C), X-Ray Fluorescence (XRF) Analyzer";
+  return "NABL Calibrated Test Bench & Digital Measuring System";
+}
+
+function deriveSampleQuantity(category: string): string {
+  if (category.includes('Electrical')) return "3 Complete Finished Units";
+  if (category.includes('Automobile') || category.includes('Tyre')) return "4 Samples (Hot, Cold, Ambient, Wet)";
+  if (category.includes('Food') || category.includes('Water')) return "5 Liters Bottled Sample Batch";
+  if (category.includes('Steel') || category.includes('Cement')) return "6 Test Cubes / Rebar Specimens";
+  return "3 Representative Samples";
+}
+
+export function getTestingMappings(targetStandardId?: string): TestingMapping[] {
+  const currentDatabase = getDynamicStandards();
+  
+  const standardsToProcess = targetStandardId && targetStandardId !== 'all'
+    ? currentDatabase.filter(s => s.id === targetStandardId)
+    : currentDatabase;
+
+  const result: TestingMapping[] = [];
+
+  standardsToProcess.forEach(std => {
+    const params = std.testingParameters.length > 0 ? std.testingParameters : std.keyRequirements;
+    
+    params.forEach((param, idx) => {
+      const clauseObj = std.clauseReferences[idx % Math.max(1, std.clauseReferences.length)] || {
+        clause: `Clause ${10 + idx * 3}`,
+        description: param
+      };
+
+      const doc = std.requiredDocuments[idx % Math.max(1, std.requiredDocuments.length)] || "NABL Accredited Test Certificate";
+
+      result.push({
+        requirementId: `req-${std.id}-${idx + 1}`,
+        standardId: std.id,
+        isNumber: std.isNumber,
+        parameterName: param,
+        clause: clauseObj.clause,
+        testMethodStandard: `${std.isNumber} ${clauseObj.clause}`,
+        requiredEquipment: deriveEquipmentFromParam(param, std.category),
+        sampleQuantity: deriveSampleQuantity(std.category),
+        acceptanceCriteria: `Compliance required under ${std.isNumber}: ${param}`,
+        requiredEvidenceDocument: doc
+      });
+    });
+  });
+
+  return result;
+}
+
+export function getTestingLabs(targetStandardId?: string): TestingLab[] {
+  const currentDatabase = getDynamicStandards();
+  if (!targetStandardId || targetStandardId === 'all') return TESTING_LABS;
+
+  const targetStd = currentDatabase.find(s => s.id === targetStandardId);
+  if (!targetStd) return TESTING_LABS;
+
+  return TESTING_LABS.filter(lab => 
+    lab.standardsCovered.some(s => s.toLowerCase().includes(targetStd.isNumber.toLowerCase()) || s.toLowerCase().includes(targetStd.id))
+  ).concat(
+    TESTING_LABS.slice(0, 2)
+  );
+}
+
+export function getTimelineMilestones(): TimelineMilestone[] {
+  return TIMELINE_MILESTONES;
+}
+
+

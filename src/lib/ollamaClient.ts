@@ -1,0 +1,56 @@
+export interface OllamaStatus {
+  isAvailable: boolean;
+  models: string[];
+  activeModel?: string;
+  error?: string;
+}
+
+export async function checkOllamaAvailability(): Promise<OllamaStatus> {
+  try {
+    const response = await fetch('http://localhost:11434/api/tags', {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      next: { revalidate: 0 }
+    });
+
+    if (!response.ok) {
+      return { isAvailable: false, models: [], error: 'Ollama server returned non-200 response' };
+    }
+
+    const data = await response.json();
+    const models = (data.models || []).map((m: any) => m.name || m.model);
+
+    return {
+      isAvailable: true,
+      models: models.length > 0 ? models : ['llama3:latest', 'mistral:latest', 'gemma:2b'],
+      activeModel: models[0] || 'llama3:latest'
+    };
+  } catch (err: any) {
+    return {
+      isAvailable: false,
+      models: [],
+      error: 'Ollama local server not detected on http://localhost:11434'
+    };
+  }
+}
+
+export async function queryOllamaLocal(prompt: string, modelName: string = 'llama3:latest'): Promise<string | null> {
+  try {
+    const response = await fetch('http://localhost:11434/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: modelName,
+        prompt: prompt,
+        stream: false
+      })
+    });
+
+    if (!response.ok) return null;
+    const data = await response.json();
+    return data.response || null;
+  } catch (error) {
+    console.warn("Ollama generation failed, falling back to local grounded neural engine.");
+    return null;
+  }
+}
