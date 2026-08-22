@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { generateStructuredRAGAnswer } from '@/lib/ragEngine';
-import { checkOllamaAvailability, queryOllamaLocal, queryGeminiAPI } from '@/lib/ollamaClient';
+import { checkOllamaAvailability, queryOllamaLocal, queryGeminiAPI, queryOpenRouterAPI } from '@/lib/ollamaClient';
 import { UserPersona } from '@/lib/types';
 
 export async function POST(req: Request) {
@@ -11,11 +11,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Query parameter is required' }, { status: 400 });
     }
 
-    // Check Ollama and Gemini status for multi-pipeline LLM routing
+    // Check Ollama, Gemini and OpenRouter status for multi-pipeline LLM routing
     const ollamaStatus = await checkOllamaAvailability();
     const geminiApiKey = process.env.GEMINI_API_KEY;
+    const openrouterApiKey = process.env.OPENROUTER_API_KEY;
     
-    let engineUsed: 'Ollama (Local LLM)' | 'Gemini (Cloud API)' | 'Gemini / Neural Grounded RAG' = 'Gemini / Neural Grounded RAG';
+    let engineUsed: 'Ollama (Local LLM)' | 'Gemini (Cloud API)' | 'OpenRouter (Cloud API)' | 'Gemini / Neural Grounded RAG' = 'Gemini / Neural Grounded RAG';
     let modelName = 'Neural BIS Grounded RAG';
     let llmResponse = '';
 
@@ -53,7 +54,24 @@ export async function POST(req: Request) {
       }
     }
 
-    // Pipeline 3: Fallback (Internal neural rules & database matching)
+    // Pipeline 3: OpenRouter API
+    if (!llmResponse && openrouterApiKey) {
+      engineUsed = 'OpenRouter (Cloud API)';
+      modelName = 'gemini-2.0-flash-exp';
+      try {
+        const openrouterRes = await queryOpenRouterAPI(
+          `System: You are an official Indian Standards & BIS AI Assistant. Answer grounded strictly in official BIS standards.\nQuestion: ${query}`,
+          openrouterApiKey
+        );
+        if (openrouterRes) {
+          llmResponse = openrouterRes;
+        }
+      } catch (err) {
+        console.warn('OpenRouter cloud chat pipeline failed. Falling back...');
+      }
+    }
+
+    // Pipeline 4: Fallback (Internal neural rules & database matching)
     // Generate accurate, highly detailed, grounded answer matching user query
     const payload = generateStructuredRAGAnswer(query, persona as UserPersona, engineUsed as any, modelName);
     

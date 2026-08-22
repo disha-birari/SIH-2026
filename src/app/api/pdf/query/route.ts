@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getOllamaEmbedding, cosineSimilarity } from '@/lib/ollamaEmbeddings';
 import { getChunksForFile } from '@/lib/pdfChunksDb';
-import { checkOllamaAvailability, queryOllamaLocal, queryGeminiAPI } from '@/lib/ollamaClient';
+import { checkOllamaAvailability, queryOllamaLocal, queryGeminiAPI, queryOpenRouterAPI } from '@/lib/ollamaClient';
 
 export async function POST(req: Request) {
   try {
@@ -114,6 +114,7 @@ Answer:`;
     let answer = '';
     let activeModel = '';
     const geminiApiKey = process.env.GEMINI_API_KEY;
+    const openrouterApiKey = process.env.OPENROUTER_API_KEY;
 
     // Pipeline 1: Local Ollama
     const ollamaStatus = await checkOllamaAvailability();
@@ -142,16 +143,29 @@ Answer:`;
       }
     }
 
-    // Pipeline 3: Offline Non-LLM Fallback (Direct Quotes listing)
+    // Pipeline 3: OpenRouter API (Cloud Llama-3 / Gemini fallback)
+    if (!answer && openrouterApiKey) {
+      activeModel = 'gemini-2.0-flash-exp (OpenRouter Cloud)';
+      try {
+        const openrouterRes = await queryOpenRouterAPI(prompt, openrouterApiKey);
+        if (openrouterRes) {
+          answer = openrouterRes;
+        }
+      } catch (err) {
+        console.warn('OpenRouter Cloud API pipeline execution failed. Attempting next pipeline...');
+      }
+    }
+
+    // Pipeline 4: Offline Non-LLM Fallback (Direct Quotes listing)
     if (!answer) {
       activeModel = 'Offline Extractor (No LLM Fallback)';
-      answer = `### ⚠️ Local AI Service (Ollama / Gemini) Offline
+      answer = `### ⚠️ Local AI Service (Ollama / Gemini / OpenRouter) Offline
 Showing direct matches retrieved from the document:
 
 ${relevantChunks.map((c, i) => `**Excerpt ${i + 1} (Page ${c.pageNumber}):**
 "${c.text}"`).join('\n\n')}
 
-*Note: Please start your local Ollama server or configure the GEMINI_API_KEY in your .env file to enable synthesis and summary generation.*`;
+*Note: Please start your local Ollama server, or verify your GEMINI_API_KEY or OPENROUTER_API_KEY is configured in your .env file.*`;
     }
 
     // Format citations to return to frontend

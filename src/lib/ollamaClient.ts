@@ -84,3 +84,35 @@ export async function queryGeminiAPI(prompt: string, apiKey: string): Promise<st
     return null;
   }
 }
+
+/**
+ * Queries the cloud OpenRouter API as a tertiary pipeline.
+ */
+export async function queryOpenRouterAPI(prompt: string, apiKey: string): Promise<string | null> {
+  try {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+        'HTTP-Referer': 'http://localhost:3000',
+        'X-Title': 'BIS AI Platform'
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.0-flash-exp:free',
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!response.ok) {
+      console.error('OpenRouter API returned status:', response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    return data.choices?.[0]?.message?.content || null;
+  } catch (err) {
+    console.error('Error querying OpenRouter API:', err);
+    return null;
+  }
+}
