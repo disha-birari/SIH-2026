@@ -12,7 +12,8 @@ import { useAuth } from '@/context/AuthContext';
 import { BISStandard } from '@/lib/types';
 
 export default function AdminPage() {
-  const { syncDatabase, dbStandardsCount } = useAuth();
+  const { syncDatabase } = useAuth();
+  const [mounted, setMounted] = useState(false);
   const [feedbackLogs, setFeedbackLogs] = useState<any[]>([]);
   const [standardsCount, setStandardsCount] = useState(0);
   const [docTitle, setDocTitle] = useState('');
@@ -28,6 +29,7 @@ export default function AdminPage() {
   };
 
   useEffect(() => {
+    setMounted(true);
     loadLogs();
   }, []);
 
@@ -227,16 +229,20 @@ export default function AdminPage() {
           </div>
 
           <div style={{ height: 260, width: '100%', paddingTop: 8 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={benchmarkData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E8E2DC" />
-                <XAxis dataKey="metric" tick={{ fontSize: 10, fill: '#686868' }} />
-                <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: '#686868' }} />
-                <Tooltip />
-                <Bar dataKey="score" fill="#F28C52" radius={[4, 4, 0, 0]} name="Measured Accuracy (%)" />
-                <Bar dataKey="benchmark" fill="#E8E2DC" radius={[4, 4, 0, 0]} name="Baseline Benchmark" />
-              </BarChart>
-            </ResponsiveContainer>
+            {mounted ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={benchmarkData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E8E2DC" />
+                  <XAxis dataKey="metric" tick={{ fontSize: 10, fill: '#686868' }} />
+                  <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: '#686868' }} />
+                  <Tooltip />
+                  <Bar dataKey="score" fill="#F28C52" radius={[4, 4, 0, 0]} name="Measured Accuracy (%)" />
+                  <Bar dataKey="benchmark" fill="#E8E2DC" radius={[4, 4, 0, 0]} name="Baseline Benchmark" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div style={{ padding: 20, color: '#686868', fontSize: 12 }}>Loading benchmark chart...</div>
+            )}
           </div>
         </div>
 
