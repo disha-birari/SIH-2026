@@ -35,7 +35,7 @@ body {
   background-color: #eef2f7;
   color: var(--gov-text-dark);
   font-family: 'Noto Sans', 'Arial', sans-serif;
-  font-size: 14px;
+  font-size: var(--app-font-size, 14px);
   line-height: 1.6;
   margin: 0;
   overflow-x: hidden;
@@ -200,12 +200,14 @@ body {
 ::-webkit-scrollbar-thumb:hover { background: var(--gov-saffron); }
 
 /* =============================================
-   GOOGLE TRANSLATE HIDE
+   GOOGLE TRANSLATE WIDGET CLEANUP
    ============================================= */
-.goog-te-banner-frame { display: none !important; }
+.goog-te-banner-frame, iframe.goog-te-banner-frame { display: none !important; }
 .goog-te-balloon-frame, #goog-gt-tt, .goog-te-spinner-pos { display: none !important; }
-.skiptranslate { display: none !important; }
+body > .skiptranslate { display: none !important; }
 #google_translate_element { display: none !important; }
+body { top: 0px !important; }
+
 
 /* =============================================
    ANIMATIONS

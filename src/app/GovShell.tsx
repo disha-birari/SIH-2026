@@ -23,10 +23,18 @@ function ShellInner({ children }: { children: React.ReactNode }) {
   const [persona, setPersona] = useState<UserPersona>('manufacturer');
   const [fontSize, setFontSize] = useState<'small' | 'normal' | 'large'>('normal');
 
-  // Apply font size to <html> element via CSS variable trick
+  // Apply full page zoom and scaling for accessibility buttons (A-, A, A+)
   React.useEffect(() => {
-    const sizes = { small: '12px', normal: '14px', large: '16px' };
-    document.documentElement.style.fontSize = sizes[fontSize];
+    const fontSizes = { small: '12px', normal: '14px', large: '17px' };
+    const zoomScales = { small: '0.88', normal: '1.0', large: '1.15' };
+    
+    document.documentElement.style.setProperty('--app-font-size', fontSizes[fontSize]);
+    document.documentElement.style.fontSize = fontSizes[fontSize];
+    
+    if (typeof document !== 'undefined' && document.body) {
+      document.body.style.fontSize = fontSizes[fontSize];
+      (document.body.style as any).zoom = zoomScales[fontSize];
+    }
   }, [fontSize]);
 
   // Apply language to <html> lang attribute
@@ -79,7 +87,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
 
             {/* Google Authentication Button / User Profile */}
             {user ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#001833', border: '1px solid #2a4a66', borderRadius: 4, padding: '2px 8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#001833', border: '1px solid #2a4a66', borderRadius: 4, padding: '2px 8px', height: 26, flexShrink: 0 }}>
                 {user.photoURL ? (
                   <img src={user.photoURL} alt={user.displayName || 'User'} style={{ width: 18, height: 18, borderRadius: '50%' }} />
                 ) : (
@@ -105,15 +113,16 @@ function ShellInner({ children }: { children: React.ReactNode }) {
                   display: 'inline-flex', alignItems: 'center', gap: 6,
                   background: '#ffffff', color: '#003366',
                   border: '1px solid #c0ccd8', borderRadius: 3,
-                  padding: '3px 10px', fontSize: 11, fontWeight: 800,
+                  padding: '0 10px', height: 26, fontSize: 11, fontWeight: 800,
                   cursor: 'pointer', transition: 'background 0.15s, border-color 0.15s',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)', flexShrink: 0,
+                  whiteSpace: 'nowrap'
                 }}
                 onMouseEnter={e => (e.currentTarget.style.background = '#f0f5ff')}
                 onMouseLeave={e => (e.currentTarget.style.background = '#ffffff')}
               >
                 {/* Official Google G Logo */}
-                <svg style={{ width: 13, height: 13 }} viewBox="0 0 24 24">
+                <svg style={{ width: 13, height: 13, flexShrink: 0 }} viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                   <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
@@ -309,7 +318,14 @@ function ShellInner({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* ══════════════ MAIN CONTENT ══════════════ */}
-      <main style={{ flex: 1, width: '100%', background: '#eef2f7' }}>
+      <main style={{ 
+        flex: 1, 
+        width: '100%', 
+        background: '#eef2f7',
+        fontSize: fontSize === 'small' ? '12px' : fontSize === 'large' ? '16px' : '14px',
+        zoom: fontSize === 'small' ? 0.88 : fontSize === 'large' ? 1.15 : 1,
+        transition: 'all 0.2s ease',
+      }}>
         <div style={{ maxWidth: 1440, margin: '0 auto', padding: '24px 20px' }}>
           {children}
         </div>
