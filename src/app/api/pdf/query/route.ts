@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getOllamaEmbedding, cosineSimilarity } from '@/lib/ollamaEmbeddings';
 import { getChunksForFile } from '@/lib/pdfChunksDb';
-import { checkOllamaAvailability, queryOllamaLocal } from '@/lib/ollamaClient';
+import { checkOllamaAvailability, queryOllamaLocal, queryGeminiAPI } from '@/lib/ollamaClient';
 
 export async function POST(req: Request) {
   try {
@@ -110,16 +110,49 @@ Question: ${query}
 Answer:`;
     }
 
-    // 3. Query the local Ollama LLM
+    // 3. Query local AI or cloud API fallback pipelines
+    let answer = '';
+    let activeModel = '';
+    const geminiApiKey = process.env.GEMINI_API_KEY;
+
+    // Pipeline 1: Local Ollama
     const ollamaStatus = await checkOllamaAvailability();
-    if (!ollamaStatus.isAvailable) {
-      return NextResponse.json({ 
-        error: 'Ollama local server not detected. Please start Ollama.' 
-      }, { status: 500 });
+    if (ollamaStatus.isAvailable) {
+      activeModel = ollamaStatus.activeModel || 'gemma:2b';
+      try {
+        const ollamaRes = await queryOllamaLocal(prompt, activeModel);
+        if (ollamaRes) {
+          answer = ollamaRes;
+        }
+      } catch (err) {
+        console.warn('Local Ollama pipeline execution failed. Attempting next pipeline...');
+      }
     }
 
-    const activeModel = ollamaStatus.activeModel || 'gemma:2b';
-    const answer = await queryOllamaLocal(prompt, activeModel);
+    // Pipeline 2: Google Gemini Cloud API
+    if (!answer && geminiApiKey) {
+      activeModel = 'gemini-1.5-flash (Cloud)';
+      try {
+        const geminiRes = await queryGeminiAPI(prompt, geminiApiKey);
+        if (geminiRes) {
+          answer = geminiRes;
+        }
+      } catch (err) {
+        console.warn('Gemini Cloud API pipeline execution failed. Attempting next pipeline...');
+      }
+    }
+
+    // Pipeline 3: Offline Non-LLM Fallback (Direct Quotes listing)
+    if (!answer) {
+      activeModel = 'Offline Extractor (No LLM Fallback)';
+      answer = `### ⚠️ Local AI Service (Ollama / Gemini) Offline
+Showing direct matches retrieved from the document:
+
+${relevantChunks.map((c, i) => `**Excerpt ${i + 1} (Page ${c.pageNumber}):**
+"${c.text}"`).join('\n\n')}
+
+*Note: Please start your local Ollama server or configure the GEMINI_API_KEY in your .env file to enable synthesis and summary generation.*`;
+    }
 
     // Format citations to return to frontend
     const citations = relevantChunks.map(c => ({
@@ -129,7 +162,7 @@ Answer:`;
     }));
 
     return NextResponse.json({
-      answer: answer || 'Ollama failed to generate an answer. Please verify local LLM logs.',
+      answer: answer,
       citations: citations,
       modelUsed: activeModel,
       isSummary: isSummaryRequest

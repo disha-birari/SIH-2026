@@ -54,3 +54,33 @@ export async function queryOllamaLocal(prompt: string, modelName: string = 'llam
     return null;
   }
 }
+
+/**
+ * Queries the cloud Google Gemini API as a secondary pipeline.
+ */
+export async function queryGeminiAPI(prompt: string, apiKey: string): Promise<string | null> {
+  try {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{ text: prompt }]
+        }]
+      })
+    });
+    
+    if (!response.ok) {
+      console.error('Gemini API returned status:', response.status);
+      return null;
+    }
+    
+    const data = await response.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || null;
+  } catch (err) {
+    console.error('Error querying Gemini API:', err);
+    return null;
+  }
+}
