@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" rx="14" fill="#002244" />
+  <path d="M32 10 L48 18 V34 C48 45.2 41.2 53.4 32 56 C22.8 53.4 16 45.2 16 34 V18 Z" fill="none" stroke="#FF6200" stroke-width="3.5" stroke-linejoin="round" />
+  <path d="M32 15 L44 21 V33 C44 42.2 38.6 49.1 32 51.3 C25.4 49.1 20 42.2 20 33 V21 Z" fill="#003366" opacity="0.85" />
+  <!-- Inner Star / Check Emblem -->
+  <polygon points="32,22 35,29 42,29 36,33 38,40 32,36 26,40 28,33 22,29 29,29" fill="#FF9933" />
+  <circle cx="32" cy="31" r="3" fill="#ffffff" />
+</svg>
