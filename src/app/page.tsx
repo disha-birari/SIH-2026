@@ -235,65 +235,65 @@ export default function DashboardPage() {
           </div>
         ))}
       </div>
-
-      {/* ══════════════ 3. MAIN DASHBOARD WORKSPACE ══════════════ */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24, alignItems: 'stretch' }}>
         
         {/* Active Standards Panel */}
-        <div style={{ background: '#FFFFFF', border: '1px solid #E8E2DC', borderRadius: 10, padding: 24, boxShadow: '0 2px 8px rgba(40,30,20,0.03)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <h2 style={{ fontSize: 16, fontWeight: 700, color: '#171717', margin: 0 }}>
-              Active Standards Overview
-            </h2>
-            <Link href="/matcher" style={{ fontSize: 12.5, fontWeight: 700, color: '#E9783F', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>
-              View All ({standardsList.length}) <ArrowUpRight style={{ width: 14, height: 14 }} />
-            </Link>
-          </div>
+        <div style={{ background: '#FFFFFF', border: '1px solid #E8E2DC', borderRadius: 10, padding: 24, boxShadow: '0 2px 8px rgba(40,30,20,0.03)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <h2 style={{ fontSize: 16, fontWeight: 700, color: '#171717', margin: 0 }}>
+                Active Standards Overview
+              </h2>
+              <Link href="/matcher" style={{ fontSize: 12.5, fontWeight: 700, color: '#E9783F', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>
+                View All ({standardsList.length}) <ArrowUpRight style={{ width: 14, height: 14 }} />
+              </Link>
+            </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {standardsList.slice(0, 4).map((std) => (
-              <div
-                key={std.id}
-                style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  padding: '14px 16px', border: '1px solid #E8E2DC', borderRadius: 8,
-                  background: '#FFFCF8', transition: 'all 0.15s'
-                }}
-              >
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 2 }}>
-                    <span style={{ fontSize: 13.5, fontWeight: 700, color: '#171717' }}>{std.isNumber}</span>
-                    <span style={{ fontSize: 11, fontWeight: 700, background: '#FFF1E8', color: '#E9783F', border: '1px solid #F4C4A5', borderRadius: 4, padding: '1px 6px' }}>
-                      {std.category}
-                    </span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {standardsList.slice(0, 4).map((std) => (
+                <div
+                  key={std.id}
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '14px 16px', border: '1px solid #E8E2DC', borderRadius: 8,
+                    background: '#FFFCF8', transition: 'all 0.15s'
+                  }}
+                >
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 2 }}>
+                      <span style={{ fontSize: 13.5, fontWeight: 700, color: '#171717' }}>{std.isNumber}</span>
+                      <span style={{ fontSize: 11, fontWeight: 700, background: '#FFF1E8', color: '#E9783F', border: '1px solid #F4C4A5', borderRadius: 4, padding: '1px 6px' }}>
+                        {std.category}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 12.5, color: '#686868' }}>{std.title}</div>
                   </div>
-                  <div style={{ fontSize: 12.5, color: '#686868' }}>{std.title}</div>
-                </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: '#4F7D5A', background: '#EBF4EE', border: '1px solid #B5D5BF', borderRadius: 4, padding: '2px 8px' }}>
-                    Active
-                  </span>
-                  <Link
-                    href={`/citations?standard=${encodeURIComponent(std.isNumber)}`}
-                    style={{ fontSize: 12, fontWeight: 600, color: '#242424', textDecoration: 'none', border: '1px solid #E8E2DC', padding: '4px 10px', borderRadius: 6, background: '#FFFFFF' }}
-                  >
-                    Analyze
-                  </Link>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#4F7D5A', background: '#EBF4EE', border: '1px solid #B5D5BF', borderRadius: 4, padding: '2px 8px' }}>
+                      Active
+                    </span>
+                    <Link
+                      href={`/citations?standard=${encodeURIComponent(std.isNumber)}`}
+                      style={{ fontSize: 12, fontWeight: 600, color: '#242424', textDecoration: 'none', border: '1px solid #E8E2DC', padding: '4px 10px', borderRadius: 6, background: '#FFFFFF' }}
+                    >
+                      Analyze
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
 
         {/* Recent Activity */}
-        <div style={{ background: '#FFFFFF', border: '1px solid #E8E2DC', borderRadius: 10, padding: 24, boxShadow: '0 2px 8px rgba(40,30,20,0.03)' }}>
+        <div style={{ background: '#FFFFFF', border: '1px solid #E8E2DC', borderRadius: 10, padding: 24, boxShadow: '0 2px 8px rgba(40,30,20,0.03)', display: 'flex', flexDirection: 'column' }}>
           <h2 style={{ fontSize: 16, fontWeight: 700, color: '#171717', margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
             <Activity style={{ width: 16, height: 16, color: '#F28C52' }} />
             Recent Activity
           </h2>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, flex: 1, justifyContent: 'space-between' }}>
             {recentActivities.map((act, i) => (
               <div key={i} style={{ paddingBottom: 12, borderBottom: i < recentActivities.length - 1 ? '1px solid #E8E2DC' : 'none' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
@@ -390,7 +390,7 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
           {all15Features.map(feat => {
             const Icon = feat.icon;
             return (

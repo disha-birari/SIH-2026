@@ -23,10 +23,15 @@ function ShellInner({ children }: { children: React.ReactNode }) {
   const [fontSize, setFontSize] = useState<'small' | 'normal' | 'large'>('normal');
   const [standardsList, setStandardsList] = useState(getDynamicStandards());
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mounted, setMounted] = useState(false);
   
   // Command Palette State (Ctrl+K)
   const [commandOpen, setCommandOpen] = useState(false);
   const [cmdQuery, setCmdQuery] = useState('');
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Listen for live BIS standard ingest updates from Admin Panel
   useEffect(() => {
@@ -159,9 +164,16 @@ function ShellInner({ children }: { children: React.ReactNode }) {
         i.title.toLowerCase().includes(cmdQuery.toLowerCase()) || 
         i.category.toLowerCase().includes(cmdQuery.toLowerCase())
       ).slice(0, 10);
+  if (!mounted) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#FFFCF8', color: '#242424' }}>
+        {children}
+      </div>
+    );
+  }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#FFFCF8', color: '#242424' }}>
+    <div suppressHydrationWarning style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#FFFCF8', color: '#242424' }}>
       {/* Hidden Google Translate Element */}
       <div id="google_translate_element" style={{ display: 'none' }}></div>
 
@@ -355,7 +367,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* ══════════════ 3. ENTERPRISE WORKSPACE LAYOUT (SIDEBAR + MAIN) ══════════════ */}
-      <div style={{ flex: 1, display: 'flex', maxWidth: 1440, width: '100%', margin: '0 auto' }}>
+      <div style={{ flex: 1, display: 'flex', width: '100%' }}>
         
         {/* COLLAPSIBLE SIDEBAR */}
         <aside style={{
@@ -454,7 +466,9 @@ function ShellInner({ children }: { children: React.ReactNode }) {
 
         {/* MAIN WORKSPACE CONTENT */}
         <main style={{ flex: 1, padding: '24px 32px', minWidth: 0 }}>
-          {children}
+          <div style={{ maxWidth: 1440, margin: '0 auto', width: '100%' }}>
+            {children}
+          </div>
         </main>
 
       </div>
@@ -554,32 +568,32 @@ function ShellInner({ children }: { children: React.ReactNode }) {
       )}
 
       {/* ══════════════ 5. RESTRAINED INSTITUTIONAL FOOTER ══════════════ */}
-      <footer style={{ background: '#FFFFFF', borderTop: '1px solid #E8E2DC', padding: '32px 0 20px', flexShrink: 0 }}>
+      <footer style={{ background: '#09090B', borderTop: '1px solid #27272A', padding: '32px 0 20px', flexShrink: 0, color: '#FAFAFA' }}>
         <div style={{ maxWidth: 1440, margin: '0 auto', padding: '0 24px' }}>
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24, paddingBottom: 24, borderBottom: '1px solid #E8E2DC' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24, paddingBottom: 24, borderBottom: '1px solid #27272A' }}>
             {/* Identity */}
             <div style={{ gridColumn: 'span 2' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                <div style={{ width: 28, height: 28, background: '#FFF1E8', border: '1px solid #F28C52', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: 28, height: 28, background: 'rgba(242, 140, 82, 0.15)', border: '1px solid rgba(242, 140, 82, 0.4)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Shield style={{ width: 16, height: 16, color: '#F28C52' }} />
                 </div>
-                <span style={{ fontWeight: 800, fontSize: 15, color: '#171717' }}>Bureau of Indian Standards</span>
+                <span style={{ fontWeight: 800, fontSize: 15, color: '#FFFFFF' }}>Bureau of Indian Standards</span>
               </div>
-              <p style={{ fontSize: 12.5, color: '#686868', maxWidth: 480, margin: 0, lineHeight: 1.6 }}>
+              <p style={{ fontSize: 12.5, color: '#A1A1AA', maxWidth: 480, margin: 0, lineHeight: 1.6 }}>
                 Groundbreaking intelligence platform providing clause-level verification, revision comparisons, and statutory compliance navigation for Indian Standards.
               </p>
             </div>
 
             {/* Portals */}
             <div>
-              <div style={{ fontWeight: 700, fontSize: 12, color: '#171717', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>Official BIS Portals</div>
+              <div style={{ fontWeight: 700, fontSize: 12, color: '#FFFFFF', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>Official BIS Portals</div>
               {[
                 ['Official BIS Website', 'https://www.bis.gov.in'],
                 ['Manakonline Portal', 'https://www.manakonline.in'],
                 ['CRS Registration', 'https://www.crsbis.in']
               ].map(([lbl, url]) => (
-                <a key={lbl} href={url} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#686868', fontSize: 12, textDecoration: 'none', marginBottom: 6 }}>
+                <a key={lbl} href={url} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#A1A1AA', fontSize: 12, textDecoration: 'none', marginBottom: 6 }}>
                   <span>{lbl}</span>
                   <ExternalLink style={{ width: 11, height: 11, color: '#F28C52' }} />
                 </a>
@@ -588,18 +602,18 @@ function ShellInner({ children }: { children: React.ReactNode }) {
 
             {/* System Accuracy */}
             <div>
-              <div style={{ fontWeight: 700, fontSize: 12, color: '#171717', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>System Accuracy</div>
-              <div style={{ fontSize: 12, color: '#686868', display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <div>Retrieval Precision: <strong style={{ color: '#4F7D5A' }}>94.2%</strong></div>
-                <div>Grounded Answers: <strong style={{ color: '#4F7D5A' }}>96.8%</strong></div>
-                <div>Hallucination Rate: <strong style={{ color: '#F28C52' }}>&lt; 0.6%</strong></div>
+              <div style={{ fontWeight: 700, fontSize: 12, color: '#FFFFFF', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>System Accuracy</div>
+              <div style={{ fontSize: 12, color: '#A1A1AA', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div>Retrieval Precision: <strong style={{ color: '#4ADE80' }}>94.2%</strong></div>
+                <div>Grounded Answers: <strong style={{ color: '#4ADE80' }}>96.8%</strong></div>
+                <div>Hallucination Rate: <strong style={{ color: '#FB923C' }}>&lt; 0.6%</strong></div>
               </div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 16, fontSize: 12, color: '#686868', flexWrap: 'wrap', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 16, fontSize: 12, color: '#71717A', flexWrap: 'wrap', gap: 10 }}>
             <span>© 2026 Bureau of Indian Standards (BIS), Government of India.</span>
-            <span>Designed to GOI web standards • White + Warm Orange + Charcoal Theme</span>
+            <span>Designed to GOI web standards • Dark Charcoal Theme</span>
           </div>
 
         </div>
