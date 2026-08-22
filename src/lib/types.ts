@@ -167,3 +167,96 @@ export interface TimelineMilestone {
   mandatoryStep: boolean;
 }
 
+// ═════════════════════════════════════════════════════════════════════
+// LEGAL TREE RATIONALE & EXPLAINABILITY ENGINE TYPES
+// ═════════════════════════════════════════════════════════════════════
+
+export type NodeTypeCategory = 
+  | 'user_input' 
+  | 'product_scope' 
+  | 'hazard' 
+  | 'standard' 
+  | 'legal_authority' 
+  | 'qco' 
+  | 'scheme' 
+  | 'clause' 
+  | 'test' 
+  | 'evidence' 
+  | 'action' 
+  | 'warning';
+
+export interface LegalTreeNode {
+  id: string;
+  type: NodeTypeCategory;
+  title: string;
+  shortExplanation: string;
+  evidenceStatus: 'Official Evidence' | 'Retrieved Gazette Data' | 'AI Explanation' | 'System Inference' | 'User Input' | 'Not Established';
+  sourceCount: number;
+  clauseRef?: string;
+  pageRef?: string;
+  evidenceStrength: 'High' | 'Medium' | 'Low' | 'Not Established';
+  detailedExplanation?: string;
+  determinationSteps?: string[];
+  sources?: {
+    title: string;
+    type: 'Indian Standard' | 'QCO' | 'Gazette' | 'BIS Act' | 'Test Method';
+    clause?: string;
+    page?: string;
+    url?: string;
+  }[];
+}
+
+export interface WhyNotComparison {
+  candidateStandardId: string;
+  candidateIsNumber: string;
+  candidateTitle: string;
+  matchStatus: 'DIRECT_MATCH' | 'EXCLUDED_SCOPE' | 'EXCLUDED_VOLUNTARY' | 'INSUFFICIENT_EVIDENCE';
+  exclusionReason: string;
+  retrievalSimilarity: number;
+  evidenceCoverage: 'High' | 'Medium' | 'Low' | 'Not Established';
+}
+
+export interface HazardChainItem {
+  id: string;
+  hazardName: string;
+  hazardDescription: string;
+  requirement: string;
+  clause: string;
+  testName: string;
+  testPurpose: string;
+  evidenceSource: string;
+  consumerProtectionValue: string;
+}
+
+export interface LegalAuthorityChainItem {
+  stage: number;
+  levelName: string;
+  authorityName: string;
+  referenceDoc: string;
+  effectiveDate: string;
+  status: 'Active' | 'Under Revision' | 'Draft' | 'Superseded';
+  officialSource: string;
+  summary: string;
+}
+
+export interface SmartInterviewQuestion {
+  id: string;
+  questionText: string;
+  options: string[];
+  fieldKey: string;
+}
+
+export interface LegalTreeData {
+  standard: BISStandard;
+  applicabilityStatus: 'SUPPORTED' | 'PARTIALLY_SUPPORTED' | 'REQUIRES_REVIEW' | 'NOT_ESTABLISHED' | 'NOT_APPLICABLE';
+  certificationStatus: 'Mandatory (QCO)' | 'Voluntary' | 'CRS Mandatory' | 'Not Determined';
+  evidenceStrength: 'High' | 'Medium' | 'Low' | 'Not Established';
+  currentStatus: 'Active' | 'Superseded' | 'Unknown';
+  lastVerifiedDate: string;
+  nodes: LegalTreeNode[];
+  whyNotComparisons: WhyNotComparison[];
+  hazardChain: HazardChainItem[];
+  legalAuthorityChain: LegalAuthorityChainItem[];
+  versionEvents: { date: string; title: string; impact: string }[];
+}
+
