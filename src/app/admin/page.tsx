@@ -74,6 +74,10 @@ export default function AdminPage() {
     addDynamicStandard(newStandard);
     await saveCustomStandardToFirebase(newStandard);
 
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('bis_standards_updated', { detail: newStandard }));
+    }
+
     setStandardsCount(getDynamicStandards().length);
     setIsIngesting(false);
     setIngestSuccess(true);
@@ -84,147 +88,211 @@ export default function AdminPage() {
 
 
   return (
-    <div className="space-y-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24, width: '100%' }}>
       
       {/* Header Banner */}
-      <div className="bg-white rounded-xl p-6 border border-orange-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div style={{
+        background: '#ffffff',
+        borderRadius: 8,
+        border: '1px solid #d0d8e4',
+        borderLeft: '5px solid #FF6200',
+        padding: '24px',
+        boxShadow: '0 2px 8px rgba(0,51,102,0.06)',
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 16,
+      }}>
         <div>
-          <h2 className="text-xl font-extrabold text-slate-900 flex items-center space-x-2">
-            <BarChart3 className="w-6 h-6 text-orange-600" />
+          <h2 style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 800, color: '#002244', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <BarChart3 style={{ width: 22, height: 22, color: '#FF6200' }} />
             <span>Admin Knowledge Base & Evaluation Benchmarks</span>
           </h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <p style={{ margin: 0, fontSize: 12, color: '#5a6a7a', fontWeight: 500 }}>
             Empirical evaluation metrics, vector index status, and document ingest pipeline for Indian Standards compliance.
           </p>
         </div>
 
-        <div className="flex items-center space-x-3">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
           <button
             onClick={handleSyncFirebase}
             disabled={isSyncing}
-            className="flex items-center space-x-1.5 bg-orange-600 hover:bg-orange-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              background: '#003366', color: '#ffffff',
+              border: 'none', borderRadius: 4,
+              padding: '8px 14px', fontSize: 12, fontWeight: 700,
+              cursor: isSyncing ? 'not-allowed' : 'pointer', opacity: isSyncing ? 0.7 : 1,
+              transition: 'background 0.15s',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.background = '#002244')}
+            onMouseLeave={e => (e.currentTarget.style.background = '#003366')}
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+            <RefreshCw style={{ width: 14, height: 14, animation: isSyncing ? 'spin 1s linear infinite' : 'none' }} />
             <span>{isSyncing ? 'Syncing Firebase...' : 'Sync Firebase DB'}</span>
           </button>
 
-          <div className="flex items-center space-x-2 bg-emerald-50 text-emerald-800 border border-emerald-200 px-3 py-1.5 rounded-lg text-xs font-bold">
-            <Activity className="w-4 h-4 text-emerald-600 animate-pulse" />
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            background: '#eafaf1', color: '#138808',
+            border: '1px solid #a9dfbf', borderRadius: 4,
+            padding: '7px 12px', fontSize: 12, fontWeight: 700,
+          }}>
+            <Activity style={{ width: 15, height: 15, color: '#138808' }} />
             <span>Vector DB Health: Optimal ({standardsCount * 14} Dynamic Chunks)</span>
           </div>
         </div>
       </div>
 
       {/* Benchmark Metrics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
         
-        <div className="sap-card p-4 border-t-4 border-t-orange-500 space-y-1">
-          <span className="text-xs text-slate-500 font-bold uppercase">Retrieval Precision@K</span>
-          <h3 className="text-2xl font-black text-slate-900">94.2%</h3>
-          <p className="text-[11px] text-emerald-700 font-semibold">Verified against 100 BIS Questions</p>
+        <div style={{ background: '#ffffff', border: '1px solid #d0d8e4', borderTop: '4px solid #003366', borderRadius: 6, padding: '18px 20px', boxShadow: '0 2px 6px rgba(0,51,102,0.06)' }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: '#7a8a9a', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Retrieval Accuracy (Precision @ K)</span>
+          <h3 style={{ margin: '6px 0 2px', fontSize: 26, fontWeight: 800, color: '#002244', lineHeight: 1.1 }}>94.2%</h3>
+          <p style={{ margin: 0, fontSize: 11, color: '#138808', fontWeight: 600 }}>Verified against 100 BIS Questions</p>
         </div>
 
-        <div className="sap-card p-4 border-t-4 border-t-emerald-600 space-y-1">
-          <span className="text-xs text-slate-500 font-bold uppercase">Answer Groundedness</span>
-          <h3 className="text-2xl font-black text-slate-900">96.8%</h3>
-          <p className="text-[11px] text-emerald-700 font-semibold">Direct Standard Quote Support</p>
+        <div style={{ background: '#ffffff', border: '1px solid #d0d8e4', borderTop: '4px solid #138808', borderRadius: 6, padding: '18px 20px', boxShadow: '0 2px 6px rgba(0,51,102,0.06)' }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: '#7a8a9a', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Answer Groundedness Score</span>
+          <h3 style={{ margin: '6px 0 2px', fontSize: 26, fontWeight: 800, color: '#002244', lineHeight: 1.1 }}>96.8%</h3>
+          <p style={{ margin: 0, fontSize: 11, color: '#138808', fontWeight: 600 }}>Direct Standard Quote Support</p>
         </div>
 
-        <div className="sap-card p-4 border-t-4 border-t-amber-500 space-y-1">
-          <span className="text-xs text-slate-500 font-bold uppercase">Hallucination Rate</span>
-          <h3 className="text-2xl font-black text-slate-900">0.6%</h3>
-          <p className="text-[11px] text-amber-700 font-semibold">Strict System Instructions</p>
+        <div style={{ background: '#ffffff', border: '1px solid #d0d8e4', borderTop: '4px solid #FF6200', borderRadius: 6, padding: '18px 20px', boxShadow: '0 2px 6px rgba(0,51,102,0.06)' }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: '#7a8a9a', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Hallucination Rate</span>
+          <h3 style={{ margin: '6px 0 2px', fontSize: 26, fontWeight: 800, color: '#002244', lineHeight: 1.1 }}>0.6%</h3>
+          <p style={{ margin: 0, fontSize: 11, color: '#FF6200', fontWeight: 600 }}>Strict Gazette System Guardrails</p>
         </div>
 
-        <div className="sap-card p-4 border-t-4 border-t-purple-600 space-y-1">
-          <span className="text-xs text-slate-500 font-bold uppercase">Active Dynamic Store</span>
-          <h3 className="text-2xl font-black text-slate-900">{standardsCount} Standards</h3>
-          <p className="text-[11px] text-purple-700 font-semibold">Live Embedded Vectors</p>
+        <div style={{ background: '#ffffff', border: '1px solid #d0d8e4', borderTop: '4px solid #1a5276', borderRadius: 6, padding: '18px 20px', boxShadow: '0 2px 6px rgba(0,51,102,0.06)' }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: '#7a8a9a', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Active Dynamic Standards</span>
+          <h3 style={{ margin: '6px 0 2px', fontSize: 26, fontWeight: 800, color: '#002244', lineHeight: 1.1 }}>{standardsCount} Standards</h3>
+          <p style={{ margin: 0, fontSize: 11, color: '#003366', fontWeight: 600 }}>Live Embedded Vectors</p>
         </div>
 
       </div>
 
-      {/* Graph */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Graph and Document Ingestion Form */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 20 }}>
         
-        <div className="sap-card p-6 space-y-4">
-          <div className="flex items-center justify-between border-b border-orange-100 pb-3">
-            <h3 className="text-sm font-bold text-slate-900 flex items-center space-x-2">
-              <Award className="w-4 h-4 text-orange-500" />
+        {/* Graph Card */}
+        <div style={{ background: '#ffffff', border: '1px solid #d0d8e4', borderTop: '3px solid #003366', borderRadius: 6, padding: '20px', boxShadow: '0 2px 6px rgba(0,51,102,0.06)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #eef2f7', paddingBottom: 12, marginBottom: 16 }}>
+            <h3 style={{ margin: 0, fontSize: 14, fontWeight: 700, color: '#002244', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Award style={{ width: 18, height: 18, color: '#FF6200' }} />
               <span>Benchmark Evaluation Results (100 Test Suite)</span>
             </h3>
           </div>
 
-          <div className="h-64 w-full pt-2">
+          <div style={{ height: 260, width: '100%', paddingTop: 8 }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={benchmarkData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#ffedd5" />
-                <XAxis dataKey="metric" tick={{ fontSize: 10 }} />
-                <YAxis domain={[0, 100]} tick={{ fontSize: 10 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#eef2f7" />
+                <XAxis dataKey="metric" tick={{ fontSize: 10, fill: '#5a6a7a' }} />
+                <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: '#5a6a7a' }} />
                 <Tooltip />
-                <Bar dataKey="score" fill="#ff671f" radius={[4, 4, 0, 0]} name="Measured Accuracy (%)" />
-                <Bar dataKey="benchmark" fill="#fdba74" radius={[4, 4, 0, 0]} name="Baseline Benchmark" />
+                <Bar dataKey="score" fill="#FF6200" radius={[4, 4, 0, 0]} name="Measured Accuracy (%)" />
+                <Bar dataKey="benchmark" fill="#99aabb" radius={[4, 4, 0, 0]} name="Baseline Benchmark" />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="sap-card p-6 space-y-4">
-          <div className="flex items-center justify-between border-b border-orange-100 pb-3">
-            <h3 className="text-sm font-bold text-slate-900 flex items-center space-x-2">
-              <Upload className="w-4 h-4 text-orange-600" />
+        {/* Ingestion Pipeline Form */}
+        <div style={{ background: '#ffffff', border: '1px solid #d0d8e4', borderTop: '3px solid #FF6200', borderRadius: 6, padding: '20px', boxShadow: '0 2px 6px rgba(0,51,102,0.06)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #eef2f7', paddingBottom: 12, marginBottom: 16 }}>
+            <h3 style={{ margin: 0, fontSize: 14, fontWeight: 700, color: '#002244', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Upload style={{ width: 18, height: 18, color: '#FF6200' }} />
               <span>BIS Document Ingestion Pipeline</span>
             </h3>
-            <span className="text-[10px] bg-orange-100 text-orange-800 font-bold px-2 py-0.5 rounded">
+            <span style={{ background: '#fff5ee', color: '#FF6200', border: '1px solid #ffccaa', borderRadius: 2, padding: '2px 8px', fontSize: 10, fontWeight: 700, textTransform: 'uppercase' }}>
               Dynamic Ingestion
             </span>
           </div>
 
-          <div className="space-y-3">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Standard Document Title & Number</label>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#002244', marginBottom: 6 }}>
+                Standard Document Title &amp; Number
+              </label>
               <input 
                 type="text"
                 value={docTitle}
                 onChange={(e) => setDocTitle(e.target.value)}
                 placeholder="e.g. IS 15298 (Part 2): Personal Protective Equipment"
-                className="w-full px-3 py-2 bg-orange-50/40 border border-orange-200 rounded-lg text-xs text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500"
+                style={{
+                  width: '100%', padding: '10px 12px',
+                  background: '#ffffff', border: '1px solid #b4c8dc',
+                  borderRadius: 4, fontSize: 12, color: '#1a1a1a',
+                  outline: 'none', boxSizing: 'border-box',
+                  fontFamily: 'inherit',
+                }}
+                onFocus={e => (e.target as HTMLInputElement).style.borderColor = '#FF6200'}
+                onBlur={e => (e.target as HTMLInputElement).style.borderColor = '#b4c8dc'}
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Document Text / Clauses</label>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#002244', marginBottom: 6 }}>
+                Document Text / Specifications &amp; Clauses
+              </label>
               <textarea
                 value={docContent}
                 onChange={(e) => setDocContent(e.target.value)}
-                rows={4}
+                rows={5}
                 placeholder="Paste official BIS technical specifications text here..."
-                className="w-full px-3 py-2 bg-orange-50/40 border border-orange-200 rounded-lg text-xs text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500"
+                style={{
+                  width: '100%', padding: '10px 12px',
+                  background: '#ffffff', border: '1px solid #b4c8dc',
+                  borderRadius: 4, fontSize: 12, color: '#1a1a1a',
+                  outline: 'none', boxSizing: 'border-box',
+                  fontFamily: 'inherit', resize: 'vertical',
+                }}
+                onFocus={e => (e.target as HTMLTextAreaElement).style.borderColor = '#FF6200'}
+                onBlur={e => (e.target as HTMLTextAreaElement).style.borderColor = '#b4c8dc'}
               ></textarea>
             </div>
 
             <button
               onClick={handleIngest}
               disabled={isIngesting || !docTitle || !docContent}
-              className="w-full saffron-gradient hover:opacity-95 disabled:opacity-50 text-white font-bold text-xs py-2.5 rounded-lg shadow flex items-center justify-center space-x-2"
+              style={{
+                width: '100%',
+                background: (isIngesting || !docTitle || !docContent) ? '#cccccc' : '#FF6200',
+                color: '#ffffff',
+                border: 'none', borderRadius: 4,
+                padding: '12px 18px', fontSize: 13, fontWeight: 800,
+                cursor: (isIngesting || !docTitle || !docContent) ? 'not-allowed' : 'pointer',
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                transition: 'background 0.15s',
+                boxShadow: '0 2px 6px rgba(255,98,0,0.25)',
+              }}
+              onMouseEnter={e => { if (!isIngesting && docTitle && docContent) (e.currentTarget as HTMLElement).style.background = '#c84b00'; }}
+              onMouseLeave={e => { if (!isIngesting && docTitle && docContent) (e.currentTarget as HTMLElement).style.background = '#FF6200'; }}
             >
               {isIngesting ? (
                 <>
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Processing Chunks & Vectorizing...</span>
+                  <RefreshCw style={{ width: 16, height: 16, animation: 'spin 1s linear infinite' }} />
+                  <span>Processing Chunks &amp; Vectorizing...</span>
                 </>
               ) : (
                 <>
-                  <Database className="w-4 h-4" />
+                  <Database style={{ width: 16, height: 16 }} />
                   <span>Ingest into Vector Knowledge Base</span>
                 </>
               )}
             </button>
 
             {ingestSuccess && (
-              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 text-xs font-bold flex items-center space-x-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                <span>Document dynamically vectorized & indexed into live Knowledge Base!</span>
+              <div style={{
+                padding: '10px 14px', background: '#eafaf1', border: '1px solid #a9dfbf',
+                borderRadius: 4, color: '#138808', fontSize: 12, fontWeight: 700,
+                display: 'flex', alignItems: 'center', gap: 8,
+              }}>
+                <CheckCircle2 style={{ width: 16, height: 16, color: '#138808' }} />
+                <span>Document dynamically vectorized &amp; indexed into live Knowledge Base!</span>
               </div>
             )}
           </div>
@@ -233,31 +301,36 @@ export default function AdminPage() {
       </div>
 
       {/* Logs */}
-      <div className="sap-card p-6 space-y-4">
-        <h3 className="text-sm font-bold text-slate-900 flex items-center space-x-2">
-          <MessageSquare className="w-4 h-4 text-orange-600" />
-          <span>User Feedback & Audit Logs</span>
+      <div style={{ background: '#ffffff', border: '1px solid #d0d8e4', borderTop: '3px solid #003366', borderRadius: 6, padding: '20px', boxShadow: '0 2px 6px rgba(0,51,102,0.06)' }}>
+        <h3 style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 700, color: '#002244', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <MessageSquare style={{ width: 18, height: 18, color: '#003366' }} />
+          <span>User Feedback &amp; Audit Logs</span>
         </h3>
 
         {feedbackLogs.length === 0 ? (
-          <p className="text-xs text-slate-500 italic">No user feedback logs captured yet in this session.</p>
+          <p style={{ margin: 0, fontSize: 12, color: '#8a9aaa', fontStyle: 'italic' }}>No user feedback logs captured yet in this session.</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, textAlign: 'left' }}>
               <thead>
-                <tr className="border-b border-orange-200 text-slate-600 bg-orange-50/70 font-bold">
-                  <th className="py-2.5 px-3">Timestamp</th>
-                  <th className="py-2.5 px-3">Query</th>
-                  <th className="py-2.5 px-3">Rating</th>
+                <tr style={{ borderBottom: '2px solid #d0d8e4', background: '#f5f8fc', color: '#002244', fontWeight: 800 }}>
+                  <th style={{ padding: '8px 12px' }}>Timestamp</th>
+                  <th style={{ padding: '8px 12px' }}>Query</th>
+                  <th style={{ padding: '8px 12px' }}>Rating</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 font-medium">
+              <tbody>
                 {feedbackLogs.map((log, idx) => (
-                  <tr key={idx}>
-                    <td className="py-2 px-3 text-slate-500">{new Date(log.timestamp).toLocaleTimeString()}</td>
-                    <td className="py-2 px-3 text-slate-800">{log.query}</td>
-                    <td className="py-2 px-3">
-                      <span className={`px-2 py-0.5 rounded font-bold ${log.isHelpful ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>
+                  <tr key={idx} style={{ borderBottom: '1px solid #eef2f7' }}>
+                    <td style={{ padding: '8px 12px', color: '#7a8a9a' }}>{new Date(log.timestamp).toLocaleTimeString()}</td>
+                    <td style={{ padding: '8px 12px', color: '#1a1a1a', fontWeight: 600 }}>{log.query}</td>
+                    <td style={{ padding: '8px 12px' }}>
+                      <span style={{
+                        padding: '2px 8px', borderRadius: 2, fontWeight: 700, fontSize: 11,
+                        background: log.isHelpful ? '#eafaf1' : '#fdeded',
+                        color: log.isHelpful ? '#138808' : '#c0392b',
+                        border: `1px solid ${log.isHelpful ? '#a9dfbf' : '#f5c6cb'}`,
+                      }}>
                         {log.isHelpful ? '👍 Helpful' : '👎 Unhelpful'}
                       </span>
                     </td>

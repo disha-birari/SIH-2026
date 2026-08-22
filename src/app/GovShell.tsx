@@ -22,6 +22,16 @@ function ShellInner({ children }: { children: React.ReactNode }) {
   const { user, dbConnected, dbStandardsCount, signInWithGoogle, logout } = useAuth();
   const [persona, setPersona] = useState<UserPersona>('manufacturer');
   const [fontSize, setFontSize] = useState<'small' | 'normal' | 'large'>('normal');
+  const [standardsList, setStandardsList] = useState(getDynamicStandards());
+
+  // Listen for live BIS standard ingest updates from Admin Panel
+  React.useEffect(() => {
+    const handleUpdate = () => {
+      setStandardsList([...getDynamicStandards()]);
+    };
+    window.addEventListener('bis_standards_updated', handleUpdate);
+    return () => window.removeEventListener('bis_standards_updated', handleUpdate);
+  }, []);
 
   // Apply full page zoom and scaling for accessibility buttons (A-, A, A+)
   React.useEffect(() => {
@@ -48,8 +58,8 @@ function ShellInner({ children }: { children: React.ReactNode }) {
     { href: '/comparator', label: '2. Version Comparator', icon: GitCompare },
     { href: '/matcher', label: `3. ${t.navMatcher}`, icon: Search },
     { href: '/citations', label: '4. Clause Citations', icon: BookOpen },
-    { href: '/checklist', label: `5. ${t.navChecklist}`, icon: CheckSquare },
-    { href: '/services', label: `6. ${t.navServices}`, icon: Sparkles },
+    { href: '/checklist', label: '5. Checklist', icon: CheckSquare },
+    { href: '/services', label: '6. Services', icon: Sparkles },
     { href: '/explainability', label: '7. Statutory Logic', icon: HelpCircle },
     { href: '/alerts', label: '8. Change Alerts (QCO)', icon: Bell },
     { href: '/ask-pdf', label: '9. Ask My PDF', icon: FileText },
@@ -59,7 +69,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
     { href: '/testing-mapper', label: '13. Testing Mapper', icon: TestTube },
     { href: '/lab-finder', label: '14. Lab Finder (NABL)', icon: MapPin },
     { href: '/evidence-verifier', label: '15. Evidence Verifier', icon: CheckCircle2 },
-    { href: '/admin', label: t.navAdmin, icon: BarChart3 },
+    { href: '/admin', label: 'Admin', icon: BarChart3 },
   ];
 
   return (
@@ -77,13 +87,30 @@ function ShellInner({ children }: { children: React.ReactNode }) {
             <span style={{ color: '#334455' }}>|</span>
             <span style={{ fontWeight: 700, color: '#d0dde8' }}>Government of India</span>
             <span style={{ color: '#7a96ac', fontSize: 11 }}>· Ministry of Consumer Affairs, Food &amp; Public Distribution</span>
-
-            {/* Database Live Connected Badge */}
-           
           </div>
 
-          {/* Right: Google Auth + Accessibility + Language */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+          {/* Right: Dedicated Admin Panel + Google Auth + Accessibility + Language */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+
+            {/* Dedicated Admin Panel Portal Button */}
+            <Link
+              href="/admin"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 5,
+                background: pathname === '/admin' ? '#FF6200' : 'linear-gradient(135deg, #FF6200 0%, #d44800 100%)',
+                color: '#ffffff',
+                border: '1px solid #ff8833', borderRadius: 3,
+                padding: '0 10px', height: 26, fontSize: 11, fontWeight: 800,
+                cursor: 'pointer', textDecoration: 'none',
+                boxShadow: '0 1px 4px rgba(255,98,0,0.3)', flexShrink: 0,
+                whiteSpace: 'nowrap', transition: 'all 0.15s',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = '#e05500')}
+              onMouseLeave={e => (e.currentTarget.style.background = pathname === '/admin' ? '#FF6200' : 'linear-gradient(135deg, #FF6200 0%, #d44800 100%)')}
+            >
+              <BarChart3 style={{ width: 13, height: 13 }} />
+              <span>Admin Panel</span>
+            </Link>
 
             {/* Google Authentication Button / User Profile */}
             {user ? (
@@ -263,9 +290,9 @@ function ShellInner({ children }: { children: React.ReactNode }) {
               display: 'inline-flex', alignItems: 'center', gap: 4,
             }}>
               <BookOpen style={{ width: 11, height: 11 }} />
-              Official IS Standards ({getDynamicStandards().length}):
+              Official IS Standards ({standardsList.length}):
             </span>
-            {getDynamicStandards().map((std) => (
+            {standardsList.map((std) => (
               <Link
                 key={std.id}
                 href={`/matcher?q=${encodeURIComponent(std.isNumber)}`}

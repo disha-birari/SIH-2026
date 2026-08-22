@@ -18,7 +18,12 @@ export default function DashboardPage() {
   const [standardsList, setStandardsList] = useState<BISStandard[]>([]);
 
   useEffect(() => {
-    setStandardsList(getDynamicStandards());
+    setStandardsList([...getDynamicStandards()]);
+    const handleUpdate = () => {
+      setStandardsList([...getDynamicStandards()]);
+    };
+    window.addEventListener('bis_standards_updated', handleUpdate);
+    return () => window.removeEventListener('bis_standards_updated', handleUpdate);
   }, []);
 
   const all15Features = [
