@@ -76,23 +76,23 @@ export default function VoiceAssistantPage() {
     <div className="space-y-6">
       
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-red-600 via-rose-600 to-pink-600 text-white rounded-2xl p-6 shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-white border border-orange-200 rounded-xl p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2">
-            <span className="bg-white/20 text-white text-xs px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
+            <span className="bg-orange-100 text-orange-800 text-xs px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
               Hands-Free Voice AI
             </span>
-            <span className="text-pink-200 text-xs font-semibold">Hands-Free Speech-to-Text & TTS</span>
+            <span className="text-slate-500 text-xs font-semibold">Hands-Free Speech-to-Text & TTS</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight mt-1">
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight mt-1 text-slate-900">
             Voice Assistant for Indian Standards
           </h1>
-          <p className="text-pink-100 text-xs sm:text-sm mt-1 max-w-2xl font-medium">
+          <p className="text-slate-600 text-xs sm:text-sm mt-1 max-w-2xl font-medium">
             Ask questions out loud. Speak into your microphone and receive instant audio responses generated from grounded BIS standard repositories.
           </p>
         </div>
         <div className="flex space-x-2">
-          <Link href="/timeline" className="bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded-lg text-xs font-bold transition flex items-center space-x-1 border border-white/20">
+          <Link href="/timeline" className="bg-orange-600 hover:bg-orange-700 text-white px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center space-x-1 shadow-sm">
             <span>Roadmap Timeline</span>
             <ChevronRight className="w-4 h-4" />
           </Link>
@@ -100,12 +100,12 @@ export default function VoiceAssistantPage() {
       </div>
 
       {/* Voice Control Stage */}
-      <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm text-center space-y-6">
+      <div className="bg-white p-8 rounded-xl border border-orange-200 shadow-sm text-center space-y-6">
         
         {/* Waveform / Mic Circle */}
         <div className="relative inline-flex items-center justify-center">
           {isListening && (
-            <span className="absolute w-36 h-36 rounded-full bg-rose-500/20 animate-ping"></span>
+            <span className="absolute w-36 h-36 rounded-full bg-orange-500/20 animate-ping"></span>
           )}
           {isSpeaking && (
             <span className="absolute w-40 h-40 rounded-full bg-emerald-500/20 animate-pulse"></span>
@@ -115,10 +115,10 @@ export default function VoiceAssistantPage() {
             onClick={toggleListening}
             className={`w-28 h-28 rounded-full flex items-center justify-center shadow-xl transition-transform hover:scale-105 border-4 ${
               isListening 
-                ? 'bg-rose-600 text-white border-rose-300 animate-bounce' 
+                ? 'bg-orange-600 text-white border-orange-300 animate-bounce' 
                 : isSpeaking 
                 ? 'bg-emerald-600 text-white border-emerald-300'
-                : 'orange-gradient-btn text-white border-orange-200'
+                : 'bg-orange-500 text-white border-orange-200'
             }`}
           >
             {isListening ? (
@@ -139,7 +139,7 @@ export default function VoiceAssistantPage() {
         </div>
 
         {/* Live Transcript Display Box */}
-        <div className="max-w-xl mx-auto bg-slate-50 border border-slate-200 p-4 rounded-xl text-xs font-mono text-slate-800 space-y-1">
+        <div className="max-w-xl mx-auto bg-orange-50/50 border border-orange-200 p-4 rounded-xl text-xs font-mono text-slate-800 space-y-1">
           <span className="text-[10px] font-extrabold uppercase text-slate-400 block">Recognized Speech Transcript:</span>
           <p className="font-bold text-slate-900">"{transcript}"</p>
         </div>
@@ -147,17 +147,17 @@ export default function VoiceAssistantPage() {
       </div>
 
       {/* AI Audio Response Card */}
-      <div className="bg-slate-900 text-white p-6 rounded-2xl border border-slate-800 shadow-md space-y-4">
+      <div className="bg-slate-900 text-white p-6 rounded-xl border border-slate-800 shadow-md space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Bot className="w-5 h-5 text-rose-400" />
-            <h3 className="text-xs font-extrabold uppercase tracking-wider text-rose-400">
+            <Bot className="w-5 h-5 text-orange-400" />
+            <h3 className="text-xs font-extrabold uppercase tracking-wider text-orange-400">
               Spoken Grounded AI Answer
             </h3>
           </div>
           <button 
             onClick={() => speakResponse(aiVoiceResponse)}
-            className="bg-rose-600 hover:bg-rose-700 text-white text-xs px-3 py-1.5 rounded-lg font-bold flex items-center space-x-1"
+            className="bg-orange-600 hover:bg-orange-700 text-white text-xs px-3.5 py-1.5 rounded-lg font-bold flex items-center space-x-1 shadow-sm"
           >
             <Volume2 className="w-4 h-4" />
             <span>Replay Audio</span>

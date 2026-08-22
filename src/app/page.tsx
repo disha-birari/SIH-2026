@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { 
   Shield, Cpu, Search, BookOpen, CheckSquare, BarChart3,
   ArrowRight, FileCheck, Award, Zap, Building2, ChevronRight,
@@ -13,6 +14,7 @@ import { BISStandard } from '@/lib/types';
 import { useLanguage } from '@/context/LanguageContext';
 
 export default function DashboardPage() {
+  const router = useRouter();
   const { t } = useLanguage();
   const [quickQuery, setQuickQuery] = useState('');
   const [standardsList, setStandardsList] = useState<BISStandard[]>([]);
@@ -171,15 +173,22 @@ export default function DashboardPage() {
         </div>
 
         {/* Large Elegant Search Field */}
-        <div style={{
-          background: '#FFFFFF',
-          border: '1px solid #E8E2DC',
-          borderRadius: 10,
-          padding: '8px 10px 8px 18px',
-          display: 'flex', alignItems: 'center', gap: 14,
-          boxShadow: '0 2px 12px rgba(40, 30, 20, 0.04)',
-          transition: 'all 0.18s ease'
-        }}>
+        <form 
+          onSubmit={(e) => {
+            e.preventDefault();
+            const query = quickQuery.trim() || 'IS 302';
+            router.push(`/matcher?q=${encodeURIComponent(query)}`);
+          }}
+          style={{
+            background: '#FFFFFF',
+            border: '1px solid #E8E2DC',
+            borderRadius: 10,
+            padding: '8px 10px 8px 18px',
+            display: 'flex', alignItems: 'center', gap: 14,
+            boxShadow: '0 2px 12px rgba(40, 30, 20, 0.04)',
+            transition: 'all 0.18s ease'
+          }}
+        >
           <Search style={{ width: 20, height: 20, color: '#F28C52', flexShrink: 0 }} />
           <input
             type="text"
@@ -192,21 +201,21 @@ export default function DashboardPage() {
               boxShadow: 'none'
             }}
           />
-          <Link
-            href={`/matcher?q=${encodeURIComponent(quickQuery || 'IS 302')}`}
+          <button
+            type="submit"
             style={{
               background: '#F28C52', color: '#FFFFFF',
               border: 'none', borderRadius: 8,
               padding: '10px 22px', fontSize: 13.5, fontWeight: 700,
-              cursor: 'pointer', textDecoration: 'none',
+              cursor: 'pointer',
               display: 'inline-flex', alignItems: 'center', gap: 8,
               transition: 'background 0.15s ease'
             }}
           >
             <span>Search</span>
             <ArrowRight style={{ width: 15, height: 15 }} />
-          </Link>
-        </div>
+          </button>
+        </form>
       </div>
 
       {/* ══════════════ 2. COMPACT PREMIUM METRICS ══════════════ */}

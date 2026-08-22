@@ -25,9 +25,10 @@ function ShellInner({ children }: { children: React.ReactNode }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
   
-  // Command Palette State (Ctrl+K)
+  // Command Palette & Header Search State
   const [commandOpen, setCommandOpen] = useState(false);
   const [cmdQuery, setCmdQuery] = useState('');
+  const [headerSearch, setHeaderSearch] = useState('');
 
   useEffect(() => {
     setMounted(true);
@@ -129,7 +130,6 @@ function ShellInner({ children }: { children: React.ReactNode }) {
         { href: '/lab-finder', label: 'NABL Lab Finder', icon: MapPin },
         { href: '/testing-mapper', label: 'Testing Mapper', icon: TestTube },
         { href: '/voice', label: 'Voice Research Assistant', icon: Mic },
-        { href: '/multilingual', label: 'Multilingual Search', icon: Globe },
         { href: '/timeline', label: 'Compliance Roadmap', icon: Calendar }
       ]
     },
@@ -164,14 +164,6 @@ function ShellInner({ children }: { children: React.ReactNode }) {
         i.title.toLowerCase().includes(cmdQuery.toLowerCase()) || 
         i.category.toLowerCase().includes(cmdQuery.toLowerCase())
       ).slice(0, 10);
-  if (!mounted) {
-    return (
-      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#FFFCF8', color: '#242424' }}>
-        {children}
-      </div>
-    );
-  }
-
   return (
     <div suppressHydrationWarning style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#FFFCF8', color: '#242424' }}>
       {/* Hidden Google Translate Element */}
@@ -210,32 +202,53 @@ function ShellInner({ children }: { children: React.ReactNode }) {
             </div>
           </Link>
 
-          {/* Center: Command Palette Search */}
-          <div 
-            onClick={() => setCommandOpen(true)}
+          {/* Center: Interactive Search Input & Command Palette Trigger */}
+          <form 
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (headerSearch.trim()) {
+                router.push(`/matcher?q=${encodeURIComponent(headerSearch.trim())}`);
+              } else {
+                setCommandOpen(true);
+              }
+            }}
             style={{
               flex: '0 1 400px',
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               background: '#FFFCF8',
               border: '1px solid #E8E2DC',
               borderRadius: 8,
-              padding: '6px 12px',
-              cursor: 'pointer',
+              padding: '4px 8px 4px 12px',
               transition: 'all 0.18s ease',
               boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
             }}
-            onMouseEnter={e => (e.currentTarget.style.borderColor = '#F4C4A5')}
-            onMouseLeave={e => (e.currentTarget.style.borderColor = '#E8E2DC')}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#686868', fontSize: 12.5 }}>
-              <Search style={{ width: 15, height: 15, color: '#F28C52' }} />
-              <span>Search standards, clauses, products...</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 }}>
+              <Search style={{ width: 15, height: 15, color: '#F28C52', flexShrink: 0 }} />
+              <input
+                type="text"
+                value={headerSearch}
+                onChange={(e) => setHeaderSearch(e.target.value)}
+                placeholder="Search standards, clauses, products..."
+                style={{
+                  width: '100%', border: 'none', background: 'transparent',
+                  fontSize: 12.5, fontWeight: 500, color: '#242424', outline: 'none'
+                }}
+              />
             </div>
-            <kbd style={{
-              background: '#FFFFFF', border: '1px solid #E8E2DC', borderRadius: 4,
-              padding: '1px 5px', fontSize: 10.5, fontWeight: 700, color: '#686868'
-            }}>Ctrl K</kbd>
-          </div>
+            <button
+              type="button"
+              onClick={() => setCommandOpen(true)}
+              title="Open Command Palette (Ctrl+K)"
+              style={{
+                background: '#FFFFFF', border: '1px solid #E8E2DC', borderRadius: 4,
+                padding: '1px 5px', fontSize: 10.5, fontWeight: 700, color: '#686868',
+                cursor: 'pointer', flexShrink: 0
+              }}
+            >
+              Ctrl K
+            </button>
+          </form>
 
           {/* Right: Controls, Account & Admin */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
