@@ -8,30 +8,31 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        govNavy: {
-          900: '#06152b', // Official NIC Ashoka Navy
-          800: '#0b1e36',
-          700: '#142a4a',
-          600: '#1e3a60'
+        warmBg: '#FFFCF8',
+        brandSurface: '#FFFFFF',
+        brandOrange: {
+          DEFAULT: '#F28C52',
+          dark: '#E9783F',
+          light: '#FFF1E8',
+          border: '#F4C4A5'
         },
-        govSaffron: {
-          600: '#ff671f', // Official Saffron
-          700: '#e64e05',
-          800: '#c23b00'
+        brandCharcoal: {
+          DEFAULT: '#242424',
+          muted: '#686868'
         },
-        govGreen: {
-          600: '#138808', // Official India Green
-          700: '#0d6505'
-        },
-        govGold: {
-          500: '#f59e0b',
-          600: '#d97706'
-        },
-        govBg: '#f8fafc'
+        brandBlack: '#171717',
+        brandBorder: '#E8E2DC',
+        brandSuccess: '#4F7D5A',
+        brandWarning: '#C88732',
+        brandError: '#B85C52'
       },
       fontFamily: {
-        sans: ["'Plus Jakarta Sans'", "Inter", "sans-serif"],
+        sans: ["'Inter'", "'IBM Plex Sans'", "'Plus Jakarta Sans'", "sans-serif"],
         hindi: ["'Mukta'", "'Hind'", "sans-serif"]
+      },
+      boxShadow: {
+        subtle: '0 2px 12px rgba(40, 30, 20, 0.05)',
+        hover: '0 4px 20px rgba(40, 30, 20, 0.08)'
       }
     },
   },

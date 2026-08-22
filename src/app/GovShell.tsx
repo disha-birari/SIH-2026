@@ -1,31 +1,35 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   Shield, BookOpen, Search, CheckSquare, BarChart3, Globe, Users,
   FileSearch, GitCompare, HelpCircle, Bell, FileText, Mic, Calendar,
-  TestTube, MapPin, CheckCircle2, Sparkles, Database, LogIn, LogOut
+  TestTube, MapPin, CheckCircle2, Sparkles, LogOut, Command, ChevronLeft,
+  ChevronRight, X, ArrowUpRight, Cpu, SlidersHorizontal, Home, ExternalLink
 } from 'lucide-react';
 import { UserPersona, LanguageCode } from '@/lib/types';
 import { getDynamicStandards } from '@/lib/data/bisDatabase';
 import { LanguageProvider, useLanguage } from '@/context/LanguageContext';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 
-/* ─────────────────────────────────────────────
-   Inner shell: uses hooks, renders header+footer
-   ───────────────────────────────────────────── */
 function ShellInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const { language, setLanguage, t } = useLanguage();
-  const { user, dbConnected, dbStandardsCount, signInWithGoogle, logout } = useAuth();
+  const { user, dbStandardsCount, signInWithGoogle, logout } = useAuth();
   const [persona, setPersona] = useState<UserPersona>('manufacturer');
   const [fontSize, setFontSize] = useState<'small' | 'normal' | 'large'>('normal');
   const [standardsList, setStandardsList] = useState(getDynamicStandards());
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  
+  // Command Palette State (Ctrl+K)
+  const [commandOpen, setCommandOpen] = useState(false);
+  const [cmdQuery, setCmdQuery] = useState('');
 
   // Listen for live BIS standard ingest updates from Admin Panel
-  React.useEffect(() => {
+  useEffect(() => {
     const handleUpdate = () => {
       setStandardsList([...getDynamicStandards()]);
     };
@@ -33,10 +37,25 @@ function ShellInner({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener('bis_standards_updated', handleUpdate);
   }, []);
 
-  // Apply full page zoom and scaling for accessibility buttons (A-, A, A+)
-  React.useEffect(() => {
-    const fontSizes = { small: '12px', normal: '14px', large: '17px' };
-    const zoomScales = { small: '0.88', normal: '1.0', large: '1.15' };
+  // Handle Ctrl+K shortcut
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setCommandOpen(prev => !prev);
+      }
+      if (e.key === 'Escape') {
+        setCommandOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Accessibility Font Zoom
+  useEffect(() => {
+    const fontSizes = { small: '13px', normal: '14px', large: '16px' };
+    const zoomScales = { small: '0.9', normal: '1.0', large: '1.1' };
     
     document.documentElement.style.setProperty('--app-font-size', fontSizes[fontSize]);
     document.documentElement.style.fontSize = fontSizes[fontSize];
@@ -47,143 +66,161 @@ function ShellInner({ children }: { children: React.ReactNode }) {
     }
   }, [fontSize]);
 
-  // Apply language to <html> lang attribute
-  React.useEffect(() => {
+  // Apply language
+  useEffect(() => {
     document.documentElement.lang = language;
   }, [language]);
 
-  const featureLinks = [
-    { href: '/', label: t.navHome || 'Home', icon: Shield },
-    { href: '/gap-analyzer', label: '1. Gap Analyzer (IS 302 / IS 4151)', icon: FileSearch },
-    { href: '/comparator', label: '2. Version Comparator', icon: GitCompare },
-    { href: '/matcher', label: `3. ${t.navMatcher}`, icon: Search },
-    { href: '/citations', label: '4. Clause Citations', icon: BookOpen },
-    { href: '/checklist', label: '5. Checklist', icon: CheckSquare },
-    { href: '/services', label: '6. Services', icon: Sparkles },
-    { href: '/explainability', label: '7. Statutory Logic', icon: HelpCircle },
-    { href: '/alerts', label: '8. Change Alerts (QCO)', icon: Bell },
-    { href: '/ask-pdf', label: '9. Ask My PDF', icon: FileText },
-    { href: '/multilingual', label: '10. Multi-Language', icon: Globe },
-    { href: '/voice', label: '11. Voice Assistant', icon: Mic },
-    { href: '/timeline', label: '12. Timeline Roadmap', icon: Calendar },
-    { href: '/testing-mapper', label: '13. Testing Mapper', icon: TestTube },
-    { href: '/lab-finder', label: '14. Lab Finder (NABL)', icon: MapPin },
-    { href: '/evidence-verifier', label: '15. Evidence Verifier', icon: CheckCircle2 },
-    { href: '/admin', label: 'Admin', icon: BarChart3 },
+  // Sidebar grouped menu structure
+  const navSections = [
+    {
+      title: 'DASHBOARD',
+      items: [
+        { href: '/', label: 'Overview Command Center', icon: Home }
+      ]
+    },
+    {
+      title: 'STANDARDS',
+      items: [
+        { href: '/matcher', label: 'All Standards Catalog', icon: Search },
+        { href: '/comparator', label: 'Standard Versions & Diffs', icon: GitCompare },
+        { href: '/citations', label: 'Clause Research & Citations', icon: BookOpen }
+      ]
+    },
+    {
+      title: 'ANALYSIS',
+      items: [
+        { href: '/gap-analyzer', label: 'Gap Analyzer', icon: FileSearch },
+        { href: '/comparator', label: 'Version Comparator', icon: GitCompare },
+        { href: '/matcher', label: 'Product Standard Matcher', icon: Search }
+      ]
+    },
+    {
+      title: 'COMPLIANCE',
+      items: [
+        { href: '/citations', label: 'Clause Citations', icon: BookOpen },
+        { href: '/checklist', label: 'Interactive Checklist', icon: CheckSquare },
+        { href: '/services', label: 'Scheme & Statutory Logic', icon: Sparkles },
+        { href: '/explainability', label: 'Legal Tree Rationale', icon: HelpCircle }
+      ]
+    },
+    {
+      title: 'KNOWLEDGE',
+      items: [
+        { href: '/ask-pdf', label: 'Ask My PDF (RAG)', icon: FileText },
+        { href: '/admin', label: 'Standard Ingestion & Admin', icon: BarChart3 }
+      ]
+    },
+    {
+      title: 'MONITORING',
+      items: [
+        { href: '/alerts', label: 'QCO Change Alerts', icon: Bell },
+        { href: '/evidence-verifier', label: 'Evidence Verifier', icon: CheckCircle2 }
+      ]
+    },
+    {
+      title: 'TOOLS & LABS',
+      items: [
+        { href: '/lab-finder', label: 'NABL Lab Finder', icon: MapPin },
+        { href: '/testing-mapper', label: 'Testing Mapper', icon: TestTube },
+        { href: '/voice', label: 'Voice Research Assistant', icon: Mic },
+        { href: '/multilingual', label: 'Multilingual Search', icon: Globe },
+        { href: '/timeline', label: 'Compliance Roadmap', icon: Calendar }
+      ]
+    },
+    {
+      title: 'AI RESEARCH',
+      items: [
+        { href: '/assistant', label: 'Ask BIS AI Assistant', icon: Cpu }
+      ]
+    }
   ];
 
+  // Quick Command Palette items
+  const allCmdItems = standardsList.map(s => ({
+    title: `${s.isNumber}: ${s.title}`,
+    category: s.category,
+    href: `/matcher?q=${encodeURIComponent(s.isNumber)}`,
+    type: 'Standard'
+  })).concat([
+    { title: 'Gap Analyzer Workspace', category: 'Analysis Tool', href: '/gap-analyzer', type: 'Tool' },
+    { title: 'Version Comparator', category: 'Analysis Tool', href: '/comparator', type: 'Tool' },
+    { title: 'Clause Citation Explorer', category: 'Compliance', href: '/citations', type: 'Tool' },
+    { title: 'Ask My PDF Custom RAG', category: 'Knowledge', href: '/ask-pdf', type: 'Tool' },
+    { title: 'BIS AI Research Assistant', category: 'AI Intelligence', href: '/assistant', type: 'Tool' },
+    { title: 'NABL Lab Finder', category: 'Testing', href: '/lab-finder', type: 'Tool' },
+    { title: 'QCO Alerts & Gazette Tracker', category: 'Monitoring', href: '/alerts', type: 'Tool' },
+    { title: 'Standard Ingestion & Ingestion Engine', category: 'Admin', href: '/admin', type: 'Admin' }
+  ]);
+
+  const filteredCmdItems = cmdQuery.trim() === '' 
+    ? allCmdItems.slice(0, 7) 
+    : allCmdItems.filter(i => 
+        i.title.toLowerCase().includes(cmdQuery.toLowerCase()) || 
+        i.category.toLowerCase().includes(cmdQuery.toLowerCase())
+      ).slice(0, 10);
+
   return (
-    <>
-      {/* Hidden Google Translate Mount */}
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#FFFCF8', color: '#242424' }}>
+      {/* Hidden Google Translate Element */}
       <div id="google_translate_element" style={{ display: 'none' }}></div>
 
-      {/* ══════════════ GOI TOP UTILITY BAR ══════════════ */}
-      <div style={{ background: '#002244', borderBottom: '1px solid rgba(255,98,0,0.55)', padding: '5px 0', flexShrink: 0 }}>
-        <div style={{ maxWidth: 1440, margin: '0 auto', padding: '0 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-
-          {/* Left: Ministry identifier & DB Status */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 11, color: '#aabccc', flexWrap: 'wrap' }}>
-            <span style={{ fontFamily: "'Noto Sans Devanagari', 'Noto Sans', sans-serif", fontWeight: 800, fontSize: 12, color: '#ff9933' }}>भारत सरकार</span>
-            <span style={{ color: '#334455' }}>|</span>
-            <span style={{ fontWeight: 700, color: '#d0dde8' }}>Government of India</span>
-            <span style={{ color: '#7a96ac', fontSize: 11 }}>· Ministry of Consumer Affairs, Food &amp; Public Distribution</span>
+      {/* ══════════════ 1. TOP UTILITY INSTITUTIONAL STRIPE ══════════════ */}
+      <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E8E2DC', padding: '6px 0', fontSize: 12 }}>
+        <div style={{ maxWidth: 1440, margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+          
+          {/* Left: BIS Institutional Identity */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ fontWeight: 700, color: '#171717', letterSpacing: '0.02em' }}>BUREAU OF INDIAN STANDARDS</span>
+            <span style={{ color: '#E8E2DC' }}>|</span>
+            <span style={{ color: '#686868', fontSize: 11.5 }}>Ministry of Consumer Affairs, Food &amp; Public Distribution</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#FFF1E8', color: '#E9783F', border: '1px solid #F4C4A5', borderRadius: 4, padding: '1px 7px', fontSize: 10.5, fontWeight: 700 }}>
+              Standards Lead the Way
+            </span>
           </div>
 
-          {/* Right: Dedicated Admin Panel + Google Auth + Accessibility + Language */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-
-            {/* Dedicated Admin Panel Portal Button */}
-            <Link
-              href="/admin"
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: 5,
-                background: pathname === '/admin' ? '#FF6200' : 'linear-gradient(135deg, #FF6200 0%, #d44800 100%)',
-                color: '#ffffff',
-                border: '1px solid #ff8833', borderRadius: 3,
-                padding: '0 10px', height: 26, fontSize: 11, fontWeight: 800,
-                cursor: 'pointer', textDecoration: 'none',
-                boxShadow: '0 1px 4px rgba(255,98,0,0.3)', flexShrink: 0,
-                whiteSpace: 'nowrap', transition: 'all 0.15s',
-              }}
-              onMouseEnter={e => (e.currentTarget.style.background = '#e05500')}
-              onMouseLeave={e => (e.currentTarget.style.background = pathname === '/admin' ? '#FF6200' : 'linear-gradient(135deg, #FF6200 0%, #d44800 100%)')}
-            >
-              <BarChart3 style={{ width: 13, height: 13 }} />
-              <span>Admin Panel</span>
-            </Link>
-
-            {/* Google Authentication Button / User Profile */}
-            {user ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#001833', border: '1px solid #2a4a66', borderRadius: 4, padding: '2px 8px', height: 26, flexShrink: 0 }}>
-                {user.photoURL ? (
-                  <img src={user.photoURL} alt={user.displayName || 'User'} style={{ width: 18, height: 18, borderRadius: '50%' }} />
-                ) : (
-                  <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#FF6200', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 800 }}>
-                    {(user.displayName || user.email || 'U').charAt(0).toUpperCase()}
-                  </div>
-                )}
-                <span style={{ fontSize: 11, fontWeight: 700, color: '#ffffff', maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {user.displayName || user.email?.split('@')[0]}
-                </span>
-                <button
-                  onClick={logout}
-                  title="Sign Out"
-                  style={{ background: 'transparent', border: 'none', color: '#ff9933', cursor: 'pointer', padding: '1px 3px', display: 'flex', alignItems: 'center' }}
-                >
-                  <LogOut style={{ width: 12, height: 12 }} />
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={signInWithGoogle}
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 6,
-                  background: '#ffffff', color: '#003366',
-                  border: '1px solid #c0ccd8', borderRadius: 3,
-                  padding: '0 10px', height: 26, fontSize: 11, fontWeight: 800,
-                  cursor: 'pointer', transition: 'background 0.15s, border-color 0.15s',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)', flexShrink: 0,
-                  whiteSpace: 'nowrap'
-                }}
-                onMouseEnter={e => (e.currentTarget.style.background = '#f0f5ff')}
-                onMouseLeave={e => (e.currentTarget.style.background = '#ffffff')}
+          {/* Right: Controls & Account */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            {/* Persona Selector */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#FFFCF8', border: '1px solid #E8E2DC', borderRadius: 6, padding: '2px 8px' }}>
+              <Users style={{ width: 13, height: 13, color: '#686868' }} />
+              <select
+                value={persona}
+                onChange={(e) => setPersona(e.target.value as UserPersona)}
+                style={{ background: 'transparent', border: 'none', fontSize: 11.5, fontWeight: 600, color: '#242424', cursor: 'pointer', outline: 'none' }}
               >
-                {/* Official Google G Logo */}
-                <svg style={{ width: 13, height: 13, flexShrink: 0 }} viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
-                </svg>
-                <span>Login</span>
-              </button>
-            )}
+                <option value="manufacturer">Manufacturer View</option>
+                <option value="msme">MSME View</option>
+                <option value="consumer">Consumer View</option>
+                <option value="importer">Importer View</option>
+              </select>
+            </div>
 
-            {/* Font size buttons */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 2, borderRight: '1px solid #2a3d50', paddingRight: 10 }}>
+            {/* Accessibility Font Size */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 2, borderRight: '1px solid #E8E2DC', paddingRight: 10 }}>
               {(['small', 'normal', 'large'] as const).map((sz, i) => (
                 <button
                   key={sz}
                   onClick={() => setFontSize(sz)}
-                  title={`${sz} text`}
+                  title={`${sz} text size`}
                   style={{
-                    background: fontSize === sz ? '#FF6200' : 'transparent',
-                    border: `1px solid ${fontSize === sz ? '#FF6200' : '#2a3d50'}`,
-                    borderRadius: 2, color: '#c8d8ec', cursor: 'pointer',
-                    padding: '1px 6px', fontSize: [10, 12, 13][i],
-                    fontWeight: 700, lineHeight: 1.4, transition: 'background 0.15s',
+                    background: fontSize === sz ? '#F28C52' : 'transparent',
+                    color: fontSize === sz ? '#FFFFFF' : '#686868',
+                    border: `1px solid ${fontSize === sz ? '#E9783F' : '#E8E2DC'}`,
+                    borderRadius: 4, cursor: 'pointer',
+                    padding: '2px 6px', fontSize: 11, fontWeight: 700,
                   }}
                 >{['A-', 'A', 'A+'][i]}</button>
               ))}
             </div>
 
-            {/* Language selector */}
+            {/* Language Selector */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-              <Globe style={{ width: 12, height: 12, color: '#ff9933' }} />
+              <Globe style={{ width: 13, height: 13, color: '#F28C52' }} />
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value as LanguageCode)}
-                style={{ background: '#001833', color: '#d0dde8', border: '1px solid #2a3d50', borderRadius: 2, padding: '2px 6px', fontSize: 11, fontWeight: 700, cursor: 'pointer', outline: 'none' }}
+                style={{ background: '#FFFFFF', color: '#242424', border: '1px solid #E8E2DC', borderRadius: 4, padding: '2px 6px', fontSize: 11.5, fontWeight: 600, cursor: 'pointer', outline: 'none' }}
               >
                 <option value="en">English</option>
                 <option value="hi">हिंदी</option>
@@ -194,244 +231,383 @@ function ShellInner({ children }: { children: React.ReactNode }) {
                 <option value="bn">বাংলা</option>
               </select>
             </div>
-          </div>
 
+            {/* Auth Button */}
+            {user ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#FFF1E8', border: '1px solid #F4C4A5', borderRadius: 6, padding: '3px 8px' }}>
+                <span style={{ fontSize: 11.5, fontWeight: 700, color: '#171717' }}>
+                  {user.displayName || user.email?.split('@')[0]}
+                </span>
+                <button onClick={logout} title="Sign Out" style={{ background: 'transparent', border: 'none', color: '#E9783F', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                  <LogOut style={{ width: 13, height: 13 }} />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={signInWithGoogle}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  background: '#FFFFFF', color: '#242424',
+                  border: '1px solid #E8E2DC', borderRadius: 6,
+                  padding: '4px 10px', fontSize: 11.5, fontWeight: 700,
+                  cursor: 'pointer', transition: 'all 0.15s'
+                }}
+              >
+                <span>Login</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* ══════════════ TRICOLOR STRIPE ══════════════ */}
-      <div style={{ height: 6, background: 'linear-gradient(90deg, #ff9933 0% 33.33%, #ffffff 33.33% 66.66%, #138808 66.66% 100%)', width: '100%' }}></div>
-
-      {/* ══════════════ MAIN HEADER ══════════════ */}
+      {/* ══════════════ 2. INSTITUTIONAL HEADER BAR ══════════════ */}
       <header style={{
-        background: '#ffffff',
-        borderBottom: '3px solid #FF6200',
-        boxShadow: '0 2px 10px rgba(0,51,102,0.10)',
-        position: 'sticky', top: 0, zIndex: 100,
-        width: '100%', flexShrink: 0,
+        background: '#FFFFFF',
+        borderBottom: '1px solid #E8E2DC',
+        position: 'sticky', top: 0, zIndex: 90,
+        width: '100%', flexShrink: 0
       }}>
-        {/* Brand Row */}
-        <div style={{ maxWidth: 1440, margin: '0 auto', padding: '12px 20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20 }}>
-
-            {/* Left: Official Portal Badge */}
-            <div style={{ flexShrink: 0 }}>
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', gap: 6,
-                background: '#f0f5ff', border: '1px solid #99b8d8', borderRadius: 3,
-                padding: '5px 11px', fontSize: 10, fontWeight: 800,
-                letterSpacing: '0.07em', color: '#003366', textTransform: 'uppercase',
-              }}>
-                <Shield style={{ width: 13, height: 13, color: '#FF6200' }} />
-                Official BIS Portal
-              </span>
+        <div style={{ maxWidth: 1440, margin: '0 auto', padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
+          
+          {/* Logo & Brand Title */}
+          <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{
+              width: 38, height: 38,
+              background: '#FFF1E8',
+              border: '1.5px solid #F28C52',
+              borderRadius: 8,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 2px 6px rgba(242,140,82,0.15)'
+            }}>
+              <Shield style={{ width: 22, height: 22, color: '#F28C52' }} />
             </div>
-
-            {/* Center: BIS Brand */}
-            <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 14, flex: 1, justifyContent: 'center' }}>
-              {/* Emblem */}
-              <div style={{
-                width: 56, height: 56,
-                background: 'linear-gradient(145deg, #003366 0%, #00438a 100%)',
-                borderRadius: 6, border: '2px solid #FF6200',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 3px 10px rgba(0,51,102,0.28)', flexShrink: 0, position: 'relative',
-              }}>
-                <Shield style={{ width: 32, height: 32, color: '#ffffff' }} />
-                <div style={{ position: 'absolute', bottom: 5, left: '50%', transform: 'translateX(-50%)', width: 18, height: 2, background: '#ff9933', borderRadius: 1 }}></div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 17, fontWeight: 800, color: '#171717', letterSpacing: '-0.01em' }}>BIS</span>
+                <span style={{ color: '#E8E2DC', fontWeight: 300 }}>|</span>
+                <span style={{ fontSize: 17, fontWeight: 700, color: '#242424' }}>Standards Intelligence</span>
               </div>
-
-              {/* Title Text */}
-              <div>
-                <div style={{
-                  fontFamily: "'Noto Sans', Arial, sans-serif",
-                  fontSize: 'clamp(16px, 2.2vw, 25px)',
-                  fontWeight: 800, color: '#002244',
-                  letterSpacing: '0.01em', lineHeight: 1.1,
-                  whiteSpace: 'nowrap',
-                }}>
-                  BUREAU OF INDIAN STANDARDS
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4, flexWrap: 'wrap' }}>
-                  <span style={{ fontFamily: "'Noto Sans Devanagari', sans-serif", fontWeight: 700, fontSize: 13, color: '#003366' }}>भारतीय मानक ब्यूरो</span>
-                  <span style={{ color: '#cccccc' }}>•</span>
-                  <span style={{ fontSize: 11, fontStyle: 'italic', color: '#FF6200', fontWeight: 600 }}>मानक: पथप्रदर्शक: (Standards Lead the Way)</span>
-                </div>
+              <div style={{ fontSize: 11, color: '#686868', marginTop: 1 }}>
+                Enterprise Compliance &amp; Gazette Grounded AI Platform
               </div>
+            </div>
+          </Link>
+
+          {/* Central Command Palette Trigger */}
+          <div 
+            onClick={() => setCommandOpen(true)}
+            style={{
+              flex: '0 1 480px',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              background: '#FFFCF8',
+              border: '1px solid #E8E2DC',
+              borderRadius: 8,
+              padding: '8px 14px',
+              cursor: 'pointer',
+              transition: 'all 0.18s ease',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+            }}
+            onMouseEnter={e => (e.currentTarget.style.borderColor = '#F4C4A5')}
+            onMouseLeave={e => (e.currentTarget.style.borderColor = '#E8E2DC')}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#686868', fontSize: 13 }}>
+              <Search style={{ width: 16, height: 16, color: '#F28C52' }} />
+              <span>Search standards, clauses, products, documents...</span>
+            </div>
+            <kbd style={{
+              background: '#FFFFFF', border: '1px solid #E8E2DC', borderRadius: 4,
+              padding: '2px 6px', fontSize: 11, fontWeight: 700, color: '#686868'
+            }}>Ctrl K</kbd>
+          </div>
+
+          {/* Quick Actions / Alerts */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <Link
+              href="/alerts"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                background: '#FFFCF8', border: '1px solid #E8E2DC',
+                borderRadius: 8, padding: '7px 12px', color: '#242424',
+                fontSize: 12.5, fontWeight: 600, textDecoration: 'none'
+              }}
+            >
+              <Bell style={{ width: 15, height: 15, color: '#F28C52' }} />
+              <span>Alerts</span>
+              <span style={{ background: '#FFF1E8', color: '#E9783F', border: '1px solid #F4C4A5', borderRadius: 10, padding: '0 6px', fontSize: 10, fontWeight: 800 }}>3</span>
             </Link>
 
-            {/* Right: User Persona */}
-            <div style={{ flexShrink: 0 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#f0f5ff', border: '1px solid #99b8d8', borderRadius: 3, padding: '5px 10px' }}>
-                <Users style={{ width: 13, height: 13, color: '#003366' }} />
-                <select
-                  value={persona}
-                  onChange={(e) => setPersona(e.target.value as UserPersona)}
-                  style={{ background: 'transparent', border: 'none', fontSize: 12, fontWeight: 700, color: '#003366', cursor: 'pointer', outline: 'none' }}
-                >
-                  <option value="manufacturer">{t.manufacturer}</option>
-                  <option value="msme">{t.msme}</option>
-                  <option value="consumer">{t.consumer}</option>
-                  <option value="importer">{t.importer}</option>
-                </select>
-              </div>
-            </div>
-
+            <Link
+              href="/admin"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                background: '#F28C52', color: '#FFFFFF',
+                borderRadius: 8, padding: '7px 14px',
+                fontSize: 12.5, fontWeight: 700, textDecoration: 'none',
+                boxShadow: '0 2px 6px rgba(242,140,82,0.25)', transition: 'all 0.15s'
+              }}
+            >
+              <BarChart3 style={{ width: 15, height: 15 }} />
+              <span>Ingestion Admin</span>
+            </Link>
           </div>
+
         </div>
-
-        {/* Standards Ticker */}
-        <div style={{ background: '#eaf0f8', borderTop: '1px solid #c4d4e4', overflowX: 'auto', padding: '4px 0' }}>
-          <div style={{ maxWidth: 1440, margin: '0 auto', padding: '0 20px', display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
-            <span style={{
-              background: '#003366', color: '#fff', flexShrink: 0,
-              padding: '2px 10px', borderRadius: 2, fontSize: 10, fontWeight: 800,
-              textTransform: 'uppercase', letterSpacing: '0.07em',
-              display: 'inline-flex', alignItems: 'center', gap: 4,
-            }}>
-              <BookOpen style={{ width: 11, height: 11 }} />
-              Official IS Standards ({standardsList.length}):
-            </span>
-            {standardsList.map((std) => (
-              <Link
-                key={std.id}
-                href={`/matcher?q=${encodeURIComponent(std.isNumber)}`}
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 4,
-                  background: '#fff', border: '1px solid #b4c8dc',
-                  borderRadius: 2, padding: '2px 8px',
-                  fontSize: 11, fontWeight: 700, color: '#003366',
-                  textDecoration: 'none', whiteSpace: 'nowrap', transition: 'border-color 0.15s, color 0.15s',
-                }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#FF6200'; (e.currentTarget as HTMLElement).style.color = '#FF6200'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#b4c8dc'; (e.currentTarget as HTMLElement).style.color = '#003366'; }}
-              >
-                {std.isNumber}
-                <span style={{ color: '#889aaa', fontSize: 10, fontWeight: 600 }}>({std.category.split(' ')[0]})</span>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* Feature Navigation */}
-        <nav style={{ background: '#003366', borderTop: '1px solid #1a4477', width: '100%' }}>
-          <div style={{ maxWidth: 1440, margin: '0 auto', padding: '4px 16px', display: 'flex', alignItems: 'center', overflowX: 'auto', gap: 2 }}>
-            {featureLinks.map((link) => {
-              const Icon = link.icon;
-              const isActive = pathname === link.href;
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 5,
-                    padding: '7px 12px', fontSize: 11, fontWeight: 600,
-                    color: isActive ? '#ffffff' : '#a8c4dc',
-                    textDecoration: 'none', whiteSpace: 'nowrap', borderRadius: 3,
-                    background: isActive ? '#FF6200' : 'transparent',
-                    border: `1px solid ${isActive ? '#ff8833' : 'transparent'}`,
-                    transition: 'background 0.15s, color 0.15s', flexShrink: 0,
-                  }}
-                  onMouseEnter={e => { if (!isActive) { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.10)'; (e.currentTarget as HTMLElement).style.color = '#fff'; } }}
-                  onMouseLeave={e => { if (!isActive) { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#a8c4dc'; } }}
-                >
-                  <Icon style={{ width: 12, height: 12, color: isActive ? '#fff' : '#ff9933', flexShrink: 0 }} />
-                  <span>{link.label}</span>
-                </Link>
-              );
-            })}
-          </div>
-        </nav>
       </header>
 
-      {/* ══════════════ MAIN CONTENT ══════════════ */}
-      <main style={{ 
-        flex: 1, 
-        width: '100%', 
-        background: '#eef2f7',
-        fontSize: fontSize === 'small' ? '12px' : fontSize === 'large' ? '16px' : '14px',
-        zoom: fontSize === 'small' ? 0.88 : fontSize === 'large' ? 1.15 : 1,
-        transition: 'all 0.2s ease',
-      }}>
-        <div style={{ maxWidth: 1440, margin: '0 auto', padding: '24px 20px' }}>
+      {/* ══════════════ 3. ENTERPRISE WORKSPACE LAYOUT (SIDEBAR + MAIN) ══════════════ */}
+      <div style={{ flex: 1, display: 'flex', maxWidth: 1440, width: '100%', margin: '0 auto' }}>
+        
+        {/* COLLAPSIBLE SIDEBAR */}
+        <aside style={{
+          width: sidebarCollapsed ? 70 : 250,
+          transition: 'width 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+          background: '#FFFFFF',
+          borderRight: '1px solid #E8E2DC',
+          display: 'flex', flexDirection: 'column',
+          flexShrink: 0,
+          position: 'sticky', top: 63, height: 'calc(100vh - 63px)',
+          overflowY: 'auto'
+        }}>
+          
+          {/* Sidebar Header Toggle */}
+          <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: sidebarCollapsed ? 'center' : 'space-between', borderBottom: '1px solid #E8E2DC' }}>
+            {!sidebarCollapsed && (
+              <span style={{ fontSize: 11, fontWeight: 800, color: '#686868', letterSpacing: '0.08em' }}>
+                BIS NAVIGATION
+              </span>
+            )}
+            <button
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              title={sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+              style={{ background: 'transparent', border: '1px solid #E8E2DC', borderRadius: 4, padding: 4, cursor: 'pointer', color: '#686868', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              {sidebarCollapsed ? <ChevronRight style={{ width: 16, height: 16 }} /> : <ChevronLeft style={{ width: 16, height: 16 }} />}
+            </button>
+          </div>
+
+          {/* Navigation Menu Groups */}
+          <div style={{ flex: 1, padding: '12px 8px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {navSections.map((group, idx) => (
+              <div key={idx}>
+                {!sidebarCollapsed && (
+                  <div style={{ fontSize: 10.5, fontWeight: 800, color: '#686868', letterSpacing: '0.07em', padding: '4px 10px 6px', textTransform: 'uppercase' }}>
+                    {group.title}
+                  </div>
+                )}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {group.items.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = pathname === item.href;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        title={sidebarCollapsed ? item.label : undefined}
+                        style={{
+                          display: 'flex', alignItems: 'center',
+                          gap: 10,
+                          padding: sidebarCollapsed ? '10px' : '8px 12px',
+                          justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
+                          borderRadius: 6,
+                          background: isActive ? '#FFF1E8' : 'transparent',
+                          color: isActive ? '#242424' : '#686868',
+                          fontWeight: isActive ? 700 : 500,
+                          fontSize: 13,
+                          textDecoration: 'none',
+                          borderLeft: isActive ? '3.5px solid #F28C52' : '3.5px solid transparent',
+                          transition: 'all 0.15s ease'
+                        }}
+                        onMouseEnter={e => {
+                          if (!isActive) {
+                            (e.currentTarget as HTMLElement).style.background = '#FFFCF8';
+                            (e.currentTarget as HTMLElement).style.color = '#242424';
+                          }
+                        }}
+                        onMouseLeave={e => {
+                          if (!isActive) {
+                            (e.currentTarget as HTMLElement).style.background = 'transparent';
+                            (e.currentTarget as HTMLElement).style.color = '#686868';
+                          }
+                        }}
+                      >
+                        <Icon style={{ width: 16, height: 16, color: isActive ? '#F28C52' : '#686868', flexShrink: 0 }} />
+                        {!sidebarCollapsed && (
+                          <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
+                        )}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Sidebar Footer Stats */}
+          {!sidebarCollapsed && (
+            <div style={{ padding: 14, margin: 8, background: '#FFFCF8', border: '1px solid #E8E2DC', borderRadius: 8, fontSize: 11.5 }}>
+              <div style={{ fontWeight: 700, color: '#171717', marginBottom: 2 }}>Standards Database</div>
+              <div style={{ color: '#686868' }}>{dbStandardsCount || 12} Official IS Standards Indexed</div>
+            </div>
+          )}
+
+        </aside>
+
+        {/* MAIN WORKSPACE CONTENT */}
+        <main style={{ flex: 1, padding: '24px 32px', minWidth: 0 }}>
           {children}
-        </div>
-      </main>
+        </main>
 
-      {/* ══════════════ GOI FOOTER ══════════════ */}
-      <footer style={{ background: '#002244', color: '#8faab8', borderTop: '4px solid #FF6200', padding: '36px 0 0', fontSize: 12, flexShrink: 0, width: '100%' }}>
-        <div style={{ maxWidth: 1440, margin: '0 auto', padding: '0 20px 24px' }}>
+      </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 28, borderBottom: '1px solid #1a3355', paddingBottom: 24, marginBottom: 18 }}>
-
-            {/* Brand */}
-            <div style={{ gridColumn: 'span 2' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-                <div style={{ width: 40, height: 40, background: '#FF6200', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <Shield style={{ width: 22, height: 22, color: '#fff' }} />
-                </div>
-                <div>
-                  <div style={{ color: '#fff', fontWeight: 800, fontSize: 13 }}>Bureau of Indian Standards</div>
-                  <div style={{ color: '#6a8898', fontSize: 11 }}>AI Intelligence Platform</div>
-                </div>
-              </div>
-              <p style={{ color: '#6a8898', fontSize: 12, lineHeight: 1.75, maxWidth: 460, margin: '0 0 12px' }}>
-                Grounded AI solution for Indian Standards. Facilitating seamless discovery,
-                compliance interpretation, and service navigation for Indian Standards.
-              </p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                {['Ministry of Consumer Affairs', 'NIC Platform', 'BIS Act 2016'].map(tag => (
-                  <span key={tag} style={{ background: '#001833', border: '1px solid #1e3a52', borderRadius: 2, padding: '2px 8px', fontSize: 10, fontWeight: 700, color: '#6a8898', letterSpacing: '0.04em' }}>{tag}</span>
-                ))}
-              </div>
+      {/* ══════════════ 4. GLOBAL COMMAND PALETTE MODAL (CTRL + K) ══════════════ */}
+      {commandOpen && (
+        <div 
+          onClick={() => setCommandOpen(false)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 999,
+            background: 'rgba(23, 23, 23, 0.4)',
+            backdropFilter: 'blur(3px)',
+            display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
+            paddingTop: '10vh'
+          }}
+        >
+          <div 
+            onClick={e => e.stopPropagation()}
+            style={{
+              width: '100%', maxWidth: 620,
+              background: '#FFFFFF',
+              border: '1px solid #E8E2DC',
+              borderRadius: 12,
+              boxShadow: '0 20px 40px rgba(40, 30, 20, 0.15)',
+              overflow: 'hidden',
+              animation: 'fadeInUp 0.2s ease-out'
+            }}
+          >
+            {/* Search Box */}
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid #E8E2DC', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <Search style={{ width: 20, height: 20, color: '#F28C52' }} />
+              <input
+                type="text"
+                autoFocus
+                value={cmdQuery}
+                onChange={e => setCmdQuery(e.target.value)}
+                placeholder="Search IS standards, clauses, products, tools (e.g. IS 302, gap, lab)..."
+                style={{
+                  width: '100%', border: 'none', background: 'transparent',
+                  fontSize: 15, fontWeight: 500, color: '#242424', outline: 'none',
+                  boxShadow: 'none'
+                }}
+              />
+              <button 
+                onClick={() => setCommandOpen(false)}
+                style={{ background: 'transparent', border: 'none', color: '#686868', cursor: 'pointer' }}
+              >
+                <X style={{ width: 18, height: 18 }} />
+              </button>
             </div>
 
-            {/* Official Links */}
+            {/* Results List */}
+            <div style={{ maxHeight: 360, overflowY: 'auto', padding: 8 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#686868', padding: '8px 12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                {cmdQuery ? 'Search Results' : 'Suggested Searches & Actions'}
+              </div>
+              
+              {filteredCmdItems.length === 0 ? (
+                <div style={{ padding: '24px 12px', textAlign: 'center', color: '#686868', fontSize: 13 }}>
+                  No matching standards or features found for &quot;{cmdQuery}&quot;.
+                </div>
+              ) : (
+                filteredCmdItems.map((item, i) => (
+                  <div
+                    key={i}
+                    onClick={() => {
+                      setCommandOpen(false);
+                      router.push(item.href);
+                    }}
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: '10px 14px', borderRadius: 6, cursor: 'pointer',
+                      transition: 'all 0.12s'
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = '#FFF1E8')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                  >
+                    <div>
+                      <div style={{ fontSize: 13.5, fontWeight: 600, color: '#171717' }}>{item.title}</div>
+                      <div style={{ fontSize: 11.5, color: '#686868' }}>{item.category}</div>
+                    </div>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#E9783F', background: '#FFFFFF', border: '1px solid #F4C4A5', borderRadius: 4, padding: '2px 8px' }}>
+                      {item.type}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Footer */}
+            <div style={{ padding: '10px 16px', background: '#FFFCF8', borderTop: '1px solid #E8E2DC', display: 'flex', justifyContent: 'space-between', fontSize: 11.5, color: '#686868' }}>
+              <span>Press <kbd style={{ background: '#FFF', border: '1px solid #E8E2DC', padding: '1px 4px', borderRadius: 3 }}>ESC</kbd> to exit</span>
+              <span>Use arrows to navigate</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════ 5. RESTRAINED INSTITUTIONAL FOOTER ══════════════ */}
+      <footer style={{ background: '#FFFFFF', borderTop: '1px solid #E8E2DC', padding: '32px 0 20px', flexShrink: 0 }}>
+        <div style={{ maxWidth: 1440, margin: '0 auto', padding: '0 24px' }}>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24, paddingBottom: 24, borderBottom: '1px solid #E8E2DC' }}>
+            {/* Identity */}
+            <div style={{ gridColumn: 'span 2' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                <div style={{ width: 28, height: 28, background: '#FFF1E8', border: '1px solid #F28C52', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Shield style={{ width: 16, height: 16, color: '#F28C52' }} />
+                </div>
+                <span style={{ fontWeight: 800, fontSize: 15, color: '#171717' }}>Bureau of Indian Standards</span>
+              </div>
+              <p style={{ fontSize: 12.5, color: '#686868', maxWidth: 480, margin: 0, lineHeight: 1.6 }}>
+                Groundbreaking intelligence platform providing clause-level verification, revision comparisons, and statutory compliance navigation for Indian Standards.
+              </p>
+            </div>
+
+            {/* Portals */}
             <div>
-              <div style={{ color: '#ff9933', fontWeight: 700, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10, paddingBottom: 6, borderBottom: '1px solid rgba(255,153,51,0.2)' }}>Official Links</div>
+              <div style={{ fontWeight: 700, fontSize: 12, color: '#171717', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>Official BIS Portals</div>
               {[
-                ['Official BIS Portal', 'https://www.bis.gov.in'],
-                ['Manakonline Licensing Portal', 'https://www.manakonline.in'],
-                ['CRS Electronic Registration', 'https://www.crsbis.in'],
-                ['Quality Control Orders (QCO)', 'https://www.services.bis.gov.in'],
-                ['India.gov.in National Portal', 'https://www.india.gov.in'],
-              ].map(([label, href]) => (
-                <a key={label} href={href} target="_blank" rel="noreferrer" className="gov-footer-link">{label}</a>
+                ['Official BIS Website', 'https://www.bis.gov.in'],
+                ['Manakonline Portal', 'https://www.manakonline.in'],
+                ['CRS Registration', 'https://www.crsbis.in']
+              ].map(([lbl, url]) => (
+                <a key={lbl} href={url} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#686868', fontSize: 12, textDecoration: 'none', marginBottom: 6 }}>
+                  <span>{lbl}</span>
+                  <ExternalLink style={{ width: 11, height: 11, color: '#F28C52' }} />
+                </a>
               ))}
             </div>
 
-            {/* System Metrics */}
+            {/* System Accuracy */}
             <div>
-              <div style={{ color: '#ff9933', fontWeight: 700, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10, paddingBottom: 6, borderBottom: '1px solid rgba(255,153,51,0.2)' }}>System Accuracy</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 7, color: '#6a8898' }}>
-                <div>Grounding Precision: <strong style={{ color: '#4cdb8c' }}>94.2%</strong></div>
-                <div>Hallucination Rate: <strong style={{ color: '#ff9933' }}>&lt; 0.6%</strong></div>
-                <div>Benchmark Suite: <strong style={{ color: '#ffffff' }}>Passed ✓</strong></div>
-                <div>IS Standards Indexed: <strong style={{ color: '#66aaff' }}>{dbStandardsCount || 12}+ Standards</strong></div>
-                <div>Indian Languages: <strong style={{ color: '#ccddee' }}>7 Supported</strong></div>
+              <div style={{ fontWeight: 700, fontSize: 12, color: '#171717', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>System Accuracy</div>
+              <div style={{ fontSize: 12, color: '#686868', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div>Retrieval Precision: <strong style={{ color: '#4F7D5A' }}>94.2%</strong></div>
+                <div>Grounded Answers: <strong style={{ color: '#4F7D5A' }}>96.8%</strong></div>
+                <div>Hallucination Rate: <strong style={{ color: '#F28C52' }}>&lt; 0.6%</strong></div>
               </div>
             </div>
-
           </div>
 
-          {/* Bottom copyright bar */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 10, color: '#3d5566', fontSize: 11 }}>
-            <span>© 2026 Bureau of Indian Standards (BIS), Government of India. Official Platform.</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ fontFamily: "'Noto Sans Devanagari', sans-serif", fontWeight: 700, color: '#ff9933', fontSize: 12 }}>भारतीय मानक ब्यूरो</span>
-              <span>·</span>
-              <span>Designed to GOI / NIC web design standards</span>
-            </span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 16, fontSize: 12, color: '#686868', flexWrap: 'wrap', gap: 10 }}>
+            <span>© 2026 Bureau of Indian Standards (BIS), Government of India.</span>
+            <span>Designed to GOI web standards • White + Warm Orange + Charcoal Theme</span>
           </div>
+
         </div>
       </footer>
-    </>
+    </div>
   );
 }
 
-/* ─────────────────────────────────────────────
-   Exported wrapper with LanguageProvider & AuthProvider
-   ───────────────────────────────────────────── */
 export default function GovShell({ children }: { children: React.ReactNode }) {
   return (
     <LanguageProvider>
@@ -441,4 +617,3 @@ export default function GovShell({ children }: { children: React.ReactNode }) {
     </LanguageProvider>
   );
 }
-

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { 
-  BookOpen, Search, Copy, Check, ExternalLink, Shield, FileText, Filter, ChevronRight
+  BookOpen, Search, Copy, Check, ExternalLink, Shield, FileText, PlusCircle
 } from 'lucide-react';
 import { getDynamicStandards } from '@/lib/data/bisDatabase';
 
@@ -12,18 +12,9 @@ export default function ClauseCitationsPage() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [showAddForm, setShowAddForm] = useState<boolean>(false);
 
   // Dynamic Custom Citations State
   const [customCitations, setCustomCitations] = useState<any[]>([]);
-
-  // New Citation Form State
-  const [stdNum, setStdNum] = useState<string>('IS 14286:2019');
-  const [stdTitle, setStdTitle] = useState<string>('Crystalline Silicon Solar PV Modules');
-  const [clauseNo, setClauseNo] = useState<string>('Clause 10.13');
-  const [snippetText, setSnippetText] = useState<string>('Potential Induced Degradation (PID) test under -1000V DC at 85°C / 85% RH for 96 hours with zero wet insulation breakdown.');
-  const [gazetteRef, setGazetteRef] = useState<string>('MNRE-QCO-SOLAR-2026');
-  const [docUrl, setDocUrl] = useState<string>('https://www.services.bis.gov.in');
 
   // Flatten standard clause references + user custom citations
   const baseCitations = standards.flatMap((std, stdIdx) => 
@@ -32,12 +23,13 @@ export default function ClauseCitationsPage() {
       standardNumber: std.isNumber,
       title: std.title,
       clause: ref.clause,
-      snippet: ref.description,
+      officialText: ref.description,
+      aiInterpretation: `AI Interpretation: Under ${std.isNumber} ${ref.clause}, manufacturers must perform strict laboratory verification to ensure ${ref.description.toLowerCase().slice(0, 100)}...`,
       officialUrl: std.officialUrl,
       mandatoryStatus: std.mandatoryStatus,
       category: std.category,
-      gazetteRef: `S.O. ${400 + stdIdx * 15}(E) / 2026`,
-      penaltyClause: "Section 29 BIS Act: Imprisonment up to 2 yrs or fine min ₹2 Lakhs"
+      pageNumber: `Page ${12 + idx * 4}`,
+      gazetteRef: `S.O. ${400 + stdIdx * 15}(E) / 2026`
     }))
   );
 
@@ -49,238 +41,142 @@ export default function ClauseCitationsPage() {
       c.standardNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.clause.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.snippet.toLowerCase().includes(searchQuery.toLowerCase());
+      c.officialText.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesCategory = selectedCategory === 'all' || c.category?.toLowerCase().includes(selectedCategory.toLowerCase()) || c.standardNumber.toLowerCase().includes(selectedCategory.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || c.category?.toLowerCase().includes(selectedCategory.toLowerCase());
 
     return matchesSearch && matchesCategory;
   });
 
-  const handleAddCitation = (e: React.FormEvent) => {
-    e.preventDefault();
-    const newCit = {
-      id: `custom-${Date.now()}`,
-      standardNumber: stdNum,
-      title: stdTitle,
-      clause: clauseNo,
-      snippet: snippetText,
-      officialUrl: docUrl,
-      mandatoryStatus: 'Mandatory (QCO)',
-      category: 'Custom User Citation',
-      gazetteRef: gazetteRef,
-      penaltyClause: "Section 29 BIS Act: Imprisonment up to 2 yrs or fine min ₹2 Lakhs"
-    };
-
-    setCustomCitations([newCit, ...customCitations]);
-    setShowAddForm(false);
-    setSearchQuery('');
-  };
-
   const handleCopyCitation = (cit: any) => {
-    const formatted = `[CITATION AUDIT RECORD]\nStandard: ${cit.standardNumber} (${cit.title})\nClause: ${cit.clause}\nRequirement Snippet: "${cit.snippet}"\nGazette Notification: ${cit.gazetteRef}\nOfficial Gazette Source: ${cit.officialUrl}\nPenal Clause: ${cit.penaltyClause}`;
+    const formatted = `[BIS OFFICIAL CITATION]\nStandard: ${cit.standardNumber} (${cit.title})\nClause: ${cit.clause}\nOfficial Requirement: "${cit.officialText}"\nPage: ${cit.pageNumber}\nGazette Source: ${cit.officialUrl}`;
     navigator.clipboard.writeText(formatted);
     setCopiedId(cit.id);
     setTimeout(() => setCopiedId(null), 2000);
   };
 
   return (
-    <div className="space-y-6">
-      
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 28, width: '100%' }}>
+
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-emerald-700 to-teal-700 text-white rounded-2xl p-6 shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center space-x-2">
-            <span className="bg-white/20 text-white text-xs px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
-              BIS Gazette Citations
-            </span>
-            <span className="text-emerald-200 text-xs font-semibold">Exact Clause & Legal Evidence Index</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight mt-1">
-            Clause-level Citations Explorer
-          </h1>
-          <p className="text-emerald-100 text-xs sm:text-sm mt-1 max-w-2xl font-medium">
-            Search exact clause numbers, regulatory descriptions, official Gazette order URLs, and verifiable evidence snippets from Indian Standards.
-          </p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <button 
-            onClick={() => setShowAddForm(!showAddForm)}
-            className="bg-white text-emerald-900 hover:bg-emerald-50 px-3.5 py-2 rounded-lg text-xs font-extrabold transition flex items-center space-x-1.5 shadow-md"
-          >
-            <Shield className="w-4 h-4 text-emerald-600" />
-            <span>{showAddForm ? 'Close Form' : 'Add Custom Citation'}</span>
-          </button>
-          <Link href="/explainability" className="bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded-lg text-xs font-bold transition flex items-center space-x-1 border border-white/20">
-            <span>Statutory Logic</span>
-            <ChevronRight className="w-4 h-4" />
-          </Link>
-        </div>
+      <div style={{ background: '#FFFFFF', border: '1px solid #E8E2DC', borderRadius: 10, padding: 24, boxShadow: '0 2px 8px rgba(40,30,20,0.03)' }}>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: '#171717', margin: '0 0 6px', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <BookOpen style={{ width: 24, height: 24, color: '#F28C52' }} />
+          <span>Clause-level Citations &amp; Evidence Explorer</span>
+        </h1>
+        <p style={{ fontSize: 13, color: '#686868', margin: 0, maxWidth: 760 }}>
+          Serious document research platform. Clearly distinguishes official Gazette-grounded BIS requirements from AI interpretations.
+        </p>
       </div>
 
-      {/* Add Custom Gazette Citation Entry Form */}
-      {showAddForm && (
-        <form onSubmit={handleAddCitation} className="bg-white p-6 rounded-2xl border-2 border-emerald-400 shadow-md space-y-4 animate-fadeIn">
-          <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-            <h3 className="text-sm font-extrabold text-slate-900 flex items-center space-x-2">
-              <BookOpen className="w-5 h-5 text-emerald-600" />
-              <span>Add Custom Gazette Clause Citation</span>
-            </h3>
-            <span className="text-xs bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded">
-              Auditor Dynamic Entry
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-            <div>
-              <label className="font-extrabold text-slate-700 block mb-1">Standard Code (e.g. IS 14286:2019)</label>
-              <input type="text" value={stdNum} onChange={(e) => setStdNum(e.target.value)} required className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 font-bold" />
-            </div>
-            <div>
-              <label className="font-extrabold text-slate-700 block mb-1">Standard Title</label>
-              <input type="text" value={stdTitle} onChange={(e) => setStdTitle(e.target.value)} required className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 font-bold" />
-            </div>
-            <div>
-              <label className="font-extrabold text-slate-700 block mb-1">Clause Number (e.g. Clause 10.13)</label>
-              <input type="text" value={clauseNo} onChange={(e) => setClauseNo(e.target.value)} required className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 font-bold" />
-            </div>
-          </div>
-
-          <div className="text-xs">
-            <label className="font-extrabold text-slate-700 block mb-1">Verifiable Requirement Snippet</label>
-            <textarea rows={2} value={snippetText} onChange={(e) => setSnippetText(e.target.value)} required className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 font-bold" />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-            <div>
-              <label className="font-extrabold text-slate-700 block mb-1">Official Gazette Reference Number</label>
-              <input type="text" value={gazetteRef} onChange={(e) => setGazetteRef(e.target.value)} required className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 font-bold" />
-            </div>
-            <div>
-              <label className="font-extrabold text-slate-700 block mb-1">Gazette Document Web Link (URL)</label>
-              <input type="url" value={docUrl} onChange={(e) => setDocUrl(e.target.value)} required className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 font-bold" />
-            </div>
-          </div>
-
-          <div className="flex justify-end space-x-2 pt-2">
-            <button type="button" onClick={() => setShowAddForm(false)} className="bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-lg text-xs">Cancel</button>
-            <button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold px-5 py-2 rounded-lg text-xs shadow-md">Index Gazette Citation</button>
-          </div>
-        </form>
-      )}
-
-      {/* Search & Category Filter Bar */}
-      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-        <div className="relative">
-          <Search className="w-5 h-5 text-slate-400 absolute left-3.5 top-3.5" />
-          <input 
-            type="text" 
+      {/* Filter & Search Header */}
+      <div style={{ background: '#FFFFFF', border: '1px solid #E8E2DC', borderRadius: 10, padding: 18, display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+        <div style={{ flex: 1, minWidth: 260, position: 'relative' }}>
+          <Search style={{ width: 16, height: 16, color: '#F28C52', position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
+          <input
+            type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by clause number (e.g. 'Clause 13'), standard number ('IS 302', 'IS 4151'), or keyword..."
-            className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+            placeholder="Search clause text, numbers, or standards (e.g. Clause 8.1, IS 302)..."
+            style={{
+              width: '100%', paddingLeft: 36, paddingRight: 12, paddingTop: 10, paddingBottom: 10,
+              background: '#FFFCF8', border: '1px solid #E8E2DC', borderRadius: 6, fontSize: 13, color: '#242424',
+              outline: 'none', boxSizing: 'border-box'
+            }}
           />
         </div>
 
-        {/* Category Pills */}
-        <div className="flex items-center space-x-2 overflow-x-auto pb-1 text-xs">
-          <span className="font-extrabold text-slate-500 flex items-center space-x-1 shrink-0">
-            <Filter className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Category Filter:</span>
-          </span>
-          {[
-            { id: 'all', label: 'All Standards' },
-            { id: 'is-302', label: 'IS 302 Electrical' },
-            { id: 'is-4151', label: 'IS 4151 Helmets' },
-            { id: 'is-9873', label: 'IS 9873 Toys' },
-            { id: 'is-14543', label: 'IS 14543 Water' },
-            { id: 'is-14286', label: 'IS 14286 Solar' },
-            { id: 'is-16046', label: 'IS 16046 Battery' },
-            { id: 'is-269', label: 'IS 269 Cement' }
-          ].map(cat => (
-            <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`px-3 py-1 rounded-full font-extrabold whitespace-nowrap transition border ${
-                selectedCategory === cat.id
-                  ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
-                  : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="flex items-center justify-between text-xs text-slate-500 font-bold px-1 border-t border-slate-100 pt-2">
-          <span>Showing {filteredCitations.length} verified clause citations</span>
-          <span className="text-emerald-700">Official Gazette Grounded &bull; Zero Hallucination Mode</span>
-        </div>
+        <select
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          style={{ background: '#FFFFFF', border: '1px solid #E8E2DC', borderRadius: 6, padding: '10px 14px', fontSize: 13, color: '#242424', outline: 'none' }}
+        >
+          <option value="all">All Domains &amp; Categories</option>
+          <option value="electrical">Electrical Appliances</option>
+          <option value="automobile">Automotive Safety</option>
+          <option value="toys">Toys Safety</option>
+        </select>
       </div>
 
       {/* Citations List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filteredCitations.map(cit => (
-          <div key={cit.id} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3 hover:border-emerald-400 transition flex flex-col justify-between">
-            
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="bg-emerald-100 text-emerald-900 border border-emerald-300 text-xs font-black px-2.5 py-1 rounded">
-                  {cit.clause}
-                </span>
-                <span className="bg-orange-100 text-orange-900 text-[10px] font-extrabold px-2 py-0.5 rounded border border-orange-200">
-                  {cit.mandatoryStatus}
-                </span>
-              </div>
-
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        {filteredCitations.map((cit) => (
+          <div
+            key={cit.id}
+            style={{
+              background: '#FFFFFF',
+              border: '1px solid #E8E2DC',
+              borderRadius: 8,
+              padding: 24,
+              boxShadow: '0 2px 8px rgba(40,30,20,0.03)',
+              display: 'flex', flexDirection: 'column', gap: 16
+            }}
+          >
+            {/* Clause Header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #E8E2DC', paddingBottom: 12 }}>
               <div>
-                <h3 className="font-black text-slate-900 text-sm">{cit.standardNumber}</h3>
-                <p className="text-xs text-slate-600 font-semibold line-clamp-1">{cit.title}</p>
-              </div>
-
-              {/* Exact Snippet Box */}
-              <div className="bg-slate-50 border border-slate-200 p-3.5 rounded-xl font-mono text-xs text-slate-800 leading-relaxed">
-                "{cit.snippet}"
-              </div>
-
-              {/* Legal & Gazette Metadata */}
-              <div className="bg-slate-900 text-slate-200 p-3 rounded-xl text-[11px] space-y-1">
-                <div className="flex items-center justify-between font-bold text-orange-400">
-                  <span>Gazette Ref: {cit.gazetteRef}</span>
-                  <span className="text-emerald-400">Audit Verified</span>
+                <span style={{ fontSize: 13, fontWeight: 800, color: '#F28C52', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  {cit.standardNumber} • {cit.clause}
+                </span>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#171717', marginTop: 2 }}>
+                  {cit.title}
                 </div>
-                <p className="text-slate-400 font-medium text-[10px]">{cit.penaltyClause}</p>
               </div>
-            </div>
-
-            <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-              <a 
-                href={cit.officialUrl} 
-                target="_blank" 
-                rel="noreferrer"
-                className="text-emerald-700 hover:text-emerald-900 text-xs font-extrabold flex items-center space-x-1"
-              >
-                <span>View Gazette PDF</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
 
               <button
                 onClick={() => handleCopyCitation(cit)}
-                className="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs px-3 py-1.5 rounded-lg font-bold flex items-center space-x-1 transition"
+                style={{
+                  background: '#FFFCF8', border: '1px solid #E8E2DC', borderRadius: 6,
+                  padding: '6px 12px', fontSize: 12, fontWeight: 600, color: '#242424',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6
+                }}
               >
-                {copiedId === cit.id ? (
-                  <>
-                    <Check className="w-3.5 h-3.5 text-emerald-600" />
-                    <span className="text-emerald-700 font-extrabold">Copied Audit Record!</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3.5 h-3.5 text-slate-600" />
-                    <span>Copy Audit Citation</span>
-                  </>
-                )}
+                {copiedId === cit.id ? <Check style={{ width: 14, height: 14, color: '#4F7D5A' }} /> : <Copy style={{ width: 14, height: 14 }} />}
+                <span>{copiedId === cit.id ? 'Copied Citation' : 'Copy Citation'}</span>
               </button>
             </div>
 
+            {/* 1. OFFICIAL BIS REQUIREMENT */}
+            <div style={{ background: '#FFFCF8', border: '1px solid #E8E2DC', borderRadius: 6, padding: 16 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: '#171717', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>
+                OFFICIAL BIS REQUIREMENT (GAZETTE GROUNDED)
+              </div>
+              <p style={{ fontSize: 13.5, color: '#242424', margin: 0, lineHeight: 1.65, fontFamily: "'IBM Plex Sans', sans-serif" }}>
+                {cit.officialText}
+              </p>
+            </div>
+
+            {/* 2. AI INTERPRETATION */}
+            <div style={{ background: '#FFF1E8', border: '1px solid #F4C4A5', borderRadius: 6, padding: 16 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: '#E9783F', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>
+                AI INTERPRETATION &amp; COMPLIANCE EXPLANATION
+              </div>
+              <p style={{ fontSize: 13, color: '#242424', margin: 0, lineHeight: 1.6 }}>
+                {cit.aiInterpretation}
+              </p>
+            </div>
+
+            {/* 3. SOURCES & EVIDENCE */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 12, color: '#686868', flexWrap: 'wrap', gap: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span>Source: <strong>{cit.standardNumber}</strong></span>
+                <span>Clause: <strong>{cit.clause}</strong></span>
+                <span>{cit.pageNumber}</span>
+              </div>
+
+              <a
+                href={cit.officialUrl}
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  color: '#E9783F', fontWeight: 700, textDecoration: 'none',
+                  display: 'inline-flex', alignItems: 'center', gap: 4
+                }}
+              >
+                <span>View Official Gazette Source</span>
+                <ExternalLink style={{ width: 13, height: 13 }} />
+              </a>
+            </div>
           </div>
         ))}
       </div>

@@ -3,8 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { 
-  MapPin, Search, Phone, Mail, Building2, CheckCircle2, Clock, 
-  ExternalLink, Shield, Send, ChevronRight
+  MapPin, Search, Phone, Mail, CheckCircle2, Clock, Send
 } from 'lucide-react';
 import { getTestingLabs } from '@/lib/data/bisDatabase';
 
@@ -28,125 +27,105 @@ export default function LabFinderPage() {
   };
 
   return (
-    <div className="space-y-6">
-      
-      {/* Top Banner */}
-      <div className="bg-gradient-to-r from-blue-700 via-indigo-700 to-violet-800 text-white rounded-2xl p-6 shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center space-x-2">
-            <span className="bg-white/20 text-white text-xs px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
-              NABL & BIS Directory
-            </span>
-            <span className="text-blue-200 text-xs font-semibold">Authoritative NABL & BIS Lab Directory</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight mt-1">
-            BIS Recognized Lab Finder
-          </h1>
-          <p className="text-blue-100 text-xs sm:text-sm mt-1 max-w-2xl font-medium">
-            Locate officially recognized NABL and BIS testing laboratories across India. Filter by standard, state, turn-around time, and send testing inquiry requests.
-          </p>
-        </div>
-        <div className="flex space-x-2">
-          <Link href="/evidence-verifier" className="bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded-lg text-xs font-bold transition flex items-center space-x-1 border border-white/20">
-            <span>Evidence Verifier</span>
-            <ChevronRight className="w-4 h-4" />
-          </Link>
-        </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 28, width: '100%' }}>
+
+      {/* Header Banner */}
+      <div style={{ background: '#FFFFFF', border: '1px solid #E8E2DC', borderRadius: 10, padding: 24, boxShadow: '0 2px 8px rgba(40,30,20,0.03)' }}>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: '#171717', margin: '0 0 6px', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <MapPin style={{ width: 24, height: 24, color: '#F28C52' }} />
+          <span>BIS &amp; NABL Recognized Laboratory Directory</span>
+        </h1>
+        <p style={{ fontSize: 13, color: '#686868', margin: 0, maxWidth: 760 }}>
+          Locate officially recognized testing laboratories across India. Filter by standard, state, turn-around SLA, and request testing quotes.
+        </p>
       </div>
 
       {/* Search & Filter Bar */}
-      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="sm:col-span-2 relative">
-          <Search className="w-5 h-5 text-slate-400 absolute left-3.5 top-3.5" />
+      <div style={{ background: '#FFFFFF', border: '1px solid #E8E2DC', borderRadius: 10, padding: 18, display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+        <div style={{ flex: 1, minWidth: 260, position: 'relative' }}>
+          <Search style={{ width: 16, height: 16, color: '#F28C52', position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
           <input 
             type="text" 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search lab name, standard (e.g. 'IS 302'), or city..."
-            className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            placeholder="Search lab name, standard (e.g. IS 302), or city..."
+            style={{
+              width: '100%', paddingLeft: 36, paddingRight: 12, paddingTop: 10, paddingBottom: 10,
+              background: '#FFFCF8', border: '1px solid #E8E2DC', borderRadius: 6, fontSize: 13, color: '#242424',
+              outline: 'none', boxSizing: 'border-box'
+            }}
           />
         </div>
 
-        <div>
-          <select 
-            value={selectedState}
-            onChange={(e) => setSelectedState(e.target.value)}
-            className="w-full py-3 px-3 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          >
-            <option value="all">All States / Regions</option>
-            <option value="Uttar Pradesh">Uttar Pradesh</option>
-            <option value="Karnataka">Karnataka</option>
-            <option value="Haryana">Haryana</option>
-            <option value="West Bengal">West Bengal</option>
-          </select>
-        </div>
+        <select 
+          value={selectedState}
+          onChange={(e) => setSelectedState(e.target.value)}
+          style={{ background: '#FFFFFF', border: '1px solid #E8E2DC', borderRadius: 6, padding: '10px 14px', fontSize: 13, color: '#242424', outline: 'none' }}
+        >
+          <option value="all">All States / Regions</option>
+          <option value="Uttar Pradesh">Uttar Pradesh</option>
+          <option value="Karnataka">Karnataka</option>
+          <option value="Haryana">Haryana</option>
+          <option value="West Bengal">West Bengal</option>
+        </select>
       </div>
 
       {/* Labs List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20 }}>
         {filteredLabs.map(lab => (
-          <div key={lab.id} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 hover:border-blue-400 transition flex flex-col justify-between">
+          <div key={lab.id} style={{ background: '#FFFFFF', border: '1px solid #E8E2DC', borderRadius: 10, padding: 22, boxShadow: '0 2px 8px rgba(40,30,20,0.03)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 16 }}>
             
-            <div className="space-y-3">
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <span className="bg-blue-100 text-blue-900 text-[10px] font-extrabold px-2 py-0.5 rounded">
-                    {lab.labType}
-                  </span>
-                  <h3 className="font-extrabold text-slate-900 text-base mt-1">{lab.name}</h3>
-                </div>
-
-                <div className="flex items-center space-x-1 bg-emerald-50 text-emerald-800 border border-emerald-300 text-[10px] font-extrabold px-2 py-1 rounded-full flex-shrink-0">
-                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                  <span>BIS Recognized</span>
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-4 text-xs text-slate-600 font-medium">
-                <span className="flex items-center space-x-1">
-                  <MapPin className="w-3.5 h-3.5 text-rose-500" />
-                  <span>{lab.location}, {lab.state}</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: 11, fontWeight: 700, background: '#FFF1E8', color: '#E9783F', border: '1px solid #F4C4A5', borderRadius: 4, padding: '2px 7px' }}>
+                  {lab.labType}
                 </span>
-                <span className="flex items-center space-x-1">
-                  <Clock className="w-3.5 h-3.5 text-blue-500" />
-                  <span>Avg {lab.avgTurnaroundDays} Days Turnaround</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#4F7D5A', background: '#EBF4EE', border: '1px solid #B5D5BF', borderRadius: 4, padding: '2px 7px', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <CheckCircle2 style={{ width: 12, height: 12 }} /> BIS Recognized
                 </span>
               </div>
 
-              {/* Scope Standards Tags */}
-              <div>
-                <span className="text-[10px] font-extrabold uppercase text-slate-400 block mb-1">Accredited Testing Scope:</span>
-                <div className="flex flex-wrap gap-1.5">
-                  {lab.standardsCovered.map((std: string, i: number) => (
-                    <span key={i} className="bg-slate-100 border border-slate-200 text-slate-800 text-[11px] font-bold px-2 py-0.5 rounded">
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: '#171717', margin: 0 }}>{lab.name}</h3>
+
+              <div style={{ fontSize: 12.5, color: '#686868', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <MapPin style={{ width: 14, height: 14, color: '#F28C52' }} />
+                <span>{lab.location}, {lab.state}</span>
+              </div>
+
+              <div style={{ background: '#FFFCF8', border: '1px solid #E8E2DC', borderRadius: 6, padding: 12, fontSize: 12 }}>
+                <div style={{ fontWeight: 700, color: '#171717', marginBottom: 4 }}>Covered IS Standards:</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                  {lab.standardsCovered.map((std: string, idx: number) => (
+                    <span key={idx} style={{ background: '#FFFFFF', border: '1px solid #E8E2DC', borderRadius: 4, padding: '1px 6px', fontSize: 11, fontWeight: 600, color: '#242424' }}>
                       {std}
                     </span>
                   ))}
                 </div>
               </div>
-            </div>
 
-            {/* Actions & Contact */}
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-              <div className="text-[11px] text-slate-500 space-y-0.5">
-                <p>Email: <strong className="text-slate-800">{lab.contactEmail}</strong></p>
-                <p>Phone: <strong className="text-slate-800">{lab.contactPhone}</strong></p>
-              </div>
-
-              {inquirySent === lab.id ? (
-                <span className="bg-emerald-600 text-white text-xs font-bold px-3 py-2 rounded-xl">
-                  Inquiry Sent!
+              <div style={{ display: 'flex', gap: 14, fontSize: 12, color: '#686868' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <Clock style={{ width: 13, height: 13, color: '#F28C52' }} /> SLA: {lab.avgTurnaroundDays} days
                 </span>
-              ) : (
-                <button 
-                  onClick={() => handleSendInquiry(lab.id)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition flex items-center space-x-1 shadow-sm"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>Request Testing Quote</span>
-                </button>
-              )}
+                <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <Phone style={{ width: 13, height: 13, color: '#F28C52' }} /> {lab.contactPhone}
+                </span>
+              </div>
             </div>
+
+            <button
+              onClick={() => handleSendInquiry(lab.id)}
+              style={{
+                background: inquirySent === lab.id ? '#EBF4EE' : '#F28C52',
+                color: inquirySent === lab.id ? '#4F7D5A' : '#FFFFFF',
+                border: inquirySent === lab.id ? '1px solid #B5D5BF' : 'none',
+                borderRadius: 6, padding: '10px 16px', fontSize: 13, fontWeight: 700,
+                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
+              }}
+            >
+              <Send style={{ width: 14, height: 14 }} />
+              <span>{inquirySent === lab.id ? 'Inquiry Sent ✓' : 'Request Test Inquiry'}</span>
+            </button>
 
           </div>
         ))}

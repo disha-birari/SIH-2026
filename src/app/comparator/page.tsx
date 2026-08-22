@@ -4,10 +4,10 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { 
   GitCompare, ArrowRight, Shield, Clock, AlertTriangle, 
-  CheckCircle2, PlusCircle, RefreshCcw, Layers, Download, ChevronRight
+  CheckCircle2, PlusCircle, RefreshCcw, Layers, Download
 } from 'lucide-react';
 import { getStandardComparisons } from '@/lib/data/bisDatabase';
-import { ClauseDiff, StandardComparison } from '@/lib/types';
+import { StandardComparison } from '@/lib/types';
 
 export default function StandardComparatorPage() {
   const initialComparisons = getStandardComparisons();
@@ -15,18 +15,17 @@ export default function StandardComparatorPage() {
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [showAddForm, setShowAddForm] = useState<boolean>(false);
 
-  // New Custom Comparison Form State
-  const [oldVer, setOldVer] = useState<string>('IS 1234:2018');
-  const [newVer, setNewVer] = useState<string>('IS 1234:2025');
+  const [oldVer, setOldVer] = useState<string>('IS 302-2-3:2007');
+  const [newVer, setNewVer] = useState<string>('IS 302-2-3:2017');
   const [graceMonths, setGraceMonths] = useState<number>(12);
-  const [summary, setSummary] = useState<string>('Comprehensive revision introducing tighter testing limits and mandatory NABL lab validation.');
-  const [clauseNum, setClauseNum] = useState<string>('Clause 14.2');
-  const [clauseTitle, setClauseTitle] = useState<string>('High Voltage Insulation Test');
-  const [oldText, setOldText] = useState<string>('1000V AC applied for 60 seconds.');
-  const [newText, setNewText] = useState<string>('1500V AC applied for 60 seconds with leakage threshold reduced to 0.5mA.');
+  const [summary, setSummary] = useState<string>('Comprehensive revision introducing tighter testing limits and mandatory safety cut-off validation.');
+  const [clauseNum, setClauseNum] = useState<string>('Clause 8.1');
+  const [clauseTitle, setClauseTitle] = useState<string>('Protection against electric shock');
+  const [oldText, setOldText] = useState<string>('Live parts shall be protected against accidental contact.');
+  const [newText, setNewText] = useState<string>('Live parts shall be enclosed with IP2X probe protection and 3.0mm creepage clearance.');
   const [changeType, setChangeType] = useState<'added' | 'modified' | 'deleted'>('modified');
   const [costImpact, setCostImpact] = useState<'High' | 'Medium' | 'Low'>('High');
-  const [impactDesc, setImpactDesc] = useState<string>('Upgrade factory high voltage test bench and recalibrate insulation meters.');
+  const [impactDesc, setImpactDesc] = useState<string>('Requires enclosure mold re-tooling and NABL insulation testing.');
 
   const selected = comparisons[selectedIndex] || comparisons[0];
 
@@ -51,287 +50,138 @@ export default function StandardComparatorPage() {
         }
       ]
     };
-
-    const updated = [newComp, ...comparisons];
-    setComparisons(updated);
+    setComparisons([newComp, ...comparisons]);
     setSelectedIndex(0);
     setShowAddForm(false);
   };
 
+  const changedCount = selected.clauseDiffs.filter(d => d.changeType === 'modified').length;
+  const addedCount = selected.clauseDiffs.filter(d => d.changeType === 'added').length;
+  const deletedCount = selected.clauseDiffs.filter(d => d.changeType === 'deleted').length;
+
   return (
-    <div className="space-y-6">
-      
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 28, width: '100%' }}>
+
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-blue-700 to-indigo-700 text-white rounded-2xl p-6 shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div style={{ background: '#FFFFFF', border: '1px solid #E8E2DC', borderRadius: 10, padding: 24, boxShadow: '0 2px 8px rgba(40,30,20,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
         <div>
-          <div className="flex items-center space-x-2">
-            <span className="bg-white/20 text-white text-xs px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
-              Indian Standards Revision
-            </span>
-            <span className="text-blue-200 text-xs font-semibold">Clause Diff & Transition Engine</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight mt-1">
-            Standard Version Comparator
+          <h1 style={{ fontSize: 24, fontWeight: 800, color: '#171717', margin: '0 0 6px', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <GitCompare style={{ width: 24, height: 24, color: '#F28C52' }} />
+            <span>Standard Version Comparator &amp; Clause Diffs</span>
           </h1>
-          <p className="text-blue-100 text-xs sm:text-sm mt-1 max-w-2xl font-medium">
-            Side-by-side technical comparison of older vs newly revised Indian Standards. Highlights added testing parameters, modified tolerances, deleted clauses, and business impact.
+          <p style={{ fontSize: 13, color: '#686868', margin: 0, maxWidth: 760 }}>
+            Side-by-side technical comparison of older vs newly revised Indian Standards with subtle orange diff highlights.
           </p>
         </div>
-        <div className="flex items-center space-x-2">
-          <button 
-            onClick={() => setShowAddForm(!showAddForm)}
-            className="bg-white text-blue-900 hover:bg-blue-50 px-3.5 py-2 rounded-lg text-xs font-extrabold transition flex items-center space-x-1.5 shadow-md"
-          >
-            <PlusCircle className="w-4 h-4 text-blue-600" />
-            <span>{showAddForm ? 'Close Form' : 'Add Custom Comparison'}</span>
-          </button>
-          <Link href="/matcher" className="bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded-lg text-xs font-bold transition flex items-center space-x-1 border border-white/20">
-            <span>Product Matcher</span>
-            <ChevronRight className="w-4 h-4" />
-          </Link>
-        </div>
+
+        <button
+          onClick={() => setShowAddForm(!showAddForm)}
+          style={{
+            background: '#F28C52', color: '#FFFFFF',
+            border: 'none', borderRadius: 6,
+            padding: '10px 18px', fontSize: 13, fontWeight: 700,
+            cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8
+          }}
+        >
+          <PlusCircle style={{ width: 16, height: 16 }} />
+          <span>{showAddForm ? 'Close Form' : 'Add Custom Comparison'}</span>
+        </button>
       </div>
 
-      {/* Custom Comparison Entry Form */}
-      {showAddForm && (
-        <form onSubmit={handleAddComparison} className="bg-white p-6 rounded-2xl border-2 border-blue-400 shadow-md space-y-4 animate-fadeIn">
-          <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-            <h3 className="text-sm font-extrabold text-slate-900 flex items-center space-x-2">
-              <PlusCircle className="w-5 h-5 text-blue-600" />
-              <span>Add Custom Standard Version Comparison</span>
-            </h3>
-            <span className="text-xs bg-blue-100 text-blue-800 font-bold px-2.5 py-0.5 rounded">
-              User Dynamic Entry
+      {/* Selector Strip & Summary */}
+      <div style={{ background: '#FFFFFF', border: '1px solid #E8E2DC', borderRadius: 10, padding: 24, boxShadow: '0 2px 8px rgba(40,30,20,0.03)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, borderBottom: '1px solid #E8E2DC', paddingBottom: 16, marginBottom: 20 }}>
+          <div>
+            <span style={{ fontSize: 11.5, fontWeight: 700, color: '#686868', textTransform: 'uppercase' }}>Select Revision Pair</span>
+            <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
+              {comparisons.map((comp, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setSelectedIndex(idx)}
+                  style={{
+                    background: selectedIndex === idx ? '#FFF1E8' : '#FFFCF8',
+                    color: selectedIndex === idx ? '#171717' : '#686868',
+                    border: `1px solid ${selectedIndex === idx ? '#F4C4A5' : '#E8E2DC'}`,
+                    borderLeft: selectedIndex === idx ? '3.5px solid #F28C52' : '1px solid #E8E2DC',
+                    borderRadius: 6, padding: '6px 14px', fontSize: 12.5, fontWeight: 700, cursor: 'pointer'
+                  }}
+                >
+                  {comp.oldVersion} → {comp.newVersion}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Quick Summary Pill Stats */}
+          <div style={{ display: 'flex', gap: 12, fontSize: 12.5, fontWeight: 600 }}>
+            <span style={{ background: '#FFF1E8', color: '#E9783F', border: '1px solid #F4C4A5', borderRadius: 6, padding: '4px 10px' }}>
+              {changedCount} modified
+            </span>
+            <span style={{ background: '#EBF4EE', color: '#4F7D5A', border: '1px solid #B5D5BF', borderRadius: 6, padding: '4px 10px' }}>
+              {addedCount} added
+            </span>
+            <span style={{ background: '#FDF2F0', color: '#B85C52', border: '1px solid #E8BDB8', borderRadius: 6, padding: '4px 10px' }}>
+              {deletedCount} deleted
             </span>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-            <div>
-              <label className="font-extrabold text-slate-700 block mb-1">Old Version (e.g. IS 1234:2018)</label>
-              <input 
-                type="text" 
-                value={oldVer} 
-                onChange={(e) => setOldVer(e.target.value)} 
-                required 
-                className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 font-bold text-slate-900"
-              />
-            </div>
-
-            <div>
-              <label className="font-extrabold text-slate-700 block mb-1">New Version (e.g. IS 1234:2025)</label>
-              <input 
-                type="text" 
-                value={newVer} 
-                onChange={(e) => setNewVer(e.target.value)} 
-                required 
-                className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 font-bold text-slate-900"
-              />
-            </div>
-
-            <div>
-              <label className="font-extrabold text-slate-700 block mb-1">Grace Period (Months)</label>
-              <input 
-                type="number" 
-                value={graceMonths} 
-                onChange={(e) => setGraceMonths(Number(e.target.value))} 
-                required 
-                className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 font-bold text-slate-900"
-              />
-            </div>
-          </div>
-
-          <div className="text-xs">
-            <label className="font-extrabold text-slate-700 block mb-1">Executive Summary of Changes</label>
-            <textarea 
-              rows={2} 
-              value={summary} 
-              onChange={(e) => setSummary(e.target.value)} 
-              required 
-              className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 font-bold text-slate-900"
-            />
-          </div>
-
-          {/* Clause Diff Detail Inputs */}
-          <div className="border-t border-slate-200 pt-3 space-y-3">
-            <span className="text-xs font-extrabold text-blue-900 block">Clause Technical Diff Specification:</span>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
-              <div>
-                <label className="font-bold text-slate-700 block mb-1">Clause No (e.g. Clause 14.2)</label>
-                <input type="text" value={clauseNum} onChange={(e) => setClauseNum(e.target.value)} required className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-bold" />
-              </div>
-              <div>
-                <label className="font-bold text-slate-700 block mb-1">Clause Title</label>
-                <input type="text" value={clauseTitle} onChange={(e) => setClauseTitle(e.target.value)} required className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-bold" />
-              </div>
-              <div>
-                <label className="font-bold text-slate-700 block mb-1">Change Type</label>
-                <select value={changeType} onChange={(e) => setChangeType(e.target.value as any)} className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-bold">
-                  <option value="added">Added</option>
-                  <option value="modified">Modified</option>
-                  <option value="deleted">Deleted</option>
-                </select>
-              </div>
-              <div>
-                <label className="font-bold text-slate-700 block mb-1">Cost Impact</label>
-                <select value={costImpact} onChange={(e) => setCostImpact(e.target.value as any)} className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-bold">
-                  <option value="High">High</option>
-                  <option value="Medium">Medium</option>
-                  <option value="Low">Low</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-              <div>
-                <label className="font-bold text-slate-700 block mb-1">Old Standard Text</label>
-                <textarea rows={2} value={oldText} onChange={(e) => setOldText(e.target.value)} required className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-bold" />
-              </div>
-              <div>
-                <label className="font-bold text-slate-700 block mb-1">New Standard Text</label>
-                <textarea rows={2} value={newText} onChange={(e) => setNewText(e.target.value)} required className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-bold" />
-              </div>
-            </div>
-
-            <div className="text-xs">
-              <label className="font-bold text-slate-700 block mb-1">Factory Action Needed</label>
-              <input type="text" value={impactDesc} onChange={(e) => setImpactDesc(e.target.value)} required className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-bold" />
-            </div>
-          </div>
-
-          <div className="flex justify-end space-x-2 pt-2">
-            <button type="button" onClick={() => setShowAddForm(false)} className="bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-lg text-xs">Cancel</button>
-            <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold px-5 py-2 rounded-lg text-xs shadow-md">Add & View Comparison</button>
-          </div>
-        </form>
-      )}
-
-      {/* Version Selector */}
-      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="flex items-center space-x-3 w-full md:w-auto">
-          <GitCompare className="w-6 h-6 text-blue-600 flex-shrink-0" />
-          <div>
-            <label className="text-[11px] font-extrabold uppercase text-slate-500 block">Select Revision Pair</label>
-            <select 
-              value={selectedIndex} 
-              onChange={(e) => setSelectedIndex(Number(e.target.value))}
-              className="bg-slate-50 border border-slate-300 text-slate-900 text-xs font-bold rounded-lg p-2 mt-0.5 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            >
-              {comparisons.map((c, i) => (
-                <option key={i} value={i}>
-                  {c.oldVersion} vs {c.newVersion}
-                </option>
-              ))}
-            </select>
-          </div>
         </div>
 
-        {/* Transition Summary Badges */}
-        <div className="flex items-center space-x-4 text-xs">
-          <div className="flex items-center space-x-1.5 bg-blue-50 border border-blue-200 px-3 py-1.5 rounded-lg text-blue-900 font-bold">
-            <Clock className="w-4 h-4 text-blue-600" />
-            <span>Transition Grace Period: {selected.gracePeriodMonths} Months</span>
-          </div>
-          <div className="flex items-center space-x-1.5 bg-slate-100 px-3 py-1.5 rounded-lg text-slate-800 font-bold">
-            <span>Released: {selected.releaseDate}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Revision Executive Summary */}
-      <div className="bg-gradient-to-r from-slate-900 to-indigo-950 text-white rounded-2xl p-6 shadow-md space-y-3">
-        <div className="flex items-center space-x-2">
-          <Shield className="w-5 h-5 text-orange-400" />
-          <h2 className="text-sm font-extrabold uppercase tracking-wider text-orange-400">
-            Executive Summary: {selected.oldVersion} &rarr; {selected.newVersion}
-          </h2>
-        </div>
-        <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-medium">
-          {selected.summary}
+        <p style={{ fontSize: 13.5, color: '#242424', margin: 0, lineHeight: 1.6 }}>
+          <strong>Summary of Changes:</strong> {selected.summary}
         </p>
       </div>
 
-      {/* Side-by-Side Clause Differences */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden space-y-0">
-        <div className="p-4 bg-slate-900 text-white flex items-center justify-between">
-          <h3 className="text-xs font-extrabold uppercase tracking-wider flex items-center space-x-2">
-            <Layers className="w-4 h-4 text-blue-400" />
-            <span>Clause-by-Clause Technical Diff Matrix</span>
-          </h3>
-          <button className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded font-bold flex items-center space-x-1">
-            <Download className="w-3.5 h-3.5" />
-            <span>Export Diff Summary</span>
-          </button>
+      {/* Side-by-Side Clause Diff View */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, padding: '0 4px', fontSize: 12, fontWeight: 700, color: '#686868', textTransform: 'uppercase' }}>
+          <div>PREVIOUS VERSION ({selected.oldVersion})</div>
+          <div>REVISED VERSION ({selected.newVersion})</div>
         </div>
 
-        <div className="divide-y divide-slate-200">
-          {selected.clauseDiffs.map((diff: ClauseDiff, idx: number) => (
-            <div key={idx} className="p-5 space-y-3 hover:bg-slate-50 transition">
-              
-              {/* Header line */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div className="flex items-center space-x-2">
-                  <span className="font-black text-slate-900 text-xs bg-slate-100 px-2.5 py-1 rounded">
-                    {diff.clauseNumber}
-                  </span>
-                  <h4 className="font-extrabold text-slate-900 text-sm">{diff.title}</h4>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded uppercase ${
-                    diff.changeType === 'added' ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' :
-                    diff.changeType === 'modified' ? 'bg-amber-100 text-amber-800 border border-amber-300' :
-                    'bg-rose-100 text-rose-800 border border-rose-300'
-                  }`}>
-                    {diff.changeType === 'added' ? '+ Clause Added' : diff.changeType === 'modified' ? '▲ Clause Modified' : '- Clause Deleted'}
-                  </span>
-
-                  <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded ${
-                    diff.costImpact === 'High' ? 'bg-rose-600 text-white' :
-                    diff.costImpact === 'Medium' ? 'bg-amber-600 text-white' :
-                    'bg-slate-600 text-white'
-                  }`}>
-                    Cost Impact: {diff.costImpact}
-                  </span>
-                </div>
+        {selected.clauseDiffs.map((diff, idx) => (
+          <div
+            key={idx}
+            style={{
+              background: '#FFFFFF',
+              border: '1px solid #E8E2DC',
+              borderRadius: 8,
+              padding: 20,
+              boxShadow: '0 2px 8px rgba(40,30,20,0.03)'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, borderBottom: '1px solid #E8E2DC', paddingBottom: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ fontSize: 13, fontWeight: 800, color: '#171717' }}>{diff.clauseNumber}</span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#686868' }}>{diff.title}</span>
               </div>
-
-              {/* Side by side comparison grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs pt-1">
-                
-                {/* Old version box */}
-                <div className="bg-rose-50/60 border border-rose-200 rounded-xl p-3.5 space-y-1">
-                  <span className="text-[10px] font-extrabold uppercase text-rose-800 tracking-wider block">
-                    Old Standard: {selected.oldVersion}
-                  </span>
-                  <p className="text-slate-800 font-mono text-[11px] leading-relaxed">
-                    {diff.oldText}
-                  </p>
-                </div>
-
-                {/* New version box */}
-                <div className="bg-emerald-50/60 border border-emerald-200 rounded-xl p-3.5 space-y-1">
-                  <span className="text-[10px] font-extrabold uppercase text-emerald-800 tracking-wider block">
-                    New Standard: {selected.newVersion}
-                  </span>
-                  <p className="text-slate-800 font-mono text-[11px] leading-relaxed">
-                    {diff.newText}
-                  </p>
-                </div>
-
-              </div>
-
-              {/* Impact analysis note */}
-              <div className="bg-slate-900 text-slate-200 rounded-lg p-2.5 text-xs flex items-start space-x-2">
-                <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <strong className="text-white font-bold">Factory Action Needed:</strong> {diff.impactDescription}
-                </div>
-              </div>
-
+              <span style={{
+                fontSize: 11, fontWeight: 700, textTransform: 'uppercase', borderRadius: 4, padding: '2px 8px',
+                background: diff.changeType === 'modified' ? '#FFF1E8' : diff.changeType === 'added' ? '#EBF4EE' : '#FDF2F0',
+                color: diff.changeType === 'modified' ? '#E9783F' : diff.changeType === 'added' ? '#4F7D5A' : '#B85C52',
+                border: `1px solid ${diff.changeType === 'modified' ? '#F4C4A5' : diff.changeType === 'added' ? '#B5D5BF' : '#E8BDB8'}`
+              }}>
+                {diff.changeType}
+              </span>
             </div>
-          ))}
-        </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+              {/* Old Clause Text */}
+              <div style={{ background: '#FFFCF8', border: '1px solid #E8E2DC', borderRadius: 6, padding: 14, fontSize: 12.5, color: '#686868', lineHeight: 1.6 }}>
+                {diff.oldText || <em style={{ color: '#686868' }}>Clause did not exist in previous version.</em>}
+              </div>
+
+              {/* New Clause Text with Orange Diff Highlight */}
+              <div style={{ background: '#FFF1E8', border: '1px solid #F4C4A5', borderRadius: 6, padding: 14, fontSize: 12.5, color: '#171717', lineHeight: 1.6, fontWeight: 500 }}>
+                {diff.newText}
+              </div>
+            </div>
+
+            <div style={{ marginTop: 12, fontSize: 12, color: '#686868', display: 'flex', alignItems: 'center', gap: 16 }}>
+              <span>Impact: <strong style={{ color: '#171717' }}>{diff.impactDescription}</strong></span>
+              <span>Cost: <strong style={{ color: '#E9783F' }}>{diff.costImpact} Impact</strong></span>
+            </div>
+          </div>
+        ))}
       </div>
 
     </div>
