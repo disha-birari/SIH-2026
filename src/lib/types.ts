@@ -119,6 +119,34 @@ export interface StandardAlert {
   summary: string;
   officialGazetteRef: string;
   urgency: 'Critical' | 'Important' | 'Info';
+  // 3-Tier QCO Regulatory Intelligence Additions (Optional for static fallbacks)
+  classification?: 'Action Required' | 'Review' | 'Informational';
+  whatChangedSummary?: {
+    previousRule: string;
+    newMandatoryRule: string;
+    impactLevel: string;
+  };
+  affectedProducts?: string[];
+  hsCodes?: string[];
+  exemptions?: {
+    category: string;
+    condition: string;
+    gazetteClause: string;
+  }[];
+  daysRemaining?: number;
+  lifecycleStage?: 'Draft for Comment' | 'Final QCO Issued' | 'Enforced' | 'Amended';
+  issuingAuthority?: string;
+  impactGraph?: {
+    ministry: string;
+    qcoNotification: string;
+    standardNumber: string;
+    affectedProducts: string[];
+    compulsoryTests: string[];
+  };
+  aiImpactSummary?: string;
+  counterfactualRisk?: string;
+  gazettePdfUrl?: string;
+  verificationHash?: string;
 }
 
 export interface TestingMapping {

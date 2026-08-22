@@ -920,17 +920,68 @@ export function getStandardAlerts(): StandardAlert[] {
   
   return currentDatabase.map((std, idx) => {
     const isQCO = std.mandatoryStatus.includes('Mandatory');
+    const isDraft = idx % 4 === 3;
+    const isExtended = idx % 5 === 2;
+
+    const alertType = isDraft ? 'Draft for Comments' : isExtended ? 'Deadline Extended' : isQCO ? 'QCO Order Issued' : 'Revision Published';
+    const urgency = isDraft ? 'Info' : isQCO ? 'Critical' : 'Important';
+    const classification = isQCO ? 'Action Required' : isDraft ? 'Informational' : 'Review';
+    const daysRemaining = Math.max(3, 90 - idx * 7);
+
     return {
       id: `alert-${std.id}`,
-      title: `${isQCO ? 'Mandatory QCO Order' : 'Revision Published'}: ${std.title}`,
+      title: `${isQCO ? 'Mandatory QCO Order' : isDraft ? 'Draft Amendment Open for Public Comment' : 'Gazette Revision Published'}: ${std.title}`,
       isNumber: std.isNumber,
       category: std.category,
-      alertType: isQCO ? 'QCO Order Issued' : 'Revision Published',
+      alertType,
       dateIssued: '2026-01-15',
       effectiveDate: '2026-08-31',
       summary: `${std.mandatoryStatus} enforced for ${std.title}. All manufacturing and import units must comply under ${std.applicableScheme}.`,
       officialGazetteRef: `S.O. ${400 + idx * 12}(E) / 2026`,
-      urgency: isQCO ? 'Critical' : 'Important'
+      urgency,
+      classification,
+      issuingAuthority: isQCO ? 'Ministry of Commerce & Industry (DPIIT)' : 'Bureau of Indian Standards Technical Committee',
+      daysRemaining,
+      lifecycleStage: isDraft ? 'Draft for Comment' : isQCO ? 'Final QCO Issued' : 'Enforced',
+      whatChangedSummary: {
+        previousRule: `Voluntary compliance or earlier ${std.isNumber} specification thresholds.`,
+        newMandatoryRule: `Compulsory ISI Mark / BIS Registration under ${std.applicableScheme}. Non-compliant goods subject to Customs seizure under Section 29.`,
+        impactLevel: isQCO ? 'High - Factory Audit & NABL Testing Required' : 'Medium - Voluntary Audit Upgrade'
+      },
+      affectedProducts: [
+        std.title.split('-')[0].trim(),
+        `${std.category} Sub-Variants`,
+        `Commercial & Retail Imports`
+      ],
+      hsCodes: [`${8516 + idx * 3}.10.00`, `${8516 + idx * 3}.20.90`],
+      exemptions: [
+        {
+          category: 'Micro & Small Enterprises (MSME)',
+          condition: '9-Month grace period extension granted under Gazette Clause 3(a) subject to Udyam Registration.',
+          gazetteClause: 'Clause 3(a)'
+        },
+        {
+          category: 'Export-Only Manufacturing',
+          condition: 'Exempt from compulsory ISI mark if manufactured exclusively for export orders with overseas buyer specs.',
+          gazetteClause: 'Clause 4(b)'
+        },
+        {
+          category: 'R&D Prototypes',
+          condition: 'Limited to maximum 20 units imported for research & development testing prior to mass production.',
+          gazetteClause: 'Clause 5(c)'
+        }
+      ],
+      impactGraph: {
+        ministry: 'Ministry of Consumer Affairs / DPIIT',
+        qcoNotification: `Gazette S.O. ${400 + idx * 12}(E)`,
+        standardNumber: std.isNumber,
+        affectedProducts: [std.title.split('-')[0].trim(), `${std.category} Units`],
+        compulsoryTests: std.testingParameters.slice(0, 2)
+      },
+      aiImpactSummary: `The QCO for ${std.isNumber} makes ISI certification mandatory across all sales channels in India. Manufacturers must establish in-house STI testing facilities, obtain NABL accredited test reports, and submit Manakonline applications before the deadline.`,
+      counterfactualRisk: `Selling or importing ${std.title.split('-')[0].trim()} without a valid BIS license after the deadline risks confiscation by Customs/BIS inspectors, fines up to Rs. 2 Lakhs under BIS Act Section 29, and prosecution.`,
+      gazettePdfUrl: std.officialUrl,
+      verificationHash: `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
     };
   });
 }
