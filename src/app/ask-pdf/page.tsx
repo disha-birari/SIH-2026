@@ -4,22 +4,87 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { 
   FileText, Upload, Send, Bot, User, BookOpen, CheckCircle2, 
-  Sparkles, RefreshCw, ChevronRight, FileCheck
+  Sparkles, RefreshCw, ChevronRight, FileCheck, AlertTriangle, BookOpenCheck
 } from 'lucide-react';
+
+interface Citation {
+  pageNumber: number;
+  snippet: string;
+  relevanceScore: number | null;
+}
+
+interface Message {
+  sender: 'user' | 'bot';
+  text: string;
+  pageRef?: string;
+  citations?: Citation[];
+}
 
 export default function AskPDFPage() {
   const [fileName, setFileName] = useState<string>('IS_302_Electric_Iron_Standard.pdf');
-  const [messages, setMessages] = useState<Array<{ sender: 'user' | 'bot'; text: string; pageRef?: string }>>([
+  const [messages, setMessages] = useState<Message[]>([
     {
       sender: 'bot',
-      text: 'Document loaded successfully: IS_302_Electric_Iron_Standard.pdf (28 Pages). Ask any question about this document and I will provide answers with exact page number citations.',
-      pageRef: 'Doc Indexing Ready'
+      text: 'Sample document IS_302_Electric_Iron_Standard.pdf loaded. To chat with a custom PDF standard, choose a file below to parse, embed, and index it locally in the database.',
+      pageRef: 'Sample Document'
     }
   ]);
-  const [inputQuery, setInputQuery] = useState<string>('What is the maximum allowed leakage current on page 12?');
+  const [inputQuery, setInputQuery] = useState<string>('Summarize this document');
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [uploadStatus, setUploadStatus] = useState<string>('');
+  const [chunksCount, setChunksCount] = useState<number>(0);
+  const [isIndexed, setIsIndexed] = useState<boolean>(false);
 
-  const handleSendMessage = () => {
+  // Ingest and index custom PDF
+  const handleFileUpload = async (file: File) => {
+    if (!file) return;
+    setFileName(file.name);
+    setIsUploading(true);
+    setUploadStatus('Uploading PDF...');
+    setIsIndexed(false);
+    
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      setUploadStatus('Parsing text & generating vector embeddings...');
+      const response = await fetch('/api/pdf/upload', {
+        method: 'POST',
+        body: formData
+      });
+      
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to process PDF file.');
+      }
+      
+      setChunksCount(data.chunksCount);
+      setIsIndexed(true);
+      setUploadStatus('Indexing complete!');
+      setMessages([
+        {
+          sender: 'bot',
+          text: `Document successfully parsed, embedded and stored in database: "${file.name}" (${data.chunksCount} chunks).\n\nAsk any question (e.g., "Summarize this PDF" or technical questions) and I will search the vector database and answer using local AI.`,
+          pageRef: 'Doc Indexing Ready'
+        }
+      ]);
+    } catch (err: any) {
+      console.error(err);
+      setUploadStatus('Indexing failed.');
+      setMessages([
+        {
+          sender: 'bot',
+          text: `Error indexing document: ${err.message || err}. Please verify that the local Ollama server is running and the "nomic-embed-text" model is pulled.`,
+          pageRef: 'Error'
+        }
+      ]);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleSendMessage = async () => {
     if (!inputQuery.trim()) return;
 
     const userText = inputQuery;
@@ -27,20 +92,90 @@ export default function AskPDFPage() {
     setInputQuery('');
     setIsProcessing(true);
 
-    setTimeout(() => {
-      // Simulate RAG response on PDF document
-      const botResponse = `According to Page 12, Clause 13.2 of the uploaded document: "The leakage current shall not exceed 0.75 mA for Class I portable electrical appliances when operated at 1.06 times rated voltage." High-voltage insulation test must be conducted at 1500V AC.`;
-      
+    // If they haven't indexed a custom document and are querying the mock document
+    if (!isIndexed && fileName === 'IS_302_Electric_Iron_Standard.pdf') {
+      setTimeout(() => {
+        let botResponse = '';
+        let citations: Citation[] = [];
+        let pageRef = 'Page 12, Clause 13.2';
+
+        if (/summarize|summary|overview/i.test(userText)) {
+          botResponse = `### Executive Summary: IS 302-2-3 (Electric Irons)
+This standard covers safety and testing requirements for household dry and steam electric irons.
+- **Key Safety Metric**: Insulation breakdown voltage must resist 1500V AC. Earthing resistance must be under 0.1 Ohm.
+- **Parameters**: Leakage current threshold is limited to 0.75mA. Thermostat control should maintain soleplate temperature within calibration limits (110°C to 220°C).
+- **Compliance Scheme**: Scheme-I (ISI Mark) is mandatory.`;
+          pageRef = 'Summary';
+        } else {
+          botResponse = `According to Page 12, Clause 13.2 of the uploaded document: "The leakage current shall not exceed 0.75 mA for Class I portable electrical appliances when operated at 1.06 times rated voltage." High-voltage insulation test must be conducted at 1500V AC.`;
+          citations = [
+            {
+              pageNumber: 12,
+              snippet: 'The leakage current shall not exceed 0.75 mA for Class I portable electrical appliances when operated at 1.06 times rated voltage.',
+              relevanceScore: 98
+            }
+          ];
+        }
+        
+        setMessages(prev => [
+          ...prev, 
+          { 
+            sender: 'bot', 
+            text: botResponse,
+            pageRef: pageRef,
+            citations: citations.length > 0 ? citations : undefined
+          }
+        ]);
+        setIsProcessing(false);
+      }, 1000);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/pdf/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: userText,
+          fileName: fileName
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to query PDF standard.');
+      }
+
+      let pageRef = 'Local LLM';
+      if (data.isSummary) {
+        pageRef = 'Doc Summary';
+      } else if (data.citations && data.citations.length > 0) {
+        const pages = Array.from(new Set(data.citations.map((c: any) => c.pageNumber))).sort((a: any, b: any) => a - b);
+        pageRef = `Page ${pages.join(', ')}`;
+      }
+
       setMessages(prev => [
-        ...prev, 
-        { 
-          sender: 'bot', 
-          text: botResponse,
-          pageRef: 'Page 12, Clause 13.2'
+        ...prev,
+        {
+          sender: 'bot',
+          text: data.answer,
+          pageRef: pageRef,
+          citations: data.citations
         }
       ]);
+    } catch (err: any) {
+      console.error(err);
+      setMessages(prev => [
+        ...prev,
+        {
+          sender: 'bot',
+          text: `Error retrieving answer: ${err.message || err}. Ensure local Ollama service is active.`,
+          pageRef: 'Query Error'
+        }
+      ]);
+    } finally {
       setIsProcessing(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -79,7 +214,7 @@ export default function AskPDFPage() {
             <label className="text-xs font-extrabold text-slate-800 uppercase tracking-wider block">
               1. Upload BIS PDF / Test Report
             </label>
-            <div className="border-2 border-dashed border-teal-300 bg-teal-50/50 rounded-xl p-4 text-center hover:bg-teal-100/50 transition cursor-pointer">
+            <div className="border-2 border-dashed border-teal-300 bg-teal-50/50 rounded-xl p-4 text-center hover:bg-teal-100/50 transition cursor-pointer relative">
               <Upload className="w-8 h-8 text-teal-600 mx-auto mb-1.5" />
               <p className="text-xs font-bold text-slate-800">Select PDF File to Index</p>
               <p className="text-[11px] text-slate-500 mt-0.5">Supports PDF up to 50MB</p>
@@ -87,11 +222,13 @@ export default function AskPDFPage() {
                 type="file" 
                 className="hidden" 
                 id="pdfUpload"
+                accept=".pdf"
+                disabled={isUploading}
                 onChange={(e) => {
-                  if (e.target.files?.[0]) setFileName(e.target.files[0].name);
+                  if (e.target.files?.[0]) handleFileUpload(e.target.files[0]);
                 }}
               />
-              <label htmlFor="pdfUpload" className="inline-block mt-2 bg-teal-600 hover:bg-teal-700 text-white text-[11px] font-bold px-3 py-1.5 rounded cursor-pointer">
+              <label htmlFor="pdfUpload" className={`inline-block mt-2 bg-teal-600 hover:bg-teal-700 text-white text-[11px] font-bold px-3 py-1.5 rounded cursor-pointer ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}>
                 Choose Document
               </label>
             </div>
@@ -104,23 +241,35 @@ export default function AskPDFPage() {
               <span className="truncate">{fileName}</span>
             </div>
             <div className="text-[11px] text-slate-600 space-y-1 font-medium">
-              <p>&bull; Status: <strong className="text-emerald-700">Vector Indexed (28 Chunks)</strong></p>
+              <p>&bull; Status: <strong className={isIndexed ? "text-emerald-700" : isUploading ? "text-amber-600" : "text-slate-500"}>
+                {isUploading ? uploadStatus : isIndexed ? `Vector Indexed (${chunksCount} Chunks)` : 'Sample Document (Mock)'}
+              </strong></p>
               <p>&bull; Embedding Model: <strong>nomic-embed-text / RAG</strong></p>
               <p>&bull; Citation Precision: <strong>Exact Page Level</strong></p>
             </div>
           </div>
 
+          {isUploading && (
+            <div className="bg-amber-50 border border-amber-200 text-amber-900 p-3 rounded-xl text-xs flex items-start space-x-2 font-medium">
+              <RefreshCw className="w-4 h-4 animate-spin text-amber-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="font-bold">Indexing Document...</p>
+                <p className="text-[10px] text-amber-800 mt-0.5">Please wait. Processing standard text and building vector representations on local database.</p>
+              </div>
+            </div>
+          )}
+
           <div className="bg-slate-900 text-slate-200 p-4 rounded-xl text-xs space-y-2">
             <h4 className="font-bold text-orange-400 uppercase text-[11px]">Suggested Questions</h4>
             <ul className="space-y-1.5 text-slate-300 font-medium cursor-pointer">
-              <li onClick={() => setInputQuery("What is the high voltage insulation breakdown requirement?")} className="hover:text-white hover:underline">
-                &bull; What is the high voltage breakdown requirement?
+              <li onClick={() => setInputQuery("Summarize this document")} className="hover:text-white hover:underline">
+                &bull; Summarize this document
               </li>
-              <li onClick={() => setInputQuery("List all mandatory testing equipment in this document.")} className="hover:text-white hover:underline">
-                &bull; List mandatory testing equipment.
+              <li onClick={() => setInputQuery("List all testing equipment mentioned in this document.")} className="hover:text-white hover:underline">
+                &bull; List all testing equipment mentioned.
               </li>
-              <li onClick={() => setInputQuery("What are the marking and ISI logo printing rules?")} className="hover:text-white hover:underline">
-                &bull; What are the marking and ISI logo printing rules?
+              <li onClick={() => setInputQuery("Identify the mandatory quality inspection rules.")} className="hover:text-white hover:underline">
+                &bull; Identify mandatory quality inspection rules.
               </li>
             </ul>
           </div>
@@ -134,7 +283,7 @@ export default function AskPDFPage() {
           <div className="p-4 border-b border-slate-200 bg-slate-900 text-white rounded-t-2xl flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Bot className="w-5 h-5 text-teal-400" />
-              <h3 className="text-xs font-extrabold uppercase tracking-wider">
+              <h3 className="text-xs font-extrabold uppercase tracking-wider truncate max-w-[250px] sm:max-w-none">
                 Document Vector Chat: {fileName}
               </h3>
             </div>
@@ -161,6 +310,38 @@ export default function AskPDFPage() {
                     )}
                   </div>
                   <p className="leading-relaxed whitespace-pre-wrap">{msg.text}</p>
+
+                  {/* Grounded Excerpts & Citations collapsible box */}
+                  {msg.citations && msg.citations.length > 0 && (
+                    <div className="mt-3 pt-2 border-t border-slate-350 space-y-1.5">
+                      <details className="group">
+                        <summary className="text-[10px] font-bold uppercase text-slate-500 hover:text-slate-800 cursor-pointer flex items-center space-x-1 select-none">
+                          <BookOpenCheck className="w-3.5 h-3.5 text-teal-600" />
+                          <span>View Grounded Excerpts & Citations</span>
+                          <span className="text-[9px] bg-slate-200 text-slate-700 px-1 py-0.25 rounded font-extrabold">
+                            {msg.citations.length} sources
+                          </span>
+                        </summary>
+                        <div className="mt-2 pl-2 border-l-2 border-teal-500 space-y-2 max-h-[180px] overflow-y-auto pr-1">
+                          {msg.citations.map((cit, idx) => (
+                            <div key={idx} className="bg-white p-2 rounded border border-slate-200 space-y-1">
+                              <div className="flex items-center justify-between text-[9px] font-bold text-slate-400">
+                                <span>Page {cit.pageNumber}</span>
+                                {cit.relevanceScore !== null && (
+                                  <span className="text-[8px] px-1 py-0.25 rounded bg-emerald-50 text-emerald-700 font-extrabold border border-emerald-100">
+                                    {cit.relevanceScore}% match
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-[10px] italic text-slate-700 font-serif leading-normal">
+                                "{cit.snippet}"
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </details>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -188,8 +369,8 @@ export default function AskPDFPage() {
               />
               <button 
                 onClick={handleSendMessage}
-                disabled={isProcessing}
-                className="bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition flex items-center space-x-1"
+                disabled={isProcessing || isUploading}
+                className="bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition flex items-center space-x-1 disabled:opacity-50"
               >
                 <span>Ask PDF</span>
                 <Send className="w-3.5 h-3.5" />
