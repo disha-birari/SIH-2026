@@ -176,10 +176,129 @@ export interface TestingLab {
   labType: 'Government (BIS/NPL)' | 'NABL Private Accredited' | 'State Lab';
 }
 
-export interface EvidenceVerificationResult {
+// ═════════════════════════════════════════════════════════════════════
+// EVIDENCE VERIFIER & TRUST LAYER TYPES
+// ═════════════════════════════════════════════════════════════════════
+
+export type ClaimClassificationType =
+  | 'Legal / Statutory Claim'
+  | 'Standard Applicability Claim'
+  | 'Technical Requirement Claim'
+  | 'Testing Parameter Claim'
+  | 'Certification Scheme Claim'
+  | 'QCO Claim'
+  | 'Deadline / SLA Claim'
+  | 'Product Scope Claim'
+  | 'Consumer Protection Claim'
+  | 'AI-Generated Explanation'
+  | 'User Certificate Claim';
+
+export type VerificationStateStatus =
+  | 'SUPPORTED'
+  | 'PARTIALLY SUPPORTED'
+  | 'CONTRADICTED'
+  | 'NOT FOUND'
+  | 'INSUFFICIENT EVIDENCE'
+  | 'OUTDATED'
+  | 'WRONG VERSION'
+  | 'WRONG SCOPE'
+  | 'SOURCE UNVERIFIED'
+  | 'CONFLICTING EVIDENCE'
+  | 'REQUIRES HUMAN REVIEW';
+
+export type EvidenceSourceType =
+  | 'OFFICIAL'
+  | 'USER UPLOADED'
+  | 'INTERNAL DATASET'
+  | 'SECONDARY'
+  | 'UNKNOWN';
+
+export interface DecomposedSubClaim {
+  id: string;
+  subClaimText: string;
+  claimType: ClaimClassificationType;
+  verificationStatus: VerificationStateStatus;
+  evidenceSource: string;
+  clauseRef?: string;
+  pageRef?: string;
+  confidenceScore: number;
+}
+
+export interface ClaimEvidenceMatrixRow {
+  assertionText: string;
+  claimType: string;
+  evidenceSource: string;
+  clauseAndPage: string;
+  matchStatus: VerificationStateStatus;
+}
+
+export interface DocumentIntegrityMetadata {
+  sha256Hash: string;
+  fileSizeBytes: number;
+  ingestionTimestamp: string;
+  sourceUrl: string;
+  publisher: string;
+  documentVersion: string;
+  integrityStatus: 'UNCHANGED SINCE INGESTION' | 'VERSION UPDATED' | 'UNVERIFIED HASH';
+}
+
+export interface EvidenceGraphNode {
+  id: string;
+  nodeType: 'CLAIM' | 'REQUIREMENT' | 'STANDARD' | 'CLAUSE' | 'EVIDENCE' | 'DOCUMENT' | 'HASH';
+  label: string;
+  subtitle?: string;
+  status?: string;
+}
+
+export interface ComprehensiveEvidenceAudit {
   claimText: string;
+  claimType: ClaimClassificationType;
+  verificationStatus: VerificationStateStatus;
+  evidenceStrength: 'STRONG' | 'MODERATE' | 'WEAK' | 'INSUFFICIENT';
+  evidenceMatchPercentage: number;
+  sourceType: EvidenceSourceType;
+  sourceDocumentTitle: string;
+  standardIsNumber: string;
+  version: string;
+  clauseNumber: string;
+  pageNumber: string;
+  publishedDate: string;
+  retrievedDate: string;
+  exactExcerptText: string;
+  highlightedPhrase: string;
+  whyClassifiedExplanation: string;
+  decomposedClaims: DecomposedSubClaim[];
+  matrixRows: ClaimEvidenceMatrixRow[];
+  contradictionDetails?: {
+    conflictingOldRule: string;
+    conflictingNewRule: string;
+    resolutionDirective: string;
+  };
+  temporalValidity: {
+    validAsOfDate: string;
+    isOutdated: boolean;
+    validitySummary: string;
+  };
+  versionMismatch?: {
+    claimVersion: string;
+    officialEvidenceVersion: string;
+    diffSummary: string;
+  };
+  documentIntegrity: DocumentIntegrityMetadata;
+  evidenceGraph: EvidenceGraphNode[];
+  evidenceSafeRewrite: string;
+  numericValidation?: {
+    parameterName: string;
+    claimedValue: string;
+    officialValue: string;
+    isEquivalent: boolean;
+  };
+  humanReviewReason?: string;
+}
+
+export interface EvidenceVerificationResult extends ComprehensiveEvidenceAudit {
   isGrounded: boolean;
-  authenticityScore: number; // 0 to 100
+  authenticityScore: number;
   officialReference: string;
   clauseMatched: string;
   verdict: 'Verified Authentic' | 'Unverified / Hallucination Risk' | 'Partially Supported';
