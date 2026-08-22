@@ -455,3 +455,77 @@ export interface LegalTreeData {
   versionEvents: { date: string; title: string; impact: string }[];
 }
 
+// ═════════════════════════════════════════════════════════════════════
+// ASK MY PDF & DOCUMENT INTELLIGENCE RAG TYPES
+// ═════════════════════════════════════════════════════════════════════
+
+export type PdfDocumentType =
+  | 'BIS Standard'
+  | 'Indian Standard'
+  | 'QCO / Gazette Order'
+  | 'Laboratory Test Report'
+  | 'Quality Control Plan'
+  | 'Product Specification'
+  | 'Factory Manual'
+  | 'Compliance Document'
+  | 'Technical Manual';
+
+export interface ExtractedNumericalRequirement {
+  id: string;
+  parameterName: string;
+  claimedValue: string;
+  unit: string;
+  clauseRef: string;
+  pageNumber: number;
+  tolerance?: string;
+  acceptanceCondition: string;
+}
+
+export interface ExtractedClauseMetadata {
+  clauseNumber: string;
+  heading: string;
+  pageNumber: number;
+  subClauses: string[];
+  mandatoryStatus: 'MANDATORY' | 'RECOMMENDED' | 'OPTIONAL';
+  hasTables: boolean;
+  hasFigures: boolean;
+}
+
+export interface DocumentAnalysisOverview {
+  fileName: string;
+  fileSizeBytes: number;
+  documentType: PdfDocumentType;
+  classificationConfidence: number;
+  detectedStandardIsNumber?: string;
+  title: string;
+  editionYear?: string;
+  totalPages: number;
+  totalClauses: number;
+  totalTables: number;
+  totalAnnexures: number;
+  totalFigures: number;
+  totalTestingRequirements: number;
+  totalNumericalLimits: number;
+  totalMandatoryRequirements: number;
+  ingestionTimestamp: string;
+}
+
+export interface RagPageCitation {
+  pageNumber: number;
+  clauseRef: string;
+  excerptText: string;
+  documentTitle: string;
+  matchedPhrase: string;
+}
+
+export interface RagAnswerResponse {
+  userQuery: string;
+  answerText: string;
+  citations: RagPageCitation[];
+  confidence: 'HIGH CONFIDENCE' | 'MEDIUM CONFIDENCE' | 'LOW CONFIDENCE';
+  confidenceScore: number;
+  sourceQuality: 'DIRECT EVIDENCE' | 'DERIVED LOGIC' | 'INCOMPLETE EVIDENCE';
+  evidenceSafeRewrite: string;
+  suggestedFollowUps: string[];
+}
+
