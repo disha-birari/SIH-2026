@@ -168,13 +168,16 @@ export default function ClauseCitationsPage() {
                 href={cit.officialUrl}
                 target="_blank"
                 rel="noreferrer"
+                title="Opens official Bureau of Indian Standards government portal"
                 style={{
-                  color: '#E9783F', fontWeight: 700, textDecoration: 'none',
-                  display: 'inline-flex', alignItems: 'center', gap: 4
+                  color: '#E9783F', background: '#FFF1E8', border: '1px solid #F4C4A5',
+                  borderRadius: 6, padding: '4px 10px', fontSize: 12, fontWeight: 700,
+                  textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6
                 }}
               >
-                <span>View Official Gazette Source</span>
-                <ExternalLink style={{ width: 13, height: 13 }} />
+                <Shield style={{ width: 12, height: 12 }} />
+                <span>View Official BIS Portal Source</span>
+                <ExternalLink style={{ width: 12, height: 12 }} />
               </a>
             </div>
           </div>

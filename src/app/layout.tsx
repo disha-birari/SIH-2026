@@ -4,23 +4,23 @@ import './globals.css';
 import GovShell from './GovShell';
 
 export const metadata: Metadata = {
-  title: 'Bureau of Indian Standards - AI Intelligence Platform',
-  description: 'Official BIS AI-powered portal for Indian Standards compliance, gap analysis, lab finder, and regulatory navigation.',
+  title: 'NiyamAI - Bureau of Indian Standards Intelligence Platform',
+  description: 'NiyamAI official AI-powered portal for Indian Standards compliance, gap analysis, lab finder, and regulatory navigation.',
   icons: {
-    icon: '/favicon.svg',
-    shortcut: '/favicon.svg',
-    apple: '/favicon.svg',
+    icon: '/niyam ai.png',
+    shortcut: '/niyam ai.png',
+    apple: '/niyam ai.png',
   },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <link rel="shortcut icon" href="/favicon.svg" />
+        <link rel="icon" href="/niyam ai.png" type="image/png" />
+        <link rel="shortcut icon" href="/niyam ai.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
@@ -47,6 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body
+        suppressHydrationWarning
         style={{
           fontFamily: "'Noto Sans', Arial, sans-serif",
           margin: 0,

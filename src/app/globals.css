@@ -33,13 +33,14 @@
 html {
   scroll-behavior: smooth;
   background-color: var(--bg-warm);
+  font-size: 14px;
 }
 
 body {
   background-color: var(--bg-warm);
   color: var(--text-charcoal);
   font-family: 'Inter', 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: var(--app-font-size, 14px);
+  font-size: 14px;
   line-height: 1.6;
   margin: 0;
   overflow-x: hidden;

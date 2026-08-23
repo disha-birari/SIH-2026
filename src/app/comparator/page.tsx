@@ -90,39 +90,65 @@ export default function StandardComparatorPage() {
 
       {/* Selector Strip & Summary */}
       <div style={{ background: '#FFFFFF', border: '1px solid #E8E2DC', borderRadius: 10, padding: 24, boxShadow: '0 2px 8px rgba(40,30,20,0.03)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, borderBottom: '1px solid #E8E2DC', paddingBottom: 16, marginBottom: 20 }}>
-          <div>
-            <span style={{ fontSize: 11.5, fontWeight: 700, color: '#686868', textTransform: 'uppercase' }}>Select Revision Pair</span>
-            <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
-              {comparisons.map((comp, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setSelectedIndex(idx)}
-                  style={{
-                    background: selectedIndex === idx ? '#FFF1E8' : '#FFFCF8',
-                    color: selectedIndex === idx ? '#171717' : '#686868',
-                    border: `1px solid ${selectedIndex === idx ? '#F4C4A5' : '#E8E2DC'}`,
-                    borderLeft: selectedIndex === idx ? '3.5px solid #F28C52' : '1px solid #E8E2DC',
-                    borderRadius: 6, padding: '6px 14px', fontSize: 12.5, fontWeight: 700, cursor: 'pointer'
-                  }}
-                >
-                  {comp.oldVersion} → {comp.newVersion}
-                </button>
-              ))}
+        <div style={{ borderBottom: '1px solid #E8E2DC', paddingBottom: 16, marginBottom: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 11.5, fontWeight: 800, color: '#686868', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Select Revision Pair ({comparisons.length})
+              </span>
+              
+              {/* Quick Select Dropdown */}
+              <select
+                value={selectedIndex}
+                onChange={(e) => setSelectedIndex(Number(e.target.value))}
+                style={{
+                  background: '#FFFCF8', color: '#171717', border: '1px solid #E8E2DC',
+                  borderRadius: 6, padding: '4px 10px', fontSize: 12, fontWeight: 700,
+                  cursor: 'pointer', outline: 'none'
+                }}
+              >
+                {comparisons.map((comp, idx) => (
+                  <option key={idx} value={idx}>
+                    {comp.oldVersion} → {comp.newVersion}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Quick Summary Pill Stats */}
+            <div style={{ display: 'flex', gap: 8, fontSize: 12, fontWeight: 700 }}>
+              <span style={{ background: '#FFF1E8', color: '#E9783F', border: '1px solid #F4C4A5', borderRadius: 6, padding: '4px 10px' }}>
+                {changedCount} modified
+              </span>
+              <span style={{ background: '#EBF4EE', color: '#4F7D5A', border: '1px solid #B5D5BF', borderRadius: 6, padding: '4px 10px' }}>
+                {addedCount} added
+              </span>
+              <span style={{ background: '#FDF2F0', color: '#B85C52', border: '1px solid #E8BDB8', borderRadius: 6, padding: '4px 10px' }}>
+                {deletedCount} deleted
+              </span>
             </div>
           </div>
 
-          {/* Quick Summary Pill Stats */}
-          <div style={{ display: 'flex', gap: 12, fontSize: 12.5, fontWeight: 600 }}>
-            <span style={{ background: '#FFF1E8', color: '#E9783F', border: '1px solid #F4C4A5', borderRadius: 6, padding: '4px 10px' }}>
-              {changedCount} modified
-            </span>
-            <span style={{ background: '#EBF4EE', color: '#4F7D5A', border: '1px solid #B5D5BF', borderRadius: 6, padding: '4px 10px' }}>
-              {addedCount} added
-            </span>
-            <span style={{ background: '#FDF2F0', color: '#B85C52', border: '1px solid #E8BDB8', borderRadius: 6, padding: '4px 10px' }}>
-              {deletedCount} deleted
-            </span>
+          {/* Horizontal Scrollable Tabs with whiteSpace: nowrap */}
+          <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 6, width: '100%', scrollbarWidth: 'thin' }}>
+            {comparisons.map((comp, idx) => (
+              <button
+                key={idx}
+                onClick={() => setSelectedIndex(idx)}
+                style={{
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                  background: selectedIndex === idx ? '#FFF1E8' : '#FFFCF8',
+                  color: selectedIndex === idx ? '#171717' : '#686868',
+                  border: `1px solid ${selectedIndex === idx ? '#F4C4A5' : '#E8E2DC'}`,
+                  borderLeft: selectedIndex === idx ? '3.5px solid #F28C52' : '1px solid #E8E2DC',
+                  borderRadius: 6, padding: '7px 14px', fontSize: 12.5, fontWeight: 700, cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                {comp.oldVersion} → {comp.newVersion}
+              </button>
+            ))}
           </div>
         </div>
 

@@ -1,12 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { Search, Filter, CheckCircle2, ArrowRight, RefreshCw } from 'lucide-react';
 import { BISStandard } from '@/lib/types';
 
-export default function MatcherPage() {
-  const [productName, setProductName] = useState('Electric Iron');
+function MatcherContent() {
+  const searchParams = useSearchParams();
+  const initialQuery = searchParams.get('q');
+
+  const [productName, setProductName] = useState(initialQuery || 'Electric Iron');
   const [material, setMaterial] = useState('Plastic & Metal');
   const [usage, setUsage] = useState('Domestic');
   const [businessType, setBusinessType] = useState('MSME');
@@ -18,6 +22,22 @@ export default function MatcherPage() {
     secondaryMatches: BISStandard[];
     recommendations: string[];
   } | null>(null);
+
+  useEffect(() => {
+    if (initialQuery) {
+      setProductName(initialQuery);
+      setIsLoading(true);
+      fetch('/api/matcher', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productName: initialQuery, material, usage, businessType })
+      })
+        .then(res => res.json())
+        .then(data => setMatchResult(data))
+        .catch(err => console.error(err))
+        .finally(() => setIsLoading(false));
+    }
+  }, [initialQuery]);
 
   const handleMatch = async () => {
     setIsLoading(true);
@@ -232,5 +252,13 @@ export default function MatcherPage() {
       )}
 
     </div>
+  );
+}
+
+export default function MatcherPage() {
+  return (
+    <Suspense fallback={<div className="p-6 text-center text-sm font-bold text-slate-600 animate-pulse">Loading Product Matcher...</div>}>
+      <MatcherContent />
+    </Suspense>
   );
 }

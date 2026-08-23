@@ -155,8 +155,8 @@ export async function fetchStandardsFromFirebase(): Promise<any[]> {
     if (fetched.length > 0) {
       return fetched;
     }
-  } catch (err) {
-    console.warn("Firestore standards fetch warning:", err);
+  } catch (err: any) {
+    // Silent fallback to local database when unauthenticated / restricted
   }
 
   // Fallback to Realtime DB
@@ -167,8 +167,8 @@ export async function fetchStandardsFromFirebase(): Promise<any[]> {
       const data = snapshot.val();
       return Object.values(data);
     }
-  } catch (err) {
-    console.warn("Realtime DB standards fetch warning:", err);
+  } catch (err: any) {
+    // Silent fallback
   }
 
   return [];
@@ -179,21 +179,19 @@ export async function seedInitialDatabaseIfEmpty(initialStandards: any[]) {
   try {
     const existing = await fetchStandardsFromFirebase();
     if (existing.length === 0 && initialStandards.length > 0) {
-      console.log("Seeding Firebase Firestore & Realtime DB with initial standards...");
       for (const std of initialStandards) {
         try {
           const docRef = doc(db, 'bis_standards', std.id);
           await setDoc(docRef, { ...std, seededAt: new Date().toISOString() }, { merge: true });
           const rtdbRef = ref(rtdb, 'standards/' + std.id);
           await set(rtdbRef, std);
-        } catch (e) {
-          console.warn(`Error seeding standard ${std.id}:`, e);
+        } catch (e: any) {
+          // Ignore unauthenticated permission warnings
         }
       }
-      console.log("Database successfully seeded!");
     }
-  } catch (err) {
-    console.warn("Auto-seed error:", err);
+  } catch (err: any) {
+    // Silent fallback
   }
 }
 
