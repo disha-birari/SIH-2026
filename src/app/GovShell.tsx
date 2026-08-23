@@ -300,25 +300,22 @@ function ShellInner({ children }: { children: React.ReactNode }) {
         <div style={{ width: '100%', padding: '10px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
           
           {/* Left: Logo & Brand Title */}
-          <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-            <div style={{
-              width: 36, height: 36,
-              background: '#FFF1E8',
-              border: '1.5px solid #F28C52',
-              borderRadius: 8,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 2px 6px rgba(242,140,82,0.15)', flexShrink: 0
-            }}>
-              <Shield style={{ width: 20, height: 20, color: '#F28C52' }} />
-            </div>
+          <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 16, flexShrink: 0 }}>
+            <img 
+              src="/niyam ai.png" 
+              alt="NiyamAI Logo" 
+              style={{ height: 88, width: 'auto', objectFit: 'contain', flexShrink: 0 }} 
+            />
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 16, fontWeight: 800, color: '#171717', letterSpacing: '-0.01em' }}>BIS</span>
-                <span style={{ color: '#E8E2DC', fontWeight: 300 }}>|</span>
-                <span style={{ fontSize: 16, fontWeight: 700, color: '#242424' }}>Standards Intelligence</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ fontSize: 22, fontWeight: 900, color: '#171717', letterSpacing: '-0.02em' }}>
+                  Niyam<span style={{ color: '#F28C52' }}>AI</span>
+                </span>
+                <span style={{ color: '#CBD5E1', fontWeight: 300, fontSize: 18 }}>|</span>
+                <span style={{ fontSize: 16, fontWeight: 800, color: '#1E293B' }}>BIS Standards Intelligence</span>
               </div>
-              <div style={{ fontSize: 10.5, color: '#686868', marginTop: 1 }}>
-                Ministry of Consumer Affairs, Food &amp; Public Distribution
+              <div style={{ fontSize: 13, fontWeight: 800, color: '#D96B27', marginTop: 2, letterSpacing: '0.01em' }}>
+                India&apos;s Compliance Intelligence Platform
               </div>
             </div>
           </Link>
@@ -485,7 +482,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           borderRight: '1px solid #E8E2DC',
           display: 'flex', flexDirection: 'column',
           flexShrink: 0,
-          position: 'sticky', top: 57, height: 'calc(100vh - 57px)',
+          position: 'sticky', top: 98, height: 'calc(100vh - 98px)',
           zIndex: 40,
           boxSizing: 'border-box'
         }}>
@@ -758,16 +755,16 @@ function ShellInner({ children }: { children: React.ReactNode }) {
       {/* ══════════════ ANTIGRAVITY-STYLE RIGHT-SIDE AI SLIDE PANEL ══════════════ */}
       {aiPanelOpen && (
         <div style={{
-          position: 'fixed', top: 57, right: 0, bottom: 0, width: 440, maxWidth: '90vw',
-          height: 'calc(100vh - 57px)',
+          position: 'fixed', top: 98, right: 0, bottom: 0, width: 440, maxWidth: '90vw',
+          height: 'calc(100vh - 98px)',
           background: '#FFFFFF', borderLeft: '1px solid #E8E2DC', zIndex: 95,
           boxShadow: '-8px 0 32px rgba(0,0,0,0.12)', display: 'flex', flexDirection: 'column'
         }}>
           {/* Panel Header */}
           <div style={{ padding: '16px 20px', background: '#171717', color: '#FFFFFF', borderBottom: '1px solid #27272A', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 28, height: 28, background: '#F28C52', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFF' }}>
-                <Sparkles style={{ width: 16, height: 16 }} />
+              <div style={{ width: 28, height: 28, background: '#FFF1E8', border: '1px solid #F4C4A5', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                <img src="/niyam ai.png" alt="NiyamAI Logo" style={{ width: 22, height: 22, objectFit: 'contain' }} />
               </div>
               <div>
                 <div style={{ fontSize: 13.5, fontWeight: 800 }}>Ask BIS AI Assistant</div>
@@ -875,11 +872,11 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24, paddingBottom: 24, borderBottom: '1px solid #27272A' }}>
             {/* Identity */}
             <div style={{ gridColumn: 'span 2' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                <div style={{ width: 28, height: 28, background: 'rgba(242, 140, 82, 0.15)', border: '1px solid rgba(242, 140, 82, 0.4)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Shield style={{ width: 16, height: 16, color: '#F28C52' }} />
-                </div>
-                <span style={{ fontWeight: 800, fontSize: 15, color: '#FFFFFF' }}>Bureau of Indian Standards</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 8 }}>
+                <img src="/niyam ai.png" alt="NiyamAI Logo" style={{ height: 56, width: 'auto', objectFit: 'contain' }} />
+                <span style={{ fontWeight: 800, fontSize: 16, color: '#FFFFFF' }}>
+                  Niyam<span style={{ color: '#F28C52' }}>AI</span> — Standards Intelligence
+                </span>
               </div>
               <p style={{ fontSize: 12.5, color: '#A1A1AA', maxWidth: 480, margin: 0, lineHeight: 1.6 }}>
                 Groundbreaking intelligence platform providing clause-level verification, revision comparisons, and statutory compliance navigation for Indian Standards.
@@ -903,7 +900,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 16, fontSize: 12, color: '#71717A', flexWrap: 'wrap', gap: 10 }}>
-            <span>© 2026 Bureau of Indian Standards (BIS), Government of India.</span>
+            <span>© 2026 NiyamAI — Bureau of Indian Standards (BIS), Government of India.</span>
             <span>Designed to GOI web standards • Dark Charcoal Theme</span>
           </div>
 
