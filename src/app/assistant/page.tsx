@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
@@ -23,6 +23,7 @@ function AssistantContent() {
   const [researchMode, setResearchMode] = useState<'standard' | 'research' | 'compliance'>('standard');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
 
   const [messages, setMessages] = useState<Array<{
     sender: 'user' | 'bot';
@@ -46,19 +47,27 @@ function AssistantContent() {
     "Are there recent Gazette QCO change alerts?"
   ];
 
-  const startVoiceInput = () => {
+  const toggleVoiceInput = () => {
+    if (isListening && recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (e) {}
+      setIsListening(false);
+      return;
+    }
+
     if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
       const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       const recognition = new SpeechRecognition();
+      recognitionRef.current = recognition;
       recognition.lang = 'en-IN';
       recognition.interimResults = false;
 
       setIsListening(true);
       recognition.onresult = (event: any) => {
         const text = event.results[0][0].transcript;
-        setQuery(text);
+        setQuery(prev => prev ? prev + ' ' + text : text);
         setIsListening(false);
-        handleSearch(text);
       };
 
       recognition.onerror = () => setIsListening(false);
@@ -78,7 +87,7 @@ function AssistantContent() {
     if (!textToRun.trim()) return;
 
     setMessages(prev => [...prev, { sender: 'user', text: textToRun }]);
-    if (!queryText) setQuery('');
+    setQuery('');
     setIsProcessing(true);
 
     try {
@@ -302,8 +311,8 @@ function AssistantContent() {
           />
           <button
             type="button"
-            title="Voice Input"
-            onClick={startVoiceInput}
+            title={isListening ? "Stop Listening" : "Voice Input"}
+            onClick={toggleVoiceInput}
             style={{ 
               background: isListening ? '#FFF1E8' : '#FFFFFF', 
               border: `1px solid ${isListening ? '#E9783F' : '#F28C52'}`, 
