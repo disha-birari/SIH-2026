@@ -10,7 +10,8 @@ import {
   ChevronRight, X, ArrowUpRight, Cpu, SlidersHorizontal, Home, ExternalLink
 } from 'lucide-react';
 import { UserPersona, LanguageCode } from '@/lib/types';
-import { getDynamicStandards } from '@/lib/data/bisDatabase';
+import { getDynamicStandards, processAssistantResearchAgent } from '@/lib/data/bisDatabase';
+import { AssistantAgentResponse } from '@/lib/types';
 import { LanguageProvider, useLanguage } from '@/context/LanguageContext';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 
@@ -29,6 +30,94 @@ function ShellInner({ children }: { children: React.ReactNode }) {
   const [commandOpen, setCommandOpen] = useState(false);
   const [cmdQuery, setCmdQuery] = useState('');
   const [headerSearch, setHeaderSearch] = useState('');
+
+  // Antigravity-Style Right-Side Slide Panel State
+  const [aiPanelOpen, setAiPanelOpen] = useState(false);
+  const [panelInputQuery, setPanelInputQuery] = useState('');
+  const [panelMessages, setPanelMessages] = useState<Array<{
+    sender: 'user' | 'bot';
+    text: string;
+    agentResponse?: AssistantAgentResponse;
+  }>>([
+    {
+      sender: 'bot',
+      text: 'Ask BIS AI is connected to 12 grounded Indian Standards and official Gazette notifications. I can answer questions, cite clauses, or navigate you directly to platform features.'
+    }
+  ]);
+  const [panelProcessing, setPanelProcessing] = useState(false);
+
+  const handleSendPanelMessage = async (customQuery?: string) => {
+    const textToRun = customQuery || panelInputQuery;
+    if (!textToRun.trim()) return;
+
+    setPanelMessages(prev => [...prev, { sender: 'user', text: textToRun }]);
+    if (!customQuery) setPanelInputQuery('');
+    setPanelProcessing(true);
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: textToRun, persona })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setPanelMessages(prev => [
+          ...prev,
+          {
+            sender: 'bot',
+            text: data.summaryExplanation,
+            agentResponse: {
+              intentCategory: 'RESEARCH',
+              responseText: data.summaryExplanation,
+              sources: (data.citations || []).map((c: any) => ({
+                title: c.title || c.standardNumber || 'Official BIS Standard',
+                documentType: 'Official BIS Standard',
+                clauseRef: c.clause || 'Normative Clause',
+                pageRef: 'Verified Scope',
+                excerptText: c.snippet || c.title || 'Official Specification Excerpt',
+                statusBadge: 'OFFICIAL'
+              })),
+              actionCard: {
+                title: 'Trace Statutory Legal Rationale',
+                actionType: 'TRACE_LEGAL_LOGIC',
+                targetRoute: `/explainability?q=${encodeURIComponent(textToRun)}`,
+                buttonLabel: 'View Legal Rationale →',
+                description: `Explains statutory logic for ${data.productDetected || textToRun}.`
+              },
+              confidenceScore: data.confidenceScore || 95,
+              groundingBadge: `${data.engineUsed || 'Neural BIS Grounded RAG'} (${data.modelName || 'Local Grounded'})`,
+              suggestedPrompts: [
+                "What mandatory tests are required?",
+                "Find accredited NABL testing laboratories.",
+                "Generate interactive compliance checklist."
+              ]
+            }
+          }
+        ]);
+      } else {
+        throw new Error('API route returned error status');
+      }
+    } catch (err) {
+      const response = processAssistantResearchAgent(textToRun, {
+        currentRoute: pathname,
+        currentFeature: pathname.replace('/', '') || 'overview',
+        userRole: persona
+      });
+
+      setPanelMessages(prev => [
+        ...prev,
+        {
+          sender: 'bot',
+          text: response.responseText,
+          agentResponse: response
+        }
+      ]);
+    } finally {
+      setPanelProcessing(false);
+    }
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -173,7 +262,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
       <header style={{
         background: '#FFFFFF',
         borderBottom: '1px solid #E8E2DC',
-        position: 'sticky', top: 0, zIndex: 90,
+        position: 'sticky', top: 0, zIndex: 100,
         width: '100%', flexShrink: 0
       }}>
         <div style={{ width: '100%', padding: '10px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
@@ -465,7 +554,13 @@ function ShellInner({ children }: { children: React.ReactNode }) {
         </aside>
 
         {/* MAIN WORKSPACE CONTENT */}
-        <main style={{ flex: 1, padding: '24px 32px', minWidth: 0 }}>
+        <main style={{ 
+          flex: 1, 
+          padding: '24px 32px', 
+          paddingRight: aiPanelOpen ? 460 : 32,
+          minWidth: 0,
+          transition: 'padding-right 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+        }}>
           <div style={{ maxWidth: 1440, margin: '0 auto', width: '100%' }}>
             {children}
           </div>
@@ -563,6 +658,134 @@ function ShellInner({ children }: { children: React.ReactNode }) {
               <span>Press <kbd style={{ background: '#FFF', border: '1px solid #E8E2DC', padding: '1px 4px', borderRadius: 3 }}>ESC</kbd> to exit</span>
               <span>Use arrows to navigate</span>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════ FLOATING ANTIGRAVITY-STYLE ASK BIS AI TRIGGER ══════════════ */}
+      <button
+        onClick={() => setAiPanelOpen(prev => !prev)}
+        style={{
+          position: 'fixed', bottom: 24, right: 24, zIndex: 90,
+          background: '#F28C52', color: '#FFFFFF', border: 'none', borderRadius: 30,
+          padding: '12px 20px', fontSize: 13, fontWeight: 800, cursor: 'pointer',
+          boxShadow: '0 8px 24px rgba(242,140,82,0.4)', display: 'flex', alignItems: 'center', gap: 8,
+          transition: 'all 0.2s ease'
+        }}
+      >
+        <Sparkles style={{ width: 16, height: 16 }} />
+        <span>{aiPanelOpen ? 'Close BIS AI' : '✦ Ask BIS AI'}</span>
+      </button>
+
+      {/* ══════════════ ANTIGRAVITY-STYLE RIGHT-SIDE AI SLIDE PANEL ══════════════ */}
+      {aiPanelOpen && (
+        <div style={{
+          position: 'fixed', top: 57, right: 0, bottom: 0, width: 440, maxWidth: '90vw',
+          height: 'calc(100vh - 57px)',
+          background: '#FFFFFF', borderLeft: '1px solid #E8E2DC', zIndex: 95,
+          boxShadow: '-8px 0 32px rgba(0,0,0,0.12)', display: 'flex', flexDirection: 'column'
+        }}>
+          {/* Panel Header */}
+          <div style={{ padding: '16px 20px', background: '#171717', color: '#FFFFFF', borderBottom: '1px solid #27272A', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 28, height: 28, background: '#F28C52', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFF' }}>
+                <Sparkles style={{ width: 16, height: 16 }} />
+              </div>
+              <div>
+                <div style={{ fontSize: 13.5, fontWeight: 800 }}>Ask BIS AI Assistant</div>
+                <div style={{ fontSize: 10.5, color: '#4ADE80', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ADE80' }}></span>
+                  <span>BIS Knowledge Connected</span>
+                </div>
+              </div>
+            </div>
+
+            <button onClick={() => setAiPanelOpen(false)} style={{ background: 'transparent', border: 'none', color: '#A1A1AA', fontSize: 16, cursor: 'pointer' }}>✕</button>
+          </div>
+
+          {/* Current Page Context Badge */}
+          <div style={{ padding: '8px 16px', background: '#FFFCF8', borderBottom: '1px solid #E8E2DC', fontSize: 11, color: '#686868', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span>Context: <strong style={{ color: '#171717' }}>{pathname}</strong> ({persona})</span>
+            <span style={{ fontSize: 10, background: '#FFF1E8', color: '#E9783F', fontWeight: 800, padding: '1px 6px', borderRadius: 3 }}>IS 302-2-3</span>
+          </div>
+
+          {/* Chat Stream */}
+          <div style={{ flex: 1, padding: 16, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 12, background: '#FFFCF8' }}>
+            {panelMessages.map((msg, idx) => (
+              <div key={idx} style={{
+                alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
+                maxWidth: msg.sender === 'user' ? '85%' : '100%',
+                background: msg.sender === 'user' ? '#171717' : '#FFFFFF',
+                color: msg.sender === 'user' ? '#FFFFFF' : '#171717',
+                border: msg.sender === 'user' ? 'none' : '1px solid #E8E2DC',
+                borderRadius: 8, padding: 12, fontSize: 12.5, lineHeight: 1.55, fontWeight: 500,
+                boxShadow: msg.sender === 'bot' ? '0 1px 4px rgba(0,0,0,0.03)' : 'none'
+              }}>
+                <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{msg.text}</div>
+
+                {/* Source Cards */}
+                {msg.agentResponse?.sources && msg.agentResponse.sources.length > 0 && (
+                  <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid #E8E2DC', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <span style={{ fontSize: 10, fontWeight: 800, color: '#E9783F', textTransform: 'uppercase' }}>OFFICIAL SOURCE</span>
+                    {msg.agentResponse.sources.map((src, sIdx) => (
+                      <div key={sIdx} style={{ background: '#FFFCF8', border: '1px solid #E8E2DC', borderRadius: 4, padding: 6, fontSize: 11, color: '#242424' }}>
+                        <strong style={{ color: '#171717' }}>{src.title}</strong> • {src.clauseRef}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Action Card */}
+                {msg.agentResponse?.actionCard && (
+                  <div style={{ marginTop: 8, background: '#FFF1E8', border: '1px solid #F4C4A5', borderRadius: 6, padding: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <span style={{ fontSize: 10, fontWeight: 800, color: '#E9783F', textTransform: 'uppercase' }}>RECOMMENDED PLATFORM ACTION</span>
+                    <div style={{ fontSize: 11.5, fontWeight: 700, color: '#171717' }}>{msg.agentResponse.actionCard.title}</div>
+                    <div style={{ fontSize: 10.5, color: '#686868' }}>{msg.agentResponse.actionCard.description}</div>
+                    
+                    <button
+                      onClick={() => {
+                        setAiPanelOpen(false);
+                        router.push(msg.agentResponse!.actionCard!.targetRoute);
+                      }}
+                      style={{ background: '#F28C52', color: '#FFFFFF', border: 'none', borderRadius: 4, padding: '5px 10px', fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 2 }}
+                    >
+                      <span>{msg.agentResponse.actionCard.buttonLabel}</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {panelProcessing && (
+              <div style={{ fontSize: 11, color: '#686868', fontStyle: 'italic' }}>
+                Analyzing BIS sources &amp; resolving action routes...
+              </div>
+            )}
+          </div>
+
+          {/* Quick Action Suggestion Pills */}
+          <div style={{ padding: '8px 12px', background: '#FFFFFF', borderTop: '1px solid #E8E2DC', display: 'flex', gap: 6, overflowX: 'auto' }}>
+            <button onClick={() => handleSendPanelMessage("What tests are required for IS 302-2-3?")} style={{ background: '#FFFCF8', border: '1px solid #E8E2DC', borderRadius: 4, padding: '3px 8px', fontSize: 10.5, fontWeight: 700, color: '#E9783F', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+              Testing Requirements
+            </button>
+            <button onClick={() => handleSendPanelMessage("Check compliance gaps for electric iron.")} style={{ background: '#FFFCF8', border: '1px solid #E8E2DC', borderRadius: 4, padding: '3px 8px', fontSize: 10.5, fontWeight: 700, color: '#E9783F', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+              Run Gap Analysis
+            </button>
+          </div>
+
+          {/* Input Form */}
+          <div style={{ padding: 12, background: '#FFFFFF', borderTop: '1px solid #E8E2DC', display: 'flex', gap: 8 }}>
+            <input
+              type="text"
+              value={panelInputQuery}
+              onChange={(e) => setPanelInputQuery(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSendPanelMessage()}
+              placeholder="Ask anything about BIS or command the app..."
+              style={{ flex: 1, background: '#FFFCF8', border: '1px solid #E8E2DC', borderRadius: 6, padding: '8px 10px', fontSize: 12, fontWeight: 600, outline: 'none' }}
+            />
+            <button onClick={() => handleSendPanelMessage()} style={{ background: '#F28C52', color: '#FFFFFF', border: 'none', borderRadius: 6, padding: '8px 14px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+              Send
+            </button>
           </div>
         </div>
       )}

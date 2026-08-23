@@ -529,3 +529,66 @@ export interface RagAnswerResponse {
   suggestedFollowUps: string[];
 }
 
+// ═════════════════════════════════════════════════════════════════════
+// ASK BIS AI ASSISTANT & OPERATING LAYER TYPES
+// ═════════════════════════════════════════════════════════════════════
+
+export type IntentCategoryType =
+  | 'INFORMATION'
+  | 'RESEARCH'
+  | 'NAVIGATION'
+  | 'ACTION'
+  | 'DOCUMENT ANALYSIS'
+  | 'COMPLIANCE ANALYSIS';
+
+export type AiActionType =
+  | 'NAVIGATE'
+  | 'OPEN_CLAUSE'
+  | 'RUN_GAP_ANALYSIS'
+  | 'OPEN_TESTING_MAPPER'
+  | 'FIND_NABL_LABS'
+  | 'OPEN_CHECKLIST'
+  | 'TRACE_LEGAL_LOGIC'
+  | 'CHECK_QCO_UPDATES'
+  | 'VERIFY_EVIDENCE'
+  | 'OPEN_DOCUMENT'
+  | 'COMPARE_VERSIONS';
+
+export interface AiActionCard {
+  title: string;
+  actionType: AiActionType;
+  targetRoute: string;
+  buttonLabel: string;
+  description: string;
+  params?: Record<string, string>;
+}
+
+export interface AiSourceCard {
+  title: string;
+  documentType: string;
+  clauseRef?: string;
+  pageRef?: string;
+  excerptText: string;
+  statusBadge: 'OFFICIAL' | 'INFERRED' | 'RECOMMENDATION';
+}
+
+export interface GlobalAppContext {
+  currentRoute: string;
+  currentFeature: string;
+  userRole: UserPersona;
+  selectedProduct?: string;
+  selectedStandard?: string;
+  selectedVersion?: string;
+  selectedClause?: string;
+}
+
+export interface AssistantAgentResponse {
+  intentCategory: IntentCategoryType;
+  responseText: string;
+  sources: AiSourceCard[];
+  actionCard?: AiActionCard;
+  confidenceScore: number;
+  groundingBadge: string;
+  suggestedPrompts: string[];
+}
+
