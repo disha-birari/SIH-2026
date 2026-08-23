@@ -51,7 +51,7 @@ export async function POST(req: Request) {
     // Try Gemini first if API key is present
     if (process.env.GEMINI_API_KEY) {
       engineUsed = 'Gemini / Neural Grounded RAG';
-      modelName = 'gemini-2.5-flash';
+      modelName = 'gemini-3.6-flash';
       llmResponse = await queryGemini(prompt, modelName);
     } 
     
