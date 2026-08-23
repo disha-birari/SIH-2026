@@ -37,7 +37,7 @@ let dynamicStandardsStore: BISStandard[] = [
       "Mechanical Resistance to Impact & Drop",
       "Flammability of Plastics (UL94-V0 or Glow Wire 850°C)"
     ],
-    officialUrl: "https://www.services.bis.gov.in/php/BIS_2/bisman/qco/IS_302_2_3.pdf",
+    officialUrl: "https://www.manakonline.in",
     lastUpdated: new Date().toISOString().split('T')[0],
     clauseReferences: [
       { clause: "Clause 10", description: "Power input and current verification parameters." },
@@ -70,7 +70,7 @@ let dynamicStandardsStore: BISStandard[] = [
       "Standing Loss Test (Energy Efficiency Star Rating Requirement)",
       "Protection against entry of water (IPX4 rating verification)"
     ],
-    officialUrl: "https://www.services.bis.gov.in/qco/IS_302_2_201.pdf",
+    officialUrl: "https://www.manakonline.in",
     lastUpdated: new Date().toISOString().split('T')[0],
     clauseReferences: [
       { clause: "Clause 22.101", description: "Pressure relief valve opening pressure limits." },
@@ -102,7 +102,7 @@ let dynamicStandardsStore: BISStandard[] = [
       "Retention System Dynamic & Static Displacement Test",
       "Peripheral Vision Angle Test (Horizontal >= 105 degrees)"
     ],
-    officialUrl: "https://www.bis.gov.in/qco/IS_4151_Helmets.pdf",
+    officialUrl: "https://www.bis.gov.in",
     lastUpdated: new Date().toISOString().split('T')[0],
     clauseReferences: [
       { clause: "Clause 6.1", description: "Materials non-irritant to skin and resistant to UV." },
@@ -134,7 +134,7 @@ let dynamicStandardsStore: BISStandard[] = [
       "Sharp Point & Sharp Edge Tester verification",
       "Heavy Metal Inductively Coupled Plasma (ICP-MS) test"
     ],
-    officialUrl: "https://www.bis.gov.in/qco/Toys_Mandatory_QCO.pdf",
+    officialUrl: "https://www.bis.gov.in",
     lastUpdated: new Date().toISOString().split('T')[0],
     clauseReferences: [
       { clause: "Clause 4.4", description: "Small parts hazard for children under 36 months." },
@@ -165,7 +165,7 @@ let dynamicStandardsStore: BISStandard[] = [
       "Harmonic Current Emissions (IS 14700-3-2)",
       "Photobiological Safety (Blue light hazard measurement)"
     ],
-    officialUrl: "https://www.crsbis.in/BIS/products.do",
+    officialUrl: "https://www.crsbis.in",
     lastUpdated: new Date().toISOString().split('T')[0],
     clauseReferences: [
       { clause: "Clause 6", description: "Marking requirements including CRS registration logo." },
@@ -197,7 +197,7 @@ let dynamicStandardsStore: BISStandard[] = [
       "Toxic elements: Arsenic (< 0.01 mg/L), Lead (< 0.01 mg/L)",
       "Pesticide Residue Limits (Individual <= 0.0001 mg/L)"
     ],
-    officialUrl: "https://www.services.bis.gov.in/qco/IS_14543.pdf",
+    officialUrl: "https://www.services.bis.gov.in",
     lastUpdated: new Date().toISOString().split('T')[0],
     clauseReferences: [
       { clause: "Table 1", description: "Organoleptic and physical parameters." },
@@ -230,7 +230,7 @@ let dynamicStandardsStore: BISStandard[] = [
       "Bend and Rebend Test around mandrel",
       "Rib Geometry & Transverse Rib Spacing Measurement"
     ],
-    officialUrl: "https://www.services.bis.gov.in/qco/IS_1786_TMT.pdf",
+    officialUrl: "https://www.services.bis.gov.in",
     lastUpdated: new Date().toISOString().split('T')[0],
     clauseReferences: [
       { clause: "Clause 4.2", description: "Chemical composition limits." },
@@ -292,7 +292,7 @@ let dynamicStandardsStore: BISStandard[] = [
       "Mechanical Load Test (5400 Pa Snow/Wind load capacity)",
       "Wet Leakage Current Insulation Test (> 40 M-ohm m²)"
     ],
-    officialUrl: "https://www.services.bis.gov.in/qco/IS_14286_Solar.pdf",
+    officialUrl: "https://www.crsbis.in",
     lastUpdated: new Date().toISOString().split('T')[0],
     clauseReferences: [
       { clause: "Clause 10.11", description: "Thermal cycling test procedure and degradation limits." },
@@ -323,7 +323,7 @@ let dynamicStandardsStore: BISStandard[] = [
       "Plunger Energy Resistance Test (Burst Strength)",
       "Bead Unseating Resistance Test for tubeless radial tyres"
     ],
-    officialUrl: "https://www.services.bis.gov.in/qco/IS_15633_Tyres.pdf",
+    officialUrl: "https://www.services.bis.gov.in",
     lastUpdated: new Date().toISOString().split('T')[0],
     clauseReferences: [
       { clause: "Clause 5.2", description: "Tread wear indicators (TWI) requirement." },
@@ -354,7 +354,7 @@ let dynamicStandardsStore: BISStandard[] = [
       "Fineness by Blaine Air Permeability Apparatus (>= 225 m²/kg)",
       "Soundness Test by Le Chatelier Expansion Method (<= 10mm)"
     ],
-    officialUrl: "https://www.services.bis.gov.in/qco/IS_269_Cement.pdf",
+    officialUrl: "https://www.services.bis.gov.in",
     lastUpdated: new Date().toISOString().split('T')[0],
     clauseReferences: [
       { clause: "Clause 6", description: "Chemical requirements and magnesia limits." },
@@ -386,7 +386,7 @@ let dynamicStandardsStore: BISStandard[] = [
       "Thermal Abuse Test in oven at 130°C for 10 minutes",
       "Overcharge Test at 2x rated charging current"
     ],
-    officialUrl: "https://www.crsbis.in/BIS/Lithium_Battery_QCO.pdf",
+    officialUrl: "https://www.crsbis.in",
     lastUpdated: new Date().toISOString().split('T')[0],
     clauseReferences: [
       { clause: "Clause 7.2.2", description: "External short circuit test requirements." },
@@ -419,7 +419,7 @@ let dynamicStandardsStore: BISStandard[] = [
       "Temperature Rise Test of Motor Windings (Limit <= 75K)",
       "High Voltage & Leakage Current Test"
     ],
-    officialUrl: "https://www.services.bis.gov.in/qco/IS_374_Ceiling_Fan.pdf",
+    officialUrl: "https://www.manakonline.in",
     lastUpdated: new Date().toISOString().split('T')[0],
     clauseReferences: [
       { clause: "Clause 10", description: "Air delivery and service value requirements." },
@@ -450,7 +450,7 @@ let dynamicStandardsStore: BISStandard[] = [
       "Differential Delta P Pressure Test",
       "Synthetic Blood Penetration Resistance Test"
     ],
-    officialUrl: "https://www.bis.gov.in/qco/IS_16289_Masks.pdf",
+    officialUrl: "https://www.bis.gov.in",
     lastUpdated: new Date().toISOString().split('T')[0],
     clauseReferences: [
       { clause: "Clause 5.1", description: "Bacterial filtration efficiency performance limits." },
@@ -481,7 +481,7 @@ let dynamicStandardsStore: BISStandard[] = [
       "High Voltage Breakdown at 1500V AC",
       "Locked Rotor Thermal Safety Cutout Test"
     ],
-    officialUrl: "https://www.services.bis.gov.in/qco/IS_4250.pdf",
+    officialUrl: "https://www.manakonline.in",
     lastUpdated: new Date().toISOString().split('T')[0],
     clauseReferences: [
       { clause: "Clause 13", description: "Electrical insulation and leakage current." },
@@ -512,7 +512,7 @@ let dynamicStandardsStore: BISStandard[] = [
       "Safety Valve Operating Pressure Test",
       "Thermal Deformation & Lid Lock Test"
     ],
-    officialUrl: "https://www.services.bis.gov.in/qco/IS_2347.pdf",
+    officialUrl: "https://www.manakonline.in",
     lastUpdated: new Date().toISOString().split('T')[0],
     clauseReferences: [
       { clause: "Clause 7.2", description: "Operating and bursting pressure limits." },
@@ -543,7 +543,7 @@ let dynamicStandardsStore: BISStandard[] = [
       "Sole Compression Resistance Test (15 kN)",
       "Upper Leather Tear & Tensile Strength Test"
     ],
-    officialUrl: "https://www.bis.gov.in/qco/IS_15298_Footwear.pdf",
+    officialUrl: "https://www.bis.gov.in",
     lastUpdated: new Date().toISOString().split('T')[0],
     clauseReferences: [
       { clause: "Clause 5.3.2", description: "Impact resistance of steel toe caps." },
@@ -574,7 +574,7 @@ let dynamicStandardsStore: BISStandard[] = [
       "Fire Rating Performance Test (Class A, B, C fires)",
       "Discharge Duration & Throw Range Test"
     ],
-    officialUrl: "https://www.bis.gov.in/qco/IS_2190_Fire.pdf",
+    officialUrl: "https://www.bis.gov.in",
     lastUpdated: new Date().toISOString().split('T')[0],
     clauseReferences: [
       { clause: "Clause 6.1", description: "Extinguisher rating and fire class matching." },
@@ -605,7 +605,7 @@ let dynamicStandardsStore: BISStandard[] = [
       "Insulation Resistance & Spark Leakage Test",
       "Flammability & Oxygen Index Test (IS 10810)"
     ],
-    officialUrl: "https://www.services.bis.gov.in/qco/IS_694.pdf",
+    officialUrl: "https://www.manakonline.in",
     lastUpdated: new Date().toISOString().split('T')[0],
     clauseReferences: [
       { clause: "Clause 9", description: "Electrical resistance of conductors." },
@@ -636,7 +636,7 @@ let dynamicStandardsStore: BISStandard[] = [
       "Temperature Rise Test under maximum load",
       "Electric Strength HV Test at 2000V AC"
     ],
-    officialUrl: "https://www.services.bis.gov.in/qco/IS_1293.pdf",
+    officialUrl: "https://www.manakonline.in",
     lastUpdated: new Date().toISOString().split('T')[0],
     clauseReferences: [
       { clause: "Clause 13", description: "Construction and safety shutter specifications." },

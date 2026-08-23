@@ -21,6 +21,21 @@ function ShellInner({ children }: { children: React.ReactNode }) {
   const { language, setLanguage, t } = useLanguage();
   const { user, dbStandardsCount, signInWithGoogle, logout } = useAuth();
   const [persona, setPersona] = useState<UserPersona>('manufacturer');
+
+  useEffect(() => {
+    const saved = localStorage.getItem('bis_user_persona') as UserPersona;
+    if (saved && ['manufacturer', 'msme', 'consumer', 'importer'].includes(saved)) {
+      setPersona(saved);
+    }
+  }, []);
+
+  const handlePersonaChange = (newPersona: UserPersona) => {
+    setPersona(newPersona);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('bis_user_persona', newPersona);
+      window.dispatchEvent(new Event('bis_persona_changed'));
+    }
+  };
   const [fontSize, setFontSize] = useState<'small' | 'normal' | 'large'>('normal');
   const [standardsList, setStandardsList] = useState(getDynamicStandards());
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -166,69 +181,86 @@ function ShellInner({ children }: { children: React.ReactNode }) {
     document.documentElement.lang = language;
   }, [language]);
 
-  // Sidebar grouped menu structure
-  const navSections = [
-    {
-      title: 'DASHBOARD',
-      items: [
-        { href: '/', label: 'Overview Command Center', icon: Home }
-      ]
-    },
-    {
-      title: 'STANDARDS',
-      items: [
-        { href: '/matcher', label: 'All Standards Catalog', icon: Search },
-        { href: '/comparator', label: 'Standard Versions & Diffs', icon: GitCompare },
-        { href: '/citations', label: 'Clause Research & Citations', icon: BookOpen }
-      ]
-    },
-    {
-      title: 'ANALYSIS',
-      items: [
-        { href: '/gap-analyzer', label: 'Gap Analyzer', icon: FileSearch },
-        { href: '/comparator', label: 'Version Comparator', icon: GitCompare },
-        { href: '/matcher', label: 'Product Standard Matcher', icon: Search }
-      ]
-    },
-    {
-      title: 'COMPLIANCE',
-      items: [
-        { href: '/citations', label: 'Clause Citations', icon: BookOpen },
-        { href: '/checklist', label: 'Interactive Checklist', icon: CheckSquare },
-        { href: '/services', label: 'Scheme & Statutory Logic', icon: Sparkles },
-        { href: '/explainability', label: 'Legal Tree Rationale', icon: HelpCircle }
-      ]
-    },
-    {
-      title: 'KNOWLEDGE',
-      items: [
-        { href: '/ask-pdf', label: 'Ask My PDF (RAG)', icon: FileText },
-        { href: '/admin', label: 'Standard Ingestion & Admin', icon: BarChart3 }
-      ]
-    },
-    {
-      title: 'MONITORING',
-      items: [
-        { href: '/alerts', label: 'QCO Change Alerts', icon: Bell },
-        { href: '/evidence-verifier', label: 'Evidence Verifier', icon: CheckCircle2 }
-      ]
-    },
-    {
-      title: 'TOOLS & LABS',
-      items: [
-        { href: '/lab-finder', label: 'NABL Lab Finder', icon: MapPin },
-        { href: '/testing-mapper', label: 'Testing Mapper', icon: TestTube },
-        { href: '/voice', label: 'Voice Research Assistant', icon: Mic },
-        { href: '/timeline', label: 'Compliance Roadmap', icon: Calendar }
-      ]
-    },
-    {
-      title: 'AI RESEARCH',
-      items: [
-        { href: '/assistant', label: 'Ask BIS AI Assistant', icon: Cpu }
-      ]
+  // Dynamic persona-based sidebar grouped menu structure
+  const getPersonaNavSections = (activePersona: UserPersona) => {
+    const baseSections = [
+      {
+        title: 'DASHBOARD',
+        items: [
+          { href: '/', label: 'Overview Command Center', icon: Home }
+        ]
+      },
+      {
+        title: 'STANDARDS',
+        items: [
+          { href: '/matcher', label: 'All Standards Catalog', icon: Search, badge: activePersona === 'consumer' ? 'Verify' : undefined },
+          { href: '/comparator', label: 'Standard Versions & Diffs', icon: GitCompare, badge: activePersona === 'importer' ? 'Diffs' : undefined },
+          { href: '/citations', label: 'Clause Research & Citations', icon: BookOpen, badge: activePersona === 'consumer' ? 'Citations' : undefined }
+        ]
+      },
+      {
+        title: 'ANALYSIS',
+        items: [
+          { href: '/gap-analyzer', label: 'Gap Analyzer', icon: FileSearch, badge: activePersona === 'manufacturer' ? 'STI Focus' : undefined },
+          { href: '/comparator', label: 'Version Comparator', icon: GitCompare },
+          { href: '/matcher', label: 'Product Standard Matcher', icon: Search }
+        ]
+      },
+      {
+        title: 'COMPLIANCE',
+        items: [
+          { href: '/citations', label: 'Clause Citations', icon: BookOpen },
+          { href: '/checklist', label: 'Interactive Checklist', icon: CheckSquare, badge: activePersona === 'msme' ? '50% Fee' : undefined },
+          { href: '/services', label: 'Scheme & Statutory Logic', icon: Sparkles, badge: (activePersona === 'msme' || activePersona === 'importer') ? 'CRS/FMCS' : undefined },
+          { href: '/explainability', label: 'Legal Tree Rationale', icon: HelpCircle }
+        ]
+      },
+      {
+        title: 'KNOWLEDGE',
+        items: [
+          { href: '/ask-pdf', label: 'Ask My PDF (RAG)', icon: FileText, badge: activePersona === 'importer' ? 'Custom RAG' : undefined },
+          { href: '/admin', label: 'Standard Ingestion & Admin', icon: BarChart3 }
+        ]
+      },
+      {
+        title: 'MONITORING',
+        items: [
+          { href: '/alerts', label: 'QCO Change Alerts', icon: Bell, badge: activePersona === 'importer' ? 'Customs Alerts' : undefined },
+          { href: '/evidence-verifier', label: 'Evidence Verifier', icon: CheckCircle2, badge: activePersona === 'consumer' ? 'HUID Seal' : undefined }
+        ]
+      },
+      {
+        title: 'TOOLS & LABS',
+        items: [
+          { href: '/lab-finder', label: 'NABL Lab Finder', icon: MapPin, badge: activePersona === 'manufacturer' ? 'NABL Mapping' : undefined },
+          { href: '/testing-mapper', label: 'Testing Mapper', icon: TestTube, badge: activePersona === 'manufacturer' ? 'Lab Equipment' : undefined },
+          { href: '/voice', label: 'Voice Research Assistant', icon: Mic },
+          { href: '/timeline', label: 'Compliance Roadmap', icon: Calendar, badge: activePersona === 'msme' ? 'MSME Roadmap' : undefined }
+        ]
+      },
+      {
+        title: 'AI RESEARCH',
+        items: [
+          { href: '/assistant', label: 'Ask BIS AI Assistant', icon: Cpu }
+        ]
+      }
+    ];
+
+    let priorityOrder: string[] = [];
+    if (activePersona === 'manufacturer') {
+      priorityOrder = ['DASHBOARD', 'TOOLS & LABS', 'ANALYSIS', 'STANDARDS', 'COMPLIANCE', 'MONITORING', 'KNOWLEDGE', 'AI RESEARCH'];
+    } else if (activePersona === 'msme') {
+      priorityOrder = ['DASHBOARD', 'COMPLIANCE', 'TOOLS & LABS', 'STANDARDS', 'ANALYSIS', 'MONITORING', 'KNOWLEDGE', 'AI RESEARCH'];
+    } else if (activePersona === 'consumer') {
+      priorityOrder = ['DASHBOARD', 'MONITORING', 'STANDARDS', 'KNOWLEDGE', 'COMPLIANCE', 'ANALYSIS', 'TOOLS & LABS', 'AI RESEARCH'];
+    } else {
+      priorityOrder = ['DASHBOARD', 'MONITORING', 'COMPLIANCE', 'ANALYSIS', 'STANDARDS', 'KNOWLEDGE', 'TOOLS & LABS', 'AI RESEARCH'];
     }
-  ];
+
+    return priorityOrder.map(title => baseSections.find(s => s.title === title)!);
+  };
+
+  const navSections = getPersonaNavSections(persona);
 
   // Quick Command Palette items
   const allCmdItems = standardsList.map(s => ({
@@ -325,18 +357,6 @@ function ShellInner({ children }: { children: React.ReactNode }) {
                 }}
               />
             </div>
-            <button
-              type="button"
-              onClick={() => setCommandOpen(true)}
-              title="Open Command Palette (Ctrl+K)"
-              style={{
-                background: '#FFFFFF', border: '1px solid #E8E2DC', borderRadius: 4,
-                padding: '1px 5px', fontSize: 10.5, fontWeight: 700, color: '#686868',
-                cursor: 'pointer', flexShrink: 0
-              }}
-            >
-              Ctrl K
-            </button>
           </form>
 
           {/* Right: Controls, Account & Admin */}
@@ -347,7 +367,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
               <Users style={{ width: 12, height: 12, color: '#686868' }} />
               <select
                 value={persona}
-                onChange={(e) => setPersona(e.target.value as UserPersona)}
+                onChange={(e) => handlePersonaChange(e.target.value as UserPersona)}
                 style={{ background: 'transparent', border: 'none', fontSize: 11.5, fontWeight: 600, color: '#242424', cursor: 'pointer', outline: 'none' }}
               >
                 <option value="manufacturer">Manufacturer View</option>
@@ -458,20 +478,20 @@ function ShellInner({ children }: { children: React.ReactNode }) {
       {/* ══════════════ 2. ENTERPRISE WORKSPACE LAYOUT (SIDEBAR + MAIN) ══════════════ */}
       <div style={{ flex: 1, display: 'flex', width: '100%' }}>
         
-        {/* COLLAPSIBLE SIDEBAR */}
+        {/* LEFT SIDEBAR NAVIGATION */}
         <aside style={{
-          width: sidebarCollapsed ? 70 : 250,
-          transition: 'width 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+          width: sidebarCollapsed ? 64 : 260,
           background: '#FFFFFF',
           borderRight: '1px solid #E8E2DC',
           display: 'flex', flexDirection: 'column',
           flexShrink: 0,
           position: 'sticky', top: 57, height: 'calc(100vh - 57px)',
-          overflowY: 'auto'
+          zIndex: 40,
+          boxSizing: 'border-box'
         }}>
           
           {/* Sidebar Header Toggle */}
-          <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: sidebarCollapsed ? 'center' : 'space-between', borderBottom: '1px solid #E8E2DC' }}>
+          <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: sidebarCollapsed ? 'center' : 'space-between', borderBottom: '1px solid #E8E2DC', flexShrink: 0 }}>
             {!sidebarCollapsed && (
               <span style={{ fontSize: 11, fontWeight: 800, color: '#686868', letterSpacing: '0.08em' }}>
                 BIS NAVIGATION
@@ -486,8 +506,8 @@ function ShellInner({ children }: { children: React.ReactNode }) {
             </button>
           </div>
 
-          {/* Navigation Menu Groups */}
-          <div style={{ flex: 1, padding: '12px 8px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {/* Navigation Menu Groups (Scrollable Content Area) */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: '12px 8px', display: 'flex', flexDirection: 'column', gap: 16 }}>
             {navSections.map((group, idx) => (
               <div key={idx}>
                 {!sidebarCollapsed && (
@@ -533,7 +553,22 @@ function ShellInner({ children }: { children: React.ReactNode }) {
                       >
                         <Icon style={{ width: 16, height: 16, color: isActive ? '#F28C52' : '#686868', flexShrink: 0 }} />
                         {!sidebarCollapsed && (
-                          <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
+                          <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1 }}>{item.label}</span>
+                        )}
+                        {item.badge && !sidebarCollapsed && (
+                          <span style={{
+                            marginLeft: 'auto',
+                            fontSize: 9.5,
+                            fontWeight: 800,
+                            background: '#FFF1E8',
+                            color: '#E9783F',
+                            border: '1px solid #F4C4A5',
+                            borderRadius: 4,
+                            padding: '1px 5px',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            {item.badge}
+                          </span>
                         )}
                       </Link>
                     );
@@ -545,7 +580,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
 
           {/* Sidebar Footer Stats */}
           {!sidebarCollapsed && (
-            <div style={{ padding: 14, margin: 8, background: '#FFFCF8', border: '1px solid #E8E2DC', borderRadius: 8, fontSize: 11.5 }}>
+            <div style={{ padding: 12, margin: '8px 8px 14px', background: '#FFFCF8', border: '1px solid #E8E2DC', borderRadius: 8, fontSize: 11.5, flexShrink: 0 }}>
               <div style={{ fontWeight: 700, color: '#171717', marginBottom: 2 }}>Standards Database</div>
               <div style={{ color: '#686868' }}>{dbStandardsCount || 12} Official IS Standards Indexed</div>
             </div>
@@ -561,7 +596,50 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           minWidth: 0,
           transition: 'padding-right 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
         }}>
-          <div style={{ maxWidth: 1440, margin: '0 auto', width: '100%' }}>
+          <div style={{ maxWidth: 1440, margin: '0 auto', width: '100%', display: 'flex', flexDirection: 'column', gap: 20 }}>
+            
+            {/* Dynamic Active Role Persona Banner */}
+            <div style={{
+              background: persona === 'manufacturer' ? '#FFF1E8' :
+                          persona === 'msme' ? '#EBF4EE' :
+                          persona === 'consumer' ? '#FEF7ED' : '#F0F4FF',
+              border: `1.5px solid ${
+                persona === 'manufacturer' ? '#F4C4A5' :
+                persona === 'msme' ? '#B5D5BF' :
+                persona === 'consumer' ? '#F4D3A5' : '#B8CBEF'
+              }`,
+              borderLeft: `5px solid ${
+                persona === 'manufacturer' ? '#F28C52' :
+                persona === 'msme' ? '#4F7D5A' :
+                persona === 'consumer' ? '#C88732' : '#3B82F6'
+              }`,
+              borderRadius: 10,
+              padding: '10px 16px',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.02)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                <span style={{
+                  fontSize: 10.5, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em',
+                  background: '#FFFFFF',
+                  color: persona === 'manufacturer' ? '#E9783F' :
+                         persona === 'msme' ? '#4F7D5A' :
+                         persona === 'consumer' ? '#C88732' : '#2563EB',
+                  borderRadius: 4, padding: '3px 8px', border: '1px solid #E8E2DC'
+                }}>
+                  {persona === 'manufacturer' ? '🏭 MANUFACTURER VIEW ACTIVE' :
+                   persona === 'msme' ? '🏬 MSME ENTERPRISE VIEW ACTIVE' :
+                   persona === 'consumer' ? '🛒 CONSUMER PROTECTION VIEW ACTIVE' : '🚢 IMPORTER & FMCS VIEW ACTIVE'}
+                </span>
+                <span style={{ fontSize: 12.5, fontWeight: 700, color: '#171717' }}>
+                  {persona === 'manufacturer' ? 'Factory Setup, Scheme-I ISI Mark Certification & In-House Testing Laboratory Mapping' :
+                   persona === 'msme' ? 'Concessional Fees (50% Off), Simplified Documentation & MSME Compliance Roadmap' :
+                   persona === 'consumer' ? 'Genuine ISI & Hallmark HUID Verification, Public Hazard Alerts & Consumer Safety' :
+                   'CRS Compulsory Electronics Registration, Customs Clearance & Foreign Manufacturers (FMCS)'}
+                </span>
+              </div>
+            </div>
+
             {children}
           </div>
         </main>
@@ -821,16 +899,6 @@ function ShellInner({ children }: { children: React.ReactNode }) {
                   <ExternalLink style={{ width: 11, height: 11, color: '#F28C52' }} />
                 </a>
               ))}
-            </div>
-
-            {/* System Accuracy */}
-            <div>
-              <div style={{ fontWeight: 700, fontSize: 12, color: '#FFFFFF', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>System Accuracy</div>
-              <div style={{ fontSize: 12, color: '#A1A1AA', display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <div>Retrieval Precision: <strong style={{ color: '#4ADE80' }}>94.2%</strong></div>
-                <div>Grounded Answers: <strong style={{ color: '#4ADE80' }}>96.8%</strong></div>
-                <div>Hallucination Rate: <strong style={{ color: '#FB923C' }}>&lt; 0.6%</strong></div>
-              </div>
             </div>
           </div>
 
