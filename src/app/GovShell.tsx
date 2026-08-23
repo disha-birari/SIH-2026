@@ -7,13 +7,14 @@ import {
   Shield, BookOpen, Search, CheckSquare, BarChart3, Globe, Users,
   FileSearch, GitCompare, HelpCircle, Bell, FileText, Mic, Calendar,
   TestTube, MapPin, CheckCircle2, Sparkles, LogOut, Command, ChevronLeft,
-  ChevronRight, X, ArrowUpRight, Cpu, SlidersHorizontal, Home, ExternalLink
+  ChevronRight, X, ArrowUpRight, Cpu, SlidersHorizontal, Home, ExternalLink, Volume2, VolumeX
 } from 'lucide-react';
 import { UserPersona, LanguageCode } from '@/lib/types';
 import { getDynamicStandards, processAssistantResearchAgent } from '@/lib/data/bisDatabase';
 import { AssistantAgentResponse } from '@/lib/types';
 import { LanguageProvider, useLanguage } from '@/context/LanguageContext';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
+import { speakAudioResponse, stopAudioPlayback } from '@/lib/voiceAssistantHelper';
 
 function FormattedMarkdown({ content, isUser }: { content: string; isUser: boolean }) {
   const lines = content.split('\n');
@@ -82,6 +83,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
   ]);
   const [panelProcessing, setPanelProcessing] = useState(false);
   const [panelListening, setPanelListening] = useState(false);
+  const [panelSpeaking, setPanelSpeaking] = useState(false);
 
   const startPanelVoiceInput = () => {
     if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
@@ -90,12 +92,13 @@ function ShellInner({ children }: { children: React.ReactNode }) {
       recognition.lang = 'en-IN';
       recognition.interimResults = false;
 
+      stopAudioPlayback();
       setPanelListening(true);
       recognition.onresult = (event: any) => {
         const text = event.results[0][0].transcript;
         setPanelInputQuery(text);
         setPanelListening(false);
-        handleSendPanelMessage(text);
+        handleSendPanelMessage(text, true);
       };
 
       recognition.onerror = () => setPanelListening(false);
@@ -108,7 +111,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const handleSendPanelMessage = async (customQuery?: string) => {
+  const handleSendPanelMessage = async (customQuery?: string, isFromVoice: boolean = false) => {
     const textToRun = customQuery || panelInputQuery;
     if (!textToRun.trim()) return;
 
@@ -125,14 +128,16 @@ function ShellInner({ children }: { children: React.ReactNode }) {
 
       if (res.ok) {
         const data = await res.json();
+        const replyText = data.summaryExplanation;
+        
         setPanelMessages(prev => [
           ...prev,
           {
             sender: 'bot',
-            text: data.summaryExplanation,
+            text: replyText,
             agentResponse: {
               intentCategory: 'RESEARCH',
-              responseText: data.summaryExplanation,
+              responseText: replyText,
               sources: (data.citations || []).map((c: any) => ({
                 title: c.title || c.standardNumber || 'Official BIS Standard',
                 documentType: 'Official BIS Standard',
@@ -158,6 +163,14 @@ function ShellInner({ children }: { children: React.ReactNode }) {
             }
           }
         ]);
+
+        // Speak response out loud if initiated via voice or active panel
+        speakAudioResponse(
+          replyText,
+          () => setPanelSpeaking(true),
+          () => setPanelSpeaking(false)
+        );
+
       } else {
         throw new Error('API route returned error status');
       }
@@ -176,6 +189,12 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           agentResponse: response
         }
       ]);
+
+      speakAudioResponse(
+        response.responseText,
+        () => setPanelSpeaking(true),
+        () => setPanelSpeaking(false)
+      );
     } finally {
       setPanelProcessing(false);
     }
@@ -281,7 +300,6 @@ function ShellInner({ children }: { children: React.ReactNode }) {
         items: [
           { href: '/lab-finder', label: 'NABL Lab Finder', icon: MapPin, badge: activePersona === 'manufacturer' ? 'NABL Mapping' : undefined },
           { href: '/testing-mapper', label: 'Testing Mapper', icon: TestTube, badge: activePersona === 'manufacturer' ? 'Lab Equipment' : undefined },
-          { href: '/voice', label: 'Voice Research Assistant', icon: Mic },
           { href: '/timeline', label: 'Compliance Roadmap', icon: Calendar, badge: activePersona === 'msme' ? 'MSME Roadmap' : undefined }
         ]
       },
@@ -802,6 +820,30 @@ function ShellInner({ children }: { children: React.ReactNode }) {
                 boxShadow: msg.sender === 'bot' ? '0 1px 4px rgba(0,0,0,0.03)' : 'none'
               }}>
                 <FormattedMarkdown content={msg.text} isUser={msg.sender === 'user'} />
+
+                {/* Voice Assistant Speak Control Button */}
+                {msg.sender === 'bot' && (
+                  <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <button
+                      onClick={() => {
+                        if (panelSpeaking) {
+                          stopAudioPlayback();
+                          setPanelSpeaking(false);
+                        } else {
+                          speakAudioResponse(msg.text, () => setPanelSpeaking(true), () => setPanelSpeaking(false));
+                        }
+                      }}
+                      style={{
+                        background: '#FFF1E8', border: '1px solid #F4C4A5', borderRadius: 4,
+                        padding: '3px 8px', fontSize: 10.5, fontWeight: 700, color: '#E9783F',
+                        cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4
+                      }}
+                    >
+                      {panelSpeaking ? <VolumeX style={{ width: 12, height: 12 }} /> : <Volume2 style={{ width: 12, height: 12 }} />}
+                      <span>{panelSpeaking ? 'Stop Audio' : '🔊 Listen Out Loud'}</span>
+                    </button>
+                  </div>
+                )}
 
                 {/* Source Cards */}
                 {msg.agentResponse?.sources && msg.agentResponse.sources.length > 0 && (
