@@ -11,7 +11,7 @@ export async function queryGemini(prompt: string, modelName: string = 'gemini-1.
   }
 
   try {
-    const targetModel = modelName.includes('2.5') ? 'gemini-1.5-flash' : modelName;
+    const targetModel = modelName.includes('2.5') || modelName.includes('3.') ? 'gemini-1.5-flash' : modelName;
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKey}`;
     
     const response = await fetch(url, {

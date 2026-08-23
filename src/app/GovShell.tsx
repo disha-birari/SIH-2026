@@ -14,6 +14,7 @@ import { getDynamicStandards, processAssistantResearchAgent } from '@/lib/data/b
 import { AssistantAgentResponse } from '@/lib/types';
 import { LanguageProvider, useLanguage } from '@/context/LanguageContext';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
+import ReactMarkdown from 'react-markdown';
 
 function ShellInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -780,7 +781,9 @@ function ShellInner({ children }: { children: React.ReactNode }) {
                 borderRadius: 8, padding: 12, fontSize: 12.5, lineHeight: 1.55, fontWeight: 500,
                 boxShadow: msg.sender === 'bot' ? '0 1px 4px rgba(0,0,0,0.03)' : 'none'
               }}>
-                <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{msg.text}</div>
+                <div className={`prose prose-sm max-w-none text-[12.5px] leading-[1.55] font-medium ${msg.sender === 'user' ? 'prose-invert text-white' : 'text-slate-900'} markdown-content`}>
+                  <ReactMarkdown>{msg.text}</ReactMarkdown>
+                </div>
 
                 {/* Source Cards */}
                 {msg.agentResponse?.sources && msg.agentResponse.sources.length > 0 && (

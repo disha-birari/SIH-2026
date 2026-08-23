@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { UserPersona, AssistantAgentResponse, AiActionCard } from '@/lib/types';
 import { processAssistantResearchAgent } from '@/lib/data/bisDatabase';
+import ReactMarkdown from 'react-markdown';
 
 function AssistantContent() {
   const searchParams = useSearchParams();
@@ -184,7 +185,9 @@ function AssistantContent() {
               border: msg.sender === 'user' ? 'none' : '1px solid #E8E2DC',
               borderRadius: 12, padding: 18, display: 'flex', flexDirection: 'column', gap: 12
             }}>
-              <div style={{ fontSize: 13.5, lineHeight: 1.6, fontWeight: 500, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{msg.text}</div>
+              <div className={`prose prose-sm max-w-none text-[13.5px] leading-relaxed font-medium ${msg.sender === 'user' ? 'prose-invert text-white' : 'text-slate-900'} markdown-content`}>
+                <ReactMarkdown>{msg.text}</ReactMarkdown>
+              </div>
 
               {/* Bot Response Metadata & Source Cards */}
               {msg.sender === 'bot' && msg.agentResponse && (
