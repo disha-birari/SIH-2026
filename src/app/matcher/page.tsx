@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Search, Filter, CheckCircle2, ArrowRight, RefreshCw } from 'lucide-react';
 import { BISStandard } from '@/lib/types';
 
-export default function MatcherPage() {
+function MatcherContent() {
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get('q');
 
@@ -252,5 +252,13 @@ export default function MatcherPage() {
       )}
 
     </div>
+  );
+}
+
+export default function MatcherPage() {
+  return (
+    <Suspense fallback={<div className="p-6 text-center text-sm font-bold text-slate-600 animate-pulse">Loading Product Matcher...</div>}>
+      <MatcherContent />
+    </Suspense>
   );
 }
