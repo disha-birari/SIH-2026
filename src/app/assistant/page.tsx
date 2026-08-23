@@ -7,7 +7,7 @@ import {
   Cpu, Send, Shield, CheckCircle2, AlertTriangle, ExternalLink, 
   ThumbsUp, ThumbsDown, BookOpen, Layers, Sparkles, FileText, RefreshCw,
   Search, GitCompare, Wrench, Building2, CheckSquare, Scale, ShieldAlert,
-  ArrowRight, ArrowUpRight, Zap
+  ArrowRight, ArrowUpRight, Zap, Mic
 } from 'lucide-react';
 import { UserPersona, AssistantAgentResponse, AiActionCard } from '@/lib/types';
 import { processAssistantResearchAgent } from '@/lib/data/bisDatabase';
@@ -22,6 +22,7 @@ function AssistantContent() {
   const [persona, setPersona] = useState<UserPersona>('manufacturer');
   const [researchMode, setResearchMode] = useState<'standard' | 'research' | 'compliance'>('standard');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isListening, setIsListening] = useState(false);
 
   const [messages, setMessages] = useState<Array<{
     sender: 'user' | 'bot';
@@ -44,6 +45,33 @@ function AssistantContent() {
     "Trace the statutory legal rationale for this QCO.",
     "Are there recent Gazette QCO change alerts?"
   ];
+
+  const startVoiceInput = () => {
+    if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'en-IN';
+      recognition.interimResults = false;
+
+      setIsListening(true);
+      recognition.onresult = (event: any) => {
+        const text = event.results[0][0].transcript;
+        setQuery(text);
+        setIsListening(false);
+        handleSearch(text);
+      };
+
+      recognition.onerror = () => setIsListening(false);
+      recognition.onend = () => setIsListening(false);
+      try {
+        recognition.start();
+      } catch (e) {
+        setIsListening(false);
+      }
+    } else {
+      alert('Speech recognition is not supported in this browser.');
+    }
+  };
 
   const handleSearch = async (queryText?: string) => {
     const textToRun = queryText || query;
@@ -272,6 +300,24 @@ function AssistantContent() {
             placeholder="Ask any compliance question or tell AI to open a feature (e.g., 'open comparator', 'find labs')..."
             style={{ flex: 1, background: '#FFFCF8', border: '1px solid #E8E2DC', borderRadius: 8, padding: '12px 16px', fontSize: 13.5, fontWeight: 600, color: '#171717', outline: 'none' }}
           />
+          <button
+            type="button"
+            title="Voice Input"
+            onClick={startVoiceInput}
+            style={{ 
+              background: isListening ? '#FFF1E8' : '#FFFFFF', 
+              border: `1px solid ${isListening ? '#E9783F' : '#F28C52'}`, 
+              borderRadius: 8, 
+              padding: '11px 14px', 
+              color: isListening ? '#E9783F' : '#F28C52', 
+              cursor: 'pointer', 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              justifyContent: 'center' 
+            }}
+          >
+            <Mic style={{ width: 16, height: 16 }} />
+          </button>
           <button
             onClick={() => handleSearch()}
             style={{ background: '#F28C52', color: '#FFFFFF', border: 'none', borderRadius: 8, padding: '12px 22px', fontSize: 13.5, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}
