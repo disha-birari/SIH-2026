@@ -439,23 +439,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
               </select>
             </div>
 
-            {/* Accessibility Font Size */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 2, borderRight: '1px solid #E8E2DC', paddingRight: 8 }}>
-              {(['small', 'normal', 'large'] as const).map((sz, i) => (
-                <button
-                  key={sz}
-                  onClick={() => setFontSize(sz)}
-                  title={`${sz} text size`}
-                  style={{
-                    background: fontSize === sz ? '#F28C52' : 'transparent',
-                    color: fontSize === sz ? '#FFFFFF' : '#686868',
-                    border: `1px solid ${fontSize === sz ? '#E9783F' : '#E8E2DC'}`,
-                    borderRadius: 4, cursor: 'pointer',
-                    padding: '2px 5px', fontSize: 10.5, fontWeight: 700,
-                  }}
-                >{['A-', 'A', 'A+'][i]}</button>
-              ))}
-            </div>
+
 
             {/* Language Selector */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
