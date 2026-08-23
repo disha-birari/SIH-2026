@@ -60,6 +60,32 @@ function ShellInner({ children }: { children: React.ReactNode }) {
     }
   ]);
   const [panelProcessing, setPanelProcessing] = useState(false);
+  const [panelListening, setPanelListening] = useState(false);
+
+  const startPanelVoiceInput = () => {
+    if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'en-IN';
+      recognition.interimResults = false;
+
+      setPanelListening(true);
+      recognition.onresult = (event: any) => {
+        const text = event.results[0][0].transcript;
+        setPanelInputQuery(text);
+        setPanelListening(false);
+        handleSendPanelMessage(text);
+      };
+
+      recognition.onerror = () => setPanelListening(false);
+      recognition.onend = () => setPanelListening(false);
+      try {
+        recognition.start();
+      } catch (e) {
+        setPanelListening(false);
+      }
+    }
+  };
 
   const handleSendPanelMessage = async (customQuery?: string) => {
     const textToRun = customQuery || panelInputQuery;
@@ -291,7 +317,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
       <div id="google_translate_element" style={{ display: 'none' }}></div>
 
       {/* ══════════════ UNIFIED INSTITUTIONAL HEADER BAR ══════════════ */}
-      <header style={{
+      <header suppressHydrationWarning style={{
         background: '#FFFFFF',
         borderBottom: '1px solid #E8E2DC',
         position: 'sticky', top: 0, zIndex: 100,
@@ -476,7 +502,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
       <div style={{ flex: 1, display: 'flex', width: '100%' }}>
         
         {/* LEFT SIDEBAR NAVIGATION */}
-        <aside style={{
+        <aside suppressHydrationWarning style={{
           width: sidebarCollapsed ? 64 : 260,
           background: '#FFFFFF',
           borderRight: '1px solid #E8E2DC',
@@ -595,48 +621,6 @@ function ShellInner({ children }: { children: React.ReactNode }) {
         }}>
           <div style={{ maxWidth: 1440, margin: '0 auto', width: '100%', display: 'flex', flexDirection: 'column', gap: 20 }}>
             
-            {/* Dynamic Active Role Persona Banner */}
-            <div style={{
-              background: persona === 'manufacturer' ? '#FFF1E8' :
-                          persona === 'msme' ? '#EBF4EE' :
-                          persona === 'consumer' ? '#FEF7ED' : '#F0F4FF',
-              border: `1.5px solid ${
-                persona === 'manufacturer' ? '#F4C4A5' :
-                persona === 'msme' ? '#B5D5BF' :
-                persona === 'consumer' ? '#F4D3A5' : '#B8CBEF'
-              }`,
-              borderLeft: `5px solid ${
-                persona === 'manufacturer' ? '#F28C52' :
-                persona === 'msme' ? '#4F7D5A' :
-                persona === 'consumer' ? '#C88732' : '#3B82F6'
-              }`,
-              borderRadius: 10,
-              padding: '10px 16px',
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              boxShadow: '0 1px 4px rgba(0,0,0,0.02)'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-                <span style={{
-                  fontSize: 10.5, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em',
-                  background: '#FFFFFF',
-                  color: persona === 'manufacturer' ? '#E9783F' :
-                         persona === 'msme' ? '#4F7D5A' :
-                         persona === 'consumer' ? '#C88732' : '#2563EB',
-                  borderRadius: 4, padding: '3px 8px', border: '1px solid #E8E2DC'
-                }}>
-                  {persona === 'manufacturer' ? '🏭 MANUFACTURER VIEW ACTIVE' :
-                   persona === 'msme' ? '🏬 MSME ENTERPRISE VIEW ACTIVE' :
-                   persona === 'consumer' ? '🛒 CONSUMER PROTECTION VIEW ACTIVE' : '🚢 IMPORTER & FMCS VIEW ACTIVE'}
-                </span>
-                <span style={{ fontSize: 12.5, fontWeight: 700, color: '#171717' }}>
-                  {persona === 'manufacturer' ? 'Factory Setup, Scheme-I ISI Mark Certification & In-House Testing Laboratory Mapping' :
-                   persona === 'msme' ? 'Concessional Fees (50% Off), Simplified Documentation & MSME Compliance Roadmap' :
-                   persona === 'consumer' ? 'Genuine ISI & Hallmark HUID Verification, Public Hazard Alerts & Consumer Safety' :
-                   'CRS Compulsory Electronics Registration, Customs Clearance & Foreign Manufacturers (FMCS)'}
-                </span>
-              </div>
-            </div>
-
             {children}
           </div>
         </main>
@@ -849,15 +833,33 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           </div>
 
           {/* Input Form */}
-          <div style={{ padding: 12, background: '#FFFFFF', borderTop: '1px solid #E8E2DC', display: 'flex', gap: 8 }}>
+          <div style={{ padding: 12, background: '#FFFFFF', borderTop: '1px solid #E8E2DC', display: 'flex', gap: 8, alignItems: 'center' }}>
             <input
               type="text"
               value={panelInputQuery}
               onChange={(e) => setPanelInputQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSendPanelMessage()}
-              placeholder="Ask anything about BIS or command the app..."
-              style={{ flex: 1, background: '#FFFCF8', border: '1px solid #E8E2DC', borderRadius: 6, padding: '8px 10px', fontSize: 12, fontWeight: 600, outline: 'none' }}
+              placeholder={panelListening ? "Listening... Speak your query..." : "Ask anything about BIS or command the app..."}
+              style={{
+                flex: 1,
+                background: panelListening ? '#FFF1E8' : '#FFFCF8',
+                border: `1px solid ${panelListening ? '#F28C52' : '#E8E2DC'}`,
+                borderRadius: 6, padding: '8px 10px', fontSize: 12, fontWeight: 600, outline: 'none'
+              }}
             />
+            <button
+              onClick={startPanelVoiceInput}
+              title="Speak with Voice Assistant"
+              style={{
+                background: panelListening ? '#E9783F' : '#FFFCF8',
+                color: panelListening ? '#FFFFFF' : '#F28C52',
+                border: '1px solid #F4C4A5', borderRadius: 6,
+                padding: '8px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'all 0.15s'
+              }}
+            >
+              <Mic style={{ width: 15, height: 15 }} />
+            </button>
             <button onClick={() => handleSendPanelMessage()} style={{ background: '#F28C52', color: '#FFFFFF', border: 'none', borderRadius: 6, padding: '8px 14px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
               Send
             </button>
