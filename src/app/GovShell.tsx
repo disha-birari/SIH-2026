@@ -14,7 +14,27 @@ import { getDynamicStandards, processAssistantResearchAgent } from '@/lib/data/b
 import { AssistantAgentResponse } from '@/lib/types';
 import { LanguageProvider, useLanguage } from '@/context/LanguageContext';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
-import ReactMarkdown from 'react-markdown';
+
+function FormattedMarkdown({ content, isUser }: { content: string; isUser: boolean }) {
+  const lines = content.split('\n');
+  return (
+    <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', color: isUser ? '#FFFFFF' : '#171717', fontSize: 12.5, lineHeight: 1.55 }}>
+      {lines.map((line, lIdx) => {
+        const parts = line.split(/(\*\*.*?\*\*)/g);
+        return (
+          <div key={lIdx} style={{ marginBottom: line.trim() === '' ? 4 : 2 }}>
+            {parts.map((part, pIdx) => {
+              if (part.startsWith('**') && part.endsWith('**')) {
+                return <strong key={pIdx} style={{ fontWeight: 800 }}>{part.slice(2, -2)}</strong>;
+              }
+              return part;
+            })}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 function ShellInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -781,9 +801,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
                 borderRadius: 8, padding: 12, fontSize: 12.5, lineHeight: 1.55, fontWeight: 500,
                 boxShadow: msg.sender === 'bot' ? '0 1px 4px rgba(0,0,0,0.03)' : 'none'
               }}>
-                <div className={`prose prose-sm max-w-none text-[12.5px] leading-[1.55] font-medium ${msg.sender === 'user' ? 'prose-invert text-white' : 'text-slate-900'} markdown-content`}>
-                  <ReactMarkdown>{msg.text}</ReactMarkdown>
-                </div>
+                <FormattedMarkdown content={msg.text} isUser={msg.sender === 'user'} />
 
                 {/* Source Cards */}
                 {msg.agentResponse?.sources && msg.agentResponse.sources.length > 0 && (
